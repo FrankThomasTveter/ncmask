@@ -1,0 +1,9 @@
+<polygon volume="inside">
+ <node lat="75" lon="0"/>
+ <node lat="75" lon="5"/>
+ <node lat="75" lon="10"/>
+ <node lat="72.5" lon="10"/>
+ <node lat="72.5" lon="5"/>
+ <node lat="72.5" lon="0"/>
+ <node lat="75" lon="0"/>
+</polygon>

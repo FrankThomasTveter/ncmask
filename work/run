@@ -1,0 +1,15 @@
+export ROOT=xml
+export FILE=ec_ens_efi_20210316T1200Z.nc
+export VARIABLE=total_precipitation_index
+export UTC=12
+export PHENOMENON=regn
+export PNAME=Regn
+export MODEL=ec
+export MNAME=EC
+export METHOD=efi
+export MITER=efi
+export GROUP=0,0.75,0.9
+#cd /lustre/storeA/users/franktt/ecflowdata/work/alarm
+ln -sf /lustre/storeB/project/metproduction/products/ecmwf/nc/ec_ens_efi_20210316T1200Z.nc .
+../src/ncmask/ncmask.bin < ec_efi_fylker.xml
+ 
