@@ -1,0 +1,16 @@
+<polygon volume="inside">
+ <node lat="82.8" lon="-23.3"/>
+ <node lat="83.1" lon="-22.5"/>
+ <node lat="83.2" lon="-17.0"/>
+ <node lat="81.6" lon="-9.5"/>
+ <node lat="81.6" lon="-12.2"/>
+ <node lat="81.74" lon="-12.81"/>
+ <node lat="81.93" lon="-15.0"/>
+ <node lat="81.92" lon="-16.84"/>
+ <node lat="81.84" lon="-17.7"/>
+ <node lat="82.17" lon="-21.13"/>
+ <node lat="82.07" lon="-22.9"/>
+ <node lat="82.27" lon="-23.54"/>
+ <node lat="82.58" lon="-21.64"/>
+ <node lat="82.8" lon="-23.3"/>
+</polygon>
