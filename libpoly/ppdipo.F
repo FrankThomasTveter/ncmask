@@ -1,0 +1,1680 @@
+
+C ---------------------------------------------------------------------
+C   P O L Y G O N   M A N I P U L A T I O N   R O U T I N E S
+C ---------------------------------------------------------------------
+
+
+      SUBROUTINE PPDIPO (XCCP,YCCP,NCCP,XCSP,YCSP,NCSP,
+     +                        RWRK,IWRK,NWRK,URPP,IERR)
+C
+        DIMENSION XCCP(NCCP),YCCP(NCCP)
+        DIMENSION XCSP(NCSP),YCSP(NCSP)
+        DIMENSION RWRK(NWRK),IWRK(NWRK)
+C
+C The subroutine PPDIPO, given X/Y coordinates defining the vertices
+C of a "clip polygon" in (XCCP(I),I=1,NCCP) and (YCCP(I),I=1,NCCP),
+C X/Y coordinates defining the vertices of a "subject polygon" in
+C (XCSP(I),I=1,NCSP) and (YCSP(I),I=1,NCSP), and the real and integer
+C workspaces RWRK and IWRK, each of which is of length NWRK, generates
+C the set of polygons representing pieces of the subject polygon lying
+C outside the clip polygon and delivers each of them to a user-defined
+C polygon-processing routine called URPP.  Errors, in general, result
+C in an immediate RETURN with IERR non-zero; on a normal return, IERR
+C is zero.
+C
+C For most efficient use of memory, IWRK and RWRK should be EQUIVALENCEd
+C to each other.
+C
+C The algorithm used is that described by Bala R. Vatti in the article
+C "A Generic Solution to Polygon Clipping", which was published in the
+C July, 1992, issue of "Communications of the ACM" (Vol. 35, No. 7).
+C
+C The various linked lists used in Vatti's algorithm are implemented as
+C follows:
+C
+C LMT (Local Minimum Table).  Formed initially at the lower end of the
+C workspace.  Released 3-word nodes are put on a garbage list and may
+C be re-used as part of an output polygon.  LMT nodes have the following
+C structure:
+C
+C   0: Y value of a local minimum on one of the two input polygons.
+C      LMT nodes are sorted by increasing value of this element.
+C
+C   1: Index of local minimum (1 to LCCP for clip polygon, LCCP+1 to
+C      LCCP+LCSP for subject polygon).
+C
+C   2: Index of the next node of the LMT.
+C
+C AET (Active Edge Table).  Occupies space at the lower end of the
+C workspace.  Released 10-word nodes are put on a garbage list and may
+C be re-used for new AET nodes.  AET nodes have the following structure:
+C
+C   0: X coordinate at the current scanbeam position.  AET nodes are
+C      sorted by increasing value of this element.
+C
+C   1: X coordinate at the end of the edge segment.  (I added this to
+C      get around a problem which arose because Vatti's formulation did
+C      not result in correct X coordinates at the end of a segment.)
+C
+C   2: Y coordinate at the end of the edge segment.
+C
+C   3: Change in X for a unit increase in Y.
+C
+C   4: Clip/subject edge flag (0 for clip, 1 for subject).
+C
+C   5: Left/right flag (0 for left, 1 for right).
+C
+C   6: Pointer to the next edge in the AET.
+C
+C   7: Pointer to the previous edge in the AET.
+C
+C   8: Pointer to the edge segment which succeeds this one.  This value
+C      is either positive or negative and has absolute value "n".  If
+C      the value is positive, it implies that the indices of the points
+C      at the ends of the succeeding edge are "n" and "n+1"; if the
+C      value is negative, the indices are "n" and "n-1".  The indices
+C      are into the arrays XCCP and YCCP, if element 4 is zero, or XCSP
+C      and YCSP, if element 4 is non-zero.
+C
+C   9: Pointer to output polygon to which the edge is "contributing"
+C      (0 if no such polygon).
+C
+C Output Polygon.  Occupies space at the upper end of the workspace.
+C Released 3-word nodes are put on a garbage list from which they can
+C be re-used for other polygons.  Output-polygon nodes have the
+C following structure:
+C
+C   Principal Node:
+C
+C   0: Pointer to the left-end subsidiary node.
+C
+C   1: Pointer to the right-end subsidiary node.
+C
+C   2: Pointer to the principal node of the next polygon (0 if none).
+C
+C   Subsidiary Node:
+C
+C   0: X coordinate of a point.
+C
+C   1: Y coordinate of a point.
+C
+C   2: Pointer to the next subsidiary node to the "right" along the
+C      polygon.  ("Left" and "right" are defined from the standpoint
+C      of an observer standing on the edge of the polygon and facing
+C      inwards.)
+C
+C SET (Sorted Edge Table).  Occupies space at the lower end of the
+C workspace, following the AET.  All space used is reclaimed.  SET
+C nodes have the following structure:
+C
+C   0: X coordinate of edge's intersection with the top of the scanbeam.
+C      SET nodes are sorted by decreasing value of this element.
+C
+C   1: Pointer to a node in the AET.  Says which edge is represented by
+C      the node.
+C
+C   2: Pointer to the next node in the SET.
+C
+C INT (INtersection Table).  Occupies space at the lower end of the
+C workspace, following the AET.  All space used is reclaimed.  INT
+C nodes have the following structure:
+C
+C   0: X coordinate of point of intersection.
+C
+C   1: Y coordinate of point of intersection.  INT nodes are sorted
+C      by increasing value of this element.
+C
+C   2: Pointer to a node in the AET, identifying one of the two edges
+C      that intersect.
+C
+C   3: Pointer to a later node in the AET, identifying the other edge.
+C
+C   4: Pointer to the next node in the INT.
+C
+C Define RBIG to be a large real number.
+C
+        DATA RBIG / 1.E36 /
+C
+C Zero error flag.
+C
+        IERR=0
+C
+C Decide what the real lengths of the polygons are (depending on whether
+C the first point is repeated at the end or not).
+C
+        LCCP=NCCP
+        IF (XCCP(NCCP).EQ.XCCP(1).AND.YCCP(NCCP).EQ.YCCP(1)) LCCP=NCCP-1
+C
+        LCSP=NCSP
+        IF (XCSP(NCSP).EQ.XCSP(1).AND.YCSP(NCSP).EQ.YCSP(1)) LCSP=NCSP-1
+C
+C Do some simple checks for degenerate cases.
+C
+        IF (LCCP.LT.3) THEN
+           IERR=1               ! DEGENERATE-CLIP-POLYGON
+          RETURN
+        END IF
+C
+        IF (LCSP.LT.3) THEN
+           IERR=2               ! DEGENERATE-SUBJECT-POLYGON
+           RETURN
+        END IF
+C
+C Initialize the garbage lists, onto which released 3-word and 10-word
+C nodes are put for possible re-use.
+C
+        IG03=0
+        IG10=0
+C
+C Initialize pointers to the last-used elements at the beginning and
+C end of the available workspace.  Initially, the whole thing is
+C available:
+C
+        IPWL=0
+        IPWU=NWRK+1
+C
+C Build the "LMT" ("Local Minimum Table").  Initially, it is empty:
+C
+        ILMT=0
+C
+C Search for local minima of the clip polygon.  First, find a starting
+C place where the Y coordinate changes one way or the other.
+C
+        INXT=0
+C
+        DO I=1,LCCP-1
+          IF (YCCP(I).NE.YCCP(I+1)) THEN
+            INXT=I
+            YNXT=YCCP(INXT)
+            GO TO 101
+          END IF
+        END DO
+C
+C If there is no such starting place, take an error exit.
+C
+        IERR=1 ! DEGENERATE-CLIP-POLYGON
+        RETURN
+C
+C Otherwise, go through the entire polygon from the starting position,
+C finding all those places where the Y value increases after having
+C decreased.  Each such place constitutes one of the local minima in
+C the LMT.
+C
+  101   IDIR=0
+C
+        DO I=0,LCCP
+          ILST=INXT
+          YLST=YNXT
+          INXT=INXT+1
+          IF (INXT.GT.LCCP) INXT=INXT-LCCP
+          YNXT=YCCP(INXT)
+          IF (YNXT.LT.YLST) THEN
+            IDIR=-1
+          ELSE IF (YNXT.GT.YLST) THEN
+            IF (IDIR.LT.0) THEN
+              ILMN=IPWL+1
+              IPWL=IPWL+3
+              IF (IPWL.GE.IPWU) THEN
+                 IERR=3         ! WORKSPACE-TOO-SMALL
+                 RETURN
+                
+              END IF
+              RWRK(ILMN)=YLST
+              IWRK(ILMN+1)=ILST
+              ITM1=0
+              ITM2=ILMT
+              DO WHILE(.TRUE.)
+                 IF (ITM2.EQ.0) EXIT 
+                 IF (RWRK(ILMN).LE.RWRK(ITM2)) EXIT 
+                 ITM1=ITM2
+                 ITM2=IWRK(ITM2+2)
+              END DO
+              IF (ITM1.EQ.0) THEN
+                ILMT=ILMN
+              ELSE
+                IWRK(ITM1+2)=ILMN
+              END IF
+              IWRK(ILMN+2)=ITM2
+            END IF
+            IDIR=+1
+          END IF
+        END DO
+C
+C In the same way, search for local minima of the subject polygon.
+C
+        INXT=0
+C
+        DO I=1,LCSP-1
+          IF (YCSP(I).NE.YCSP(I+1)) THEN
+            INXT=I
+            YNXT=YCSP(INXT)
+            GO TO 102
+          END IF
+        END DO
+C
+        IERR=2                  !DEGENERATE-SUBJECT-POLYGON
+        RETURN
+C
+  102   IDIR=0
+C
+        DO I=0,LCSP
+          ILST=INXT
+          YLST=YNXT
+          INXT=INXT+1
+          IF (INXT.GT.LCSP) INXT=INXT-LCSP
+          YNXT=YCSP(INXT)
+          IF (YNXT.LT.YLST) THEN
+            IDIR=-1
+          ELSE IF (YNXT.GT.YLST) THEN
+            IF (IDIR.LT.0) THEN
+              ILMN=IPWL+1
+              IPWL=IPWL+3
+              IF (IPWL.GE.IPWU) THEN
+                 IERR=3         ! WORKSPACE-TOO-SMALL
+                 RETURN
+                
+              END IF
+              RWRK(ILMN)=YLST
+              IWRK(ILMN+1)=LCCP+ILST
+              ITM1=0
+              ITM2=ILMT
+              DO WHILE (.TRUE.)
+                IF (ITM2.EQ.0) EXIT 
+                IF (RWRK(ILMN).LE.RWRK(ITM2)) EXIT 
+                ITM1=ITM2
+                ITM2=IWRK(ITM2+2)
+              END DO
+              IF (ITM1.EQ.0) THEN
+                ILMT=ILMN
+              ELSE
+                IWRK(ITM1+2)=ILMN
+              END IF
+              IWRK(ILMN+2)=ITM2
+            END IF
+            IDIR=+1
+          END IF
+        END DO
+C
+C Initialize the output polygon list pointer to indicate that no
+C polygons have been generated yet:
+C
+        IPPL=0
+C
+C Initialize the "AET" ("Active Edge Table") to be empty:
+C
+        IAET=0
+C
+C Initialize the variable that normally keeps track of the Y coordinate
+C at the top of the current "scanbeam"; the value will be used as the Y
+C coordinate at the bottom of the first one.
+C
+        YTOS=RWRK(ILMT)
+C
+C Loop through the "scanbeams".
+C
+        DO WHILE (.TRUE.)
+C
+C YBOS is the Y coordinate of the bottom of the new scanbeam.
+C
+          YBOS=YTOS
+C
+C Loop through those local minima in the LMT having Y coordinate
+C YBOS; for each, add to the AET the pair of edges that start at
+C that local minimum.
+C
+          DO WHILE (.TRUE.)
+C
+C Quit if the end of the LMT has been reached.
+C
+            IF (ILMT.EQ.0) EXIT 
+C
+C Quit if the Y coordinate of the next local minimum is too large.
+C
+            IF (RWRK(ILMT).GT.YBOS) EXIT 
+C
+C Retrieve in IMIN the index of the coordinates of the local minimum.
+C
+            IMIN=IWRK(ILMT+1)
+C
+C Set ICOS to indicate whether the local minimum comes from the clip
+C polygon or the subject polygon.  XMIN and YMIN are the X and Y
+C coordinates of the local minimum.  ILST indexes the coordinates of
+C the last point along the polygon; the coordinates are XLST and YLST.
+C Similarly, INXT indexes the coordinates of the next point along
+C the polygon; the coordinates are XNXT and YNXT.
+C
+            IF (IMIN.LE.LCCP) THEN
+              ICOS=0
+              XMIN=XCCP(IMIN)
+              YMIN=YCCP(IMIN)
+              ILST=IMIN-1
+              IF (ILST.LT.1) ILST=ILST+LCCP
+              XLST=XCCP(ILST)
+              YLST=YCCP(ILST)
+              INXT=IMIN+1
+              IF (INXT.GT.LCCP) INXT=INXT-LCCP
+              XNXT=XCCP(INXT)
+              YNXT=YCCP(INXT)
+            ELSE
+              ICOS=1
+              IMIN=IMIN-LCCP
+              XMIN=XCSP(IMIN)
+              YMIN=YCSP(IMIN)
+              ILST=IMIN-1
+              IF (ILST.LT.1) ILST=ILST+LCSP
+              XLST=XCSP(ILST)
+              YLST=YCSP(ILST)
+              INXT=IMIN+1
+              IF (INXT.GT.LCSP) INXT=INXT-LCSP
+              XNXT=XCSP(INXT)
+              YNXT=YCSP(INXT)
+            END IF
+C
+C Now we must scan the AET to determine where to put the new edges.
+C After executing the loop below, ITM1 will point to the node after
+C which they will be inserted (zero if at beginning) and ITM2 will
+C point to the node before which they will be inserted (zero if at
+C end).  The variable IOCP will be updated to indicate whether the
+C local minimum is inside (1) or outside (0) the clip polygon.
+C Similarly, IOSP will be updated to indicate whether the local
+C minimum is inside (1) or outside (0) the subject polygon.
+C
+            ITM1=0
+            ITM2=IAET
+C
+            IOCP=0
+            IOSP=0
+C
+            DO WHILE (.TRUE.)
+C
+C if the end of the AET has been reached. Exit 
+C
+              IF (ITM2.EQ.0) EXIT 
+C
+C if the new local minimum fits between elements ITM1 and ITM2 of Exit 
+C the AET.
+C
+              IF (XMIN.LE.RWRK(ITM2)) EXIT 
+C
+C Advance to the next position in the AET.
+C
+              ITM1=ITM2
+              ITM2=IWRK(ITM2+6)
+C
+C Update the flags that say where we are relative to the clip and
+C subject polygons.
+C
+              IF (IWRK(ITM1+4).EQ.0) THEN
+                IOCP=1-IOCP
+              ELSE
+                IOSP=1-IOSP
+              END IF
+C
+C End of loop through the AET.
+C
+            END DO
+C
+C Create two new nodes in the AET.  Either re-use 10-word nodes from the
+C garbage list or create new ones.
+C
+            IF (IG10.NE.0) THEN
+              IPNL=IG10
+              IG10=IWRK(IG10)
+            ELSE
+              IPNL=IPWL+1
+              IPWL=IPWL+10
+              IF (IPWL.GE.IPWU) THEN
+                 IERR=3         ! WORKSPACE-TOO-SMALL
+                 RETURN
+                
+              END IF
+            END IF
+C
+            IF (IG10.NE.0) THEN
+              IPNN=IG10
+              IG10=IWRK(IG10)
+            ELSE
+              IPNN=IPWL+1
+              IPWL=IPWL+10
+              IF (IPWL.GE.IPWU) THEN
+                 IERR=3         ! WORKSPACE-TOO-SMALL
+                 RETURN
+                
+              END IF
+            END IF
+C
+C Fill in the information about the two new edges:
+C
+            RWRK(IPNL)=XMIN
+            RWRK(IPNN)=XMIN
+C
+            RWRK(IPNL+1)=XLST
+            RWRK(IPNN+1)=XNXT
+C
+            RWRK(IPNL+2)=YLST
+            RWRK(IPNN+2)=YNXT
+C
+            IF (YLST.NE.YMIN) THEN
+              RWRK(IPNL+3)=(XLST-XMIN)/(YLST-YMIN)
+            ELSE
+              RWRK(IPNL+3)=SIGN(RBIG,XLST-XMIN)
+            END IF
+C
+            IF (YNXT.NE.YMIN) THEN
+              RWRK(IPNN+3)=(XNXT-XMIN)/(YNXT-YMIN)
+            ELSE
+              RWRK(IPNN+3)=SIGN(RBIG,XNXT-XMIN)
+            END IF
+C
+            IWRK(IPNL+4)=ICOS
+            IWRK(IPNN+4)=ICOS
+C
+            IF (ICOS.EQ.0) THEN
+              IOPO=IOCP
+            ELSE
+              IOPO=IOSP
+            END IF
+C
+            IF (RWRK(IPNL+3).LT.RWRK(IPNN+3)) THEN
+C
+              IPE1=IPNL
+              IPE2=IPNN
+C
+            ELSE
+C
+              IPE1=IPNN
+              IPE2=IPNL
+C
+            END IF
+C
+            IWRK(IPE1+5)=IOPO
+            IWRK(IPE2+5)=1-IOPO
+C
+            IF (ITM1.EQ.0) THEN
+              IAET=IPE1
+            ELSE
+              IWRK(ITM1+6)=IPE1
+            END IF
+C
+            IWRK(IPE1+6)=IPE2
+            IWRK(IPE2+6)=ITM2
+            IF (ITM2.NE.0) IWRK(ITM2+7)=IPE2
+            IWRK(IPE2+7)=IPE1
+            IWRK(IPE1+7)=ITM1
+C
+            IWRK(IPNL+8)=-ILST
+            IWRK(IPNN+8)=+INXT
+C
+C If the edges are "contributing", create an output polygon for them
+C to "contribute" to and put the initial point in it; otherwise, zero
+C the output-polygon pointers.
+C
+            IF ((IOCP.EQ.0.AND.IOSP.NE.0).OR.
+     +          (IOCP.NE.0.AND.IOSP.NE.0.AND.ICOS.EQ.0).OR.
+     +          (IOCP.EQ.0.AND.IOSP.EQ.0.AND.ICOS.NE.0)) THEN
+C
+              IF (IG03.NE.0) THEN
+                IPSN=IG03
+                IG03=IWRK(IG03)
+              ELSE
+                IPWU=IPWU-3
+                IF (IPWU.LE.IPWL) THEN
+                   IERR=3       ! WORKSPACE-TOO-SMALL
+                   RETURN
+                  
+                END IF
+                IPSN=IPWU
+              END IF
+C
+              RWRK(IPSN  )=XMIN
+              RWRK(IPSN+1)=YMIN
+              IWRK(IPSN+2)=0
+C
+              IF (IG03.NE.0) THEN
+                IPPN=IG03
+                IG03=IWRK(IG03)
+              ELSE
+                IPWU=IPWU-3
+                IF (IPWU.LE.IPWL) THEN
+                   IERR=3       ! WORKSPACE-TOO-SMALL
+                   RETURN
+                  
+                END IF
+                IPPN=IPWU
+              END IF
+C
+              IWRK(IPPN  )=IPSN
+              IWRK(IPPN+1)=IPSN
+              IWRK(IPPN+2)=IPPL
+C
+              IPPL=IPPN
+              IWRK(IPNL+9)=IPPN
+              IWRK(IPNN+9)=IPPN
+C
+            ELSE
+C
+              IWRK(IPNL+9)=0
+              IWRK(IPNN+9)=0
+C
+            END IF
+C
+C Put the current LMT node on the appropriate garbage list for re-use.
+C
+            IWRK(ILMT)=IG03
+            IG03=ILMT
+C
+C Advance to the next element of the LMT.
+C
+            ILMT=IWRK(ILMT+2)
+C
+C End of the loop through the LMT.
+C
+          END DO
+C
+C At this point, if the AET is empty, the scanbeam loop is exited.
+C
+  103     IF (IAET.EQ.0) EXIT 
+C
+C Scan the AET to compute the value of the Y coordinate at the top of
+C the scanbeam (YTOS) and to look for horizontal edges in the list.
+C
+          ITMP=IAET
+C
+          YTOS=RWRK(ITMP+2)
+C
+          IF (ILMT.NE.0) YTOS=MIN(YTOS,RWRK(ILMT))
+C
+          DO WHILE (.TRUE.)
+C
+C Check for a horizontal section.
+C
+            IF (YTOS.EQ.YBOS) THEN
+C
+C Step through points in the user's arrays until the end of the
+C horizontal section is reached, updating the X coordinate and the
+C index of the successor edge as we go.
+C
+              INNP=ABS(IWRK(ITMP+8))
+C
+              DO WHILE (.TRUE.)
+C
+                IF (IWRK(ITMP+4).EQ.0) THEN
+                  IF (INNP.LT.1) THEN
+                    INNP=INNP+LCCP
+                  ELSE IF (INNP.GT.LCCP) THEN
+                    INNP=INNP-LCCP
+                  END IF
+                  IF (YCCP(INNP).NE.YBOS) EXIT 
+                  RWRK(ITMP)=XCCP(INNP)
+                ELSE
+                  IF (INNP.LT.1) THEN
+                    INNP=INNP+LCSP
+                  ELSE IF (INNP.GT.LCSP) THEN
+                    INNP=INNP-LCSP
+                  END IF
+                  IF (YCSP(INNP).NE.YBOS) EXIT 
+                  RWRK(ITMP)=XCSP(INNP)
+                END IF
+C
+                RWRK(ITMP+1)=RWRK(ITMP)
+C
+                IWRK(ITMP+8)=SIGN(INNP,IWRK(ITMP+8))
+                INNP=INNP+SIGN(1,IWRK(ITMP+8))
+C
+              END DO
+C
+C Compute a quantity that will be used to recognize the successor of
+C the horizontal edge.
+C
+              INNL=ABS(IWRK(ITMP+8))-SIGN(1,IWRK(ITMP+8))
+              IF (IWRK(ITMP+4).EQ.0) THEN
+                IF (INNL.LT.1) THEN
+                  INNL=INNL+LCCP
+                ELSE IF (INNL.GT.LCCP) THEN
+                  INNL=INNL-LCCP
+                END IF
+              ELSE
+                IF (INNL.LT.1) THEN
+                  INNL=INNL+LCSP
+                ELSE IF (INNL.GT.LCSP) THEN
+                  INNL=INNL-LCSP
+                END IF
+              END IF
+              INNL=-SIGN(INNL,IWRK(ITMP+8))
+C
+C Zero the pointer to the list of intersection points.
+C
+              IINT=0
+C
+C Save the current value of the pointer to the last word currently used
+C in the lower end of the workspace, so that the space occupied by the
+C list of intersection points can easily be reclaimed.
+C
+              ISWL=IPWL
+C
+C Initialize pointers used below.  The horizontal edge is considered
+C to intersect edges that it actually passes over.  If there are edges
+C in the AET with X coordinates equal to the X coordinate of the end of
+C the horizontal edge, it only intersects them if that is necessary in
+C order to make it and its successor be next to each other in the AET.
+C
+              IINN=-1
+              IINQ=0
+C
+C Generate the list of intersection points, either to the left ...
+C
+              IF (IWRK(ITMP+7).NE.0) THEN
+C
+                IDUM=IWRK(ITMP+7)
+C
+                DO WHILE (.TRUE.)
+C
+                  IF (RWRK(IDUM).LT.RWRK(ITMP)) EXIT 
+C
+                  IF (IWRK(IDUM+4).EQ.IWRK(ITMP+4).AND.
+     +                IWRK(IDUM+8).EQ.INNL) THEN
+                    IINQ=IINN
+                    EXIT
+                  END IF
+C
+                  IF (IINT.EQ.0) THEN
+                    IINT=IPWL+1
+                  ELSE
+                    IWRK(IINN+4)=IPWL+1
+                  END IF
+C
+                  IINN=IPWL+1
+                  IPWL=IPWL+5
+C
+                  IF (IPWL.GE.IPWU) THEN
+                     IERR=3     ! WORKSPACE-TOO-SMALL
+                     RETURN
+                    
+                  END IF
+C
+                  RWRK(IINN)=RWRK(IDUM)
+                  RWRK(IINN+1)=YBOS
+                  IWRK(IINN+2)=IDUM
+                  IWRK(IINN+3)=ITMP
+                  IWRK(IINN+4)=0
+C
+                  IF (RWRK(IDUM).GT.RWRK(ITMP)) IINQ=IINN
+C
+                  IDUM=IWRK(IDUM+7)
+C
+                  IF (IDUM.EQ.0) EXIT 
+C
+                END DO
+C
+              END IF
+C
+C ... or to the right.
+C
+              IF (IINQ.EQ.0) THEN
+C
+                IINT=0
+                IPWL=ISWL
+                IINN=-1
+C
+                IF (IWRK(ITMP+6).NE.0) THEN
+C
+                  IDUM=IWRK(ITMP+6)
+C
+                  DO WHILE (.TRUE.)
+C
+                    IF (RWRK(IDUM).GT.RWRK(ITMP)) EXIT 
+C
+                    IF (IWRK(IDUM+4).EQ.IWRK(ITMP+4).AND.
+     +                  IWRK(IDUM+8).EQ.INNL) THEN
+                      IINQ=IINN
+                      EXIT
+                    END IF
+C
+                    IF (IINT.EQ.0) THEN
+                      IINT=IPWL+1
+                    ELSE
+                      IWRK(IINN+4)=IPWL+1
+                    END IF
+C
+                    IINN=IPWL+1
+                    IPWL=IPWL+5
+C
+                    IF (IPWL.GE.IPWU) THEN
+                       IERR=3   ! WORKSPACE-TOO-SMALL
+                       RETURN
+                      
+                    END IF
+C
+                    RWRK(IINN)=RWRK(IDUM)
+                    RWRK(IINN+1)=YBOS
+                    IWRK(IINN+2)=ITMP
+                    IWRK(IINN+3)=IDUM
+                    IWRK(IINN+4)=0
+C
+                    IF (RWRK(IDUM).LT.RWRK(ITMP)) IINQ=IINN
+C
+                    IDUM=IWRK(IDUM+6)
+C
+                    IF (IDUM.EQ.0) EXIT 
+C
+                  END DO
+C
+                END IF
+C
+              END IF
+C
+C Clear entries at the end of the intersection list that don't need to
+C be considered to be intersections.  (This may clear the whole list.)
+C
+              IF (IINQ.EQ.0) THEN
+                IINT=0
+                IPWL=ISWL
+              ELSE IF (IINQ.GT.0) THEN
+                IWRK(IINQ+4)=0
+              END IF
+C
+C If any intersection points were found, process them and then reclaim
+C the space used for the list.
+C
+              IF (IINT.NE.0) THEN
+              call PROCESS_INTERSECTION_LIST(IERR)
+              if(ierr.ne.0) return
+              IPWL=ISWL
+              END IF
+C
+C The horizontal edge is terminating at this point, so handle that.
+C
+              call PROCESS_TERMINATING_EDGE(IERR)
+              if(ierr.ne.0) return
+C     
+C Go back to see if the AET is empty now and, if not, to rescan it for
+C more horizontal segments.
+C
+              GO TO 103
+C
+            END IF
+C
+C Move to the next node in the AET.
+C
+            ITMP=IWRK(ITMP+6)
+C
+C Quit if there are none.
+C
+            IF (ITMP.EQ.0) EXIT 
+C
+C Update the variable that says where the top of the scanbeam is.
+C
+            YTOS=MIN(YTOS,RWRK(ITMP+2))
+C
+          END DO
+C
+C Create a table of all intersections of edges in the AET, sorted in
+C order of increasing Y coordinate.  To do this, we also create a table
+C of the current edges in the AET, sorted in the opposite order in which
+C they intersect the top of the scanbeam.  Initially, the intersection
+C table is empty:
+C
+          IINT=0
+C
+C The intersection table and the sorted edge table are formed in the
+C lower part of the workspace array.  The value of the pointer to the
+C last word currently used in that part of the workspace is saved so
+C that, when we are done using the INT and the SET, the space used for
+C them can be reclaimed by just restoring the value of this pointer:
+C
+          ISWL=IPWL
+C
+C Initialize the "Sorted Edge Table" to contain just the first edge
+C from the AET.
+C
+          ISET=IPWL+1
+C
+          IPWL=IPWL+3
+C
+          IF (IPWL.GE.IPWU) THEN
+             IERR=3             ! WORKSPACE-TOO-SMALL
+             RETURN
+            
+          END IF
+C
+          RWRK(ISET)=RWRK(IAET+1)+(YTOS-RWRK(IAET+2))*RWRK(IAET+3)
+          IWRK(ISET+1)=IAET
+          IWRK(ISET+2)=0
+C
+C Examine each of the remaining edges in the AET, one at a time,
+C looking for intersections with edges that have already gone into
+C the SET; for each one found, generate an entry in the INT.  Special
+C care is taken to ensure that edges which are each other's successors
+C end up adjacent to each other in the AET.
+C
+          ITMP=IWRK(IAET+6)
+C
+          DO WHILE (.TRUE.)
+C
+            IF (ITMP.EQ.0) EXIT 
+C
+            XTMP=RWRK(ITMP+1)+(YTOS-RWRK(ITMP+2))*RWRK(ITMP+3)
+C
+            IST1=0
+            IST2=ISET
+C
+            DO WHILE (.TRUE.)
+C
+              IF (IST2.EQ.0) EXIT 
+              IF (XTMP.GT.RWRK(IST2)) EXIT 
+C
+              IF (XTMP.EQ.RWRK(IST2)) THEN
+C
+                IST3=IWRK(IST2+2)
+                IST4=0
+C
+                DO WHILE (.TRUE.)
+C
+                  IF (IST3.EQ.0) EXIT 
+                  IF (XTMP.NE.RWRK(IST3)) EXIT 
+C
+                  IF (IWRK(IWRK(IST3+1)+4).EQ. IWRK(ITMP+4).AND.
+     +                IWRK(IWRK(IST3+1)+8).EQ.-IWRK(ITMP+8)     ) THEN
+                    IST4=1
+                    EXIT
+                  END IF
+C
+                  IST3=IWRK(IST3+2)
+C
+                END DO
+C
+                IF (IST4.EQ.0) EXIT 
+C
+                XINT=XTMP
+                YINT=YTOS
+C
+              ELSE
+C
+                 IF (ABS(RWRK(ITMP+3)-RWRK(IWRK(IST2+1)+3))
+     +                .GT.1.0E-6) THEN
+                  YINT=YBOS-(RWRK(ITMP  )-RWRK(IWRK(IST2+1)  ))/
+     +                      (RWRK(ITMP+3)-RWRK(IWRK(IST2+1)+3))
+                ELSE
+                  YINT=.5*(YBOS+YTOS)
+                END IF
+C
+                IF (ABS(RWRK(ITMP+3)).LT.ABS(RWRK(IWRK(IST2+1)+3))) THEN
+                  XINT=RWRK(ITMP+1)+(YINT-RWRK(ITMP+2))*RWRK(ITMP+3)
+                ELSE
+                  XINT=RWRK(IWRK(IST2+1)+1)+(YINT-RWRK(IWRK(IST2+1)+2))*
+     +                 RWRK(IWRK(IST2+1)+3)
+                END IF
+C
+              END IF
+C
+              IINN=IPWL+1
+              IPWL=IPWL+5
+C
+              IF (IPWL.GE.IPWU) THEN
+                 IERR=3         ! WORKSPACE-TOO-SMALL
+                 RETURN
+                
+              END IF
+C
+              RWRK(IINN)=XINT
+              RWRK(IINN+1)=YINT
+              IWRK(IINN+2)=IWRK(IST2+1)
+              IWRK(IINN+3)=ITMP
+C
+              IIN1=0
+              IIN2=IINT
+C
+              DO WHILE (.TRUE.)
+                IF (IIN2.EQ.0) EXIT 
+                IF (RWRK(IINN+1).LE.RWRK(IIN2+1)) EXIT 
+                IIN1=IIN2
+                IIN2=IWRK(IIN2+4)
+              END DO
+C
+              IF (IIN1.EQ.0) THEN
+                IINT=IINN
+              ELSE
+                IWRK(IIN1+4)=IINN
+              END IF
+C
+              IWRK(IINN+4)=IIN2
+C
+              IST1=IST2
+              IST2=IWRK(IST2+2)
+C
+            END DO
+C
+            ISTN=IPWL+1
+            IPWL=IPWL+3
+C
+            IF (IPWL.GE.IPWU) THEN
+               IERR=3           ! WORKSPACE-TOO-SMALL
+               RETURN
+              
+            END IF
+C
+            IF (IST1.EQ.0) THEN
+              ISET=ISTN
+            ELSE
+              IWRK(IST1+2)=ISTN
+            END IF
+C
+            RWRK(ISTN)=XTMP
+            IWRK(ISTN+1)=ITMP
+            IWRK(ISTN+2)=IST2
+C
+            ITMP=IWRK(ITMP+6)
+C
+          END DO
+C
+C If intersections have been found, process them.
+C
+          IF (IINT.NE.0) THEN
+            call PROCESS_INTERSECTION_LIST(IERR)
+            if(ierr.ne.0) return
+         END IF
+C
+C Discard the intersection table and the sorted edge table.
+C
+          IPWL=ISWL
+C
+C Loop through all the edges in the AET, updating the X coordinates and
+C further processing those that terminate at the top of the scanbeam.
+C
+          ITMP=IAET
+C
+          DO WHILE (.TRUE.)
+C
+C if all the edges have been done. Exit 
+C
+            IF (ITMP.EQ.0) EXIT 
+C
+C Update the X coordinate to its position at the top of the scanbeam.
+C
+            RWRK(ITMP)=RWRK(ITMP+1)+(YTOS-RWRK(ITMP+2))*RWRK(ITMP+3)
+C
+C If the edge terminates at the top of this scanbeam, process it.
+C
+            IF (RWRK(ITMP+2).EQ.YTOS) THEN
+              call PROCESS_TERMINATING_EDGE(IERR)
+              if(ierr.ne.0) return
+           END IF
+C
+C Advance to the next edge in the AET.
+C
+            ITMP=IWRK(ITMP+6)
+C
+C End of loop on edges in the AET.
+C
+          END DO
+C
+C End of scanbeam loop.
+C
+        END DO
+C
+C Dump out all the polygons that have been formed.
+C
+C THE FOLLOWING CODE HAS BEEN REPLACED BY CODE THAT CULLS OUT DUPLICATE
+C ADJACENT POINTS.  SINCE THE REPLACEMENT CODE IS SLOWER, IT WOULD BE
+C ADVANTAGEOUS TO FIGURE OUT (ABOVE) HOW TO PREVENT THE DUPLICATES FROM
+C SNEAKING IN.  ONCE THAT HAS BEEN DONE, THE FOLLOWING CODE CAN BE PUT
+C BACK IN:
+C
+C       MXYC=(IPWU-1-IPWL)/2
+C       IPXC=IPWL
+C       IPYC=IPWL+MXYC
+C       WHILE (IPPL.NE.0)
+C         NXYC=0
+C         ITMP=IWRK(IPPL)
+C         WHILE (ITMP.NE.0)
+C           NXYC=NXYC+1
+C           IF (NXYC.GE.MXYC) THEN
+C        IERR=3                  ! WORKSPACE-TOO-SMALL
+C        RETURN
+C             
+C           END IF
+C           RWRK(IPXC+NXYC)=RWRK(ITMP)
+C           RWRK(IPYC+NXYC)=RWRK(ITMP+1)
+C           ITMP=IWRK(ITMP+2)
+C         END WHILE
+C         NXYC=NXYC+1
+C         RWRK(IPXC+NXYC)=RWRK(IWRK(IPPL))
+C         RWRK(IPYC+NXYC)=RWRK(IWRK(IPPL)+1)
+C         CALL URPP (RWRK(IPXC+1),RWRK(IPYC+1),NXYC)
+C         IPPL=IWRK(IPPL+2)
+C       END WHILE
+C
+        MXYC=(IPWU-1-IPWL)/2
+        IF (MXYC.LT.1) THEN
+           IERR=3               ! WORKSPACE-TOO-SMALL
+           RETURN
+          
+        END IF
+        IPXC=IPWL
+        IPYC=IPWL+MXYC
+        DO WHILE (IPPL.NE.0)
+          NXYC=1
+          ITMP=IWRK(IPPL)
+          RWRK(IPXC+1)=RWRK(ITMP  )
+          RWRK(IPYC+1)=RWRK(ITMP+1)
+          ITMP=IWRK(ITMP+2)
+          DO WHILE (ITMP.NE.0)
+            IF (RWRK(ITMP  ).NE.RWRK(IPXC+NXYC).OR.
+     +          RWRK(ITMP+1).NE.RWRK(IPYC+NXYC)) THEN
+              NXYC=NXYC+1
+              IF (NXYC.GE.MXYC) THEN
+                 IERR=3         ! WORKSPACE-TOO-SMALL
+                 RETURN
+                
+              END IF
+              RWRK(IPXC+NXYC)=RWRK(ITMP)
+              RWRK(IPYC+NXYC)=RWRK(ITMP+1)
+            END IF
+            ITMP=IWRK(ITMP+2)
+          END DO
+          IF (RWRK(IPXC+NXYC).NE.RWRK(IPXC+1).OR.
+     +        RWRK(IPYC+NXYC).NE.RWRK(IPYC+1)) THEN
+            NXYC=NXYC+1
+            RWRK(IPXC+NXYC)=RWRK(IPXC+1)
+            RWRK(IPYC+NXYC)=RWRK(IPYC+1)
+          END IF
+          IF (NXYC.GE.4) CALL URPP (RWRK(IPXC+1),RWRK(IPYC+1),NXYC)
+          IPPL=IWRK(IPPL+2)
+       END DO
+C
+C Normal exit.
+C
+        RETURN
+        contains
+C
+C The following internal procedure processes the list of intersection
+C points that IINT points to.  On entry, it may be assumed that IINT
+C has been verified to be non-zero.
+C
+        subroutine PROCESS_INTERSECTION_LIST(IERR)
+        if(ierr.ne.0) return
+C     
+C Loop through all the points of intersection.
+C
+          DO WHILE (.TRUE.)
+C
+C Extract the coordinates of the point of intersection and the indices
+C of the two AET nodes describing the edges that intersected.
+C
+  201       CONTINUE
+C
+            XINT=RWRK(IINT)
+            YINT=RWRK(IINT+1)
+C
+            IPE1=IWRK(IINT+2)
+            IPE2=IWRK(IINT+3)
+C
+C If the two edges are not adjacent in the AET, there's a problem.  We
+C look for the next intersection of adjacent edges and move it to the
+C beginning of the list.
+C
+            IF (IWRK(IPE1+6).NE.IPE2) THEN
+C
+              IIN1=IINT
+              IIN2=IWRK(IINT+4)
+C
+              DO WHILE (.TRUE.)
+C
+                IF (IIN2.EQ.0) THEN
+                  IERR=1 ! DEGENERATE-CLIP-POLYGON
+                  IERR=3+IERR   ! ALGORITHM FAILURE
+                  RETURN
+                END IF
+C
+                IF (IWRK(IWRK(IIN2+2)+6).EQ.IWRK(IIN2+3)) EXIT 
+C
+                IIN1=IIN2
+                IIN2=IWRK(IIN2+4)
+C
+              END DO
+C
+              IWRK(IIN1+4)=IWRK(IIN2+4)
+              IWRK(IIN2+4)=IINT
+              IINT=IIN2
+C
+              GO TO 201
+C
+            END IF
+C
+C Check whether or not both edges are from the same input polygon.
+C
+            IF (IWRK(IPE1+4).EQ.IWRK(IPE2+4)) THEN
+C
+C Both edges are from the clip polygon or both are from the subject
+C polygon.  If edge 1 is contributing to an output polygon, then edge
+C 2 should be also, in which case we add the point of intersection to
+C the left side of one polygon and to the right side of the other
+C polygon.  In either case, we must swap the left/right flags in the
+C two edges.
+C
+              IF (IWRK(IPE1+9).NE.0.OR.IWRK(IPE2+9).NE.0) THEN
+C
+                IF (IWRK(IPE1+9).EQ.0.OR.IWRK(IPE2+9).EQ.0) THEN
+                  IERR=2
+                  IERR=3+IERR   ! ALGORITHM FAILURE
+                  RETURN
+                END IF
+C
+                IF (IG03.NE.0) THEN
+                  IPSN=IG03
+                  IG03=IWRK(IG03)
+                ELSE
+                  IPWU=IPWU-3
+                  IF (IPWU.LE.IPWL) THEN
+                     IERR=3     ! WORKSPACE-TOO-SMALL
+                     RETURN
+                    
+                  END IF
+                  IPSN=IPWU
+                END IF
+C
+                RWRK(IPSN  )=XINT
+                RWRK(IPSN+1)=YINT
+C
+                IF (IWRK(IPE1+5).NE.IWRK(IPE1+4)) THEN
+                  IWRK(IPSN+2)=IWRK(IWRK(IPE1+9))
+                  IWRK(IWRK(IPE1+9))=IPSN
+                ELSE
+                  IWRK(IPSN+2)=0
+                  IWRK(IWRK(IWRK(IPE1+9)+1)+2)=IPSN
+                  IWRK(IWRK(IPE1+9)+1)=IPSN
+                END IF
+C
+                IF (IG03.NE.0) THEN
+                  IPSN=IG03
+                  IG03=IWRK(IG03)
+                ELSE
+                  IPWU=IPWU-3
+                  IF (IPWU.LE.IPWL) THEN
+                     IERR=3     ! WORKSPACE-TOO-SMALL
+                     RETURN
+                    
+                  END IF
+                  IPSN=IPWU
+                END IF
+C
+                RWRK(IPSN  )=XINT
+                RWRK(IPSN+1)=YINT
+C
+                IF (IWRK(IPE2+5).NE.IWRK(IPE2+4)) THEN
+                  IWRK(IPSN+2)=IWRK(IWRK(IPE2+9))
+                  IWRK(IWRK(IPE2+9))=IPSN
+                ELSE
+                  IWRK(IPSN+2)=0
+                  IWRK(IWRK(IWRK(IPE2+9)+1)+2)=IPSN
+                  IWRK(IWRK(IPE2+9)+1)=IPSN
+                END IF
+C
+              END IF
+C
+              IDUM=IWRK(IPE1+5)
+              IWRK(IPE1+5)=IWRK(IPE2+5)
+              IWRK(IPE2+5)=IDUM
+C
+C One edge is from the clip polygon and the other is from the
+C subject polygon.  Check for a local minimum.
+C
+            ELSE IF ((IWRK(IPE1+4).EQ.1.AND.IWRK(IPE1+5).EQ.1.AND.
+     +                IWRK(IPE2+4).EQ.0.AND.IWRK(IPE2+5).EQ.1).OR.
+     +               (IWRK(IPE1+4).EQ.0.AND.IWRK(IPE1+5).EQ.0.AND.
+     +                IWRK(IPE2+4).EQ.1.AND.IWRK(IPE2+5).EQ.0)) THEN
+C
+C Process a local minimum.
+C
+              IF (IWRK(IPE1+9).NE.0.OR.IWRK(IPE2+9).NE.0) THEN
+                IERR=3
+                IERR=3+IERR     ! ALGORITHM FAILURE
+                RETURN
+              END IF
+C
+              IF (IG03.NE.0) THEN
+                IPSN=IG03
+                IG03=IWRK(IG03)
+              ELSE
+                IPWU=IPWU-3
+                IF (IPWU.LE.IPWL) THEN
+                   IERR=3       ! WORKSPACE-TOO-SMALL
+                   RETURN
+                  
+                END IF
+                IPSN=IPWU
+              END IF
+C
+              RWRK(IPSN  )=XINT
+              RWRK(IPSN+1)=YINT
+              IWRK(IPSN+2)=0
+C
+              IF (IG03.NE.0) THEN
+                IPPN=IG03
+                IG03=IWRK(IG03)
+              ELSE
+                IPWU=IPWU-3
+                IF (IPWU.LE.IPWL) THEN
+                   IERR=3       ! WORKSPACE-TOO-SMALL
+                   RETURN
+                  
+                END IF
+                IPPN=IPWU
+              END IF
+C
+              IWRK(IPPN  )=IPSN
+              IWRK(IPPN+1)=IPSN
+              IWRK(IPPN+2)=IPPL
+              IPPL=IPPN
+C
+              IWRK(IPE1+9)=IPPN
+              IWRK(IPE2+9)=IPPN
+C
+C Check for a left intersection.
+C
+            ELSE IF ((IWRK(IPE1+4).EQ.0.AND.IWRK(IPE1+5).EQ.1.AND.
+     +                IWRK(IPE2+4).EQ.1.AND.IWRK(IPE2+5).EQ.0).OR.
+     +               (IWRK(IPE1+4).EQ.1.AND.IWRK(IPE1+5).EQ.0.AND.
+     +                IWRK(IPE2+4).EQ.0.AND.IWRK(IPE2+5).EQ.1)) THEN
+C
+C Process a left intersection.
+C
+              IF (IWRK(IPE2+9).EQ.0) THEN
+                IERR=4
+                IERR=3+IERR     ! ALGORITHM FAILURE
+                RETURN
+              END IF
+C
+              IF (IG03.NE.0) THEN
+                IPSN=IG03
+                IG03=IWRK(IG03)
+              ELSE
+                IPWU=IPWU-3
+                IF (IPWU.LE.IPWL) THEN
+                   IERR=3       ! WORKSPACE-TOO-SMALL
+                   RETURN
+                  
+                END IF
+                IPSN=IPWU
+              END IF
+C
+              RWRK(IPSN  )=XINT
+              RWRK(IPSN+1)=YINT
+C
+              IWRK(IPSN+2)=IWRK(IWRK(IPE2+9))
+              IWRK(IWRK(IPE2+9))=IPSN
+C
+C Check for a right intersection.
+C
+            ELSE IF ((IWRK(IPE1+4).EQ.1.AND.IWRK(IPE1+5).EQ.1.AND.
+     +                IWRK(IPE2+4).EQ.0.AND.IWRK(IPE2+5).EQ.0).OR.
+     +               (IWRK(IPE1+4).EQ.0.AND.IWRK(IPE1+5).EQ.0.AND.
+     +                IWRK(IPE2+4).EQ.1.AND.IWRK(IPE2+5).EQ.1)) THEN
+C
+C Process a right intersection.
+C
+              IF (IWRK(IPE1+9).EQ.0) THEN
+                IERR=5
+                IERR=3+IERR     ! ALGORITHM FAILURE
+                RETURN
+              END IF
+C
+              IF (IG03.NE.0) THEN
+                IPSN=IG03
+                IG03=IWRK(IG03)
+              ELSE
+                IPWU=IPWU-3
+                IF (IPWU.LE.IPWL) THEN
+                   IERR=3       ! WORKSPACE-TOO-SMALL
+                   RETURN
+                  
+                END IF
+                IPSN=IPWU
+              END IF
+C
+              RWRK(IPSN  )=XINT
+              RWRK(IPSN+1)=YINT
+C
+              IWRK(IPSN+2)=0
+              IWRK(IWRK(IWRK(IPE1+9)+1)+2)=IPSN
+              IWRK(IWRK(IPE1+9)+1)=IPSN
+C
+C Check for a local maximum.
+C
+            ELSE IF ((IWRK(IPE1+4).EQ.0.AND.IWRK(IPE1+5).EQ.1.AND.
+     +                IWRK(IPE2+4).EQ.1.AND.IWRK(IPE2+5).EQ.1).OR.
+     +               (IWRK(IPE1+4).EQ.1.AND.IWRK(IPE1+5).EQ.0.AND.
+     +                IWRK(IPE2+4).EQ.0.AND.IWRK(IPE2+5).EQ.0)) THEN
+C
+C Process a local maximum.
+C
+              IF (IWRK(IPE1+9).EQ.0.OR.IWRK(IPE2+9).EQ.0) THEN
+                IERR=6
+                IERR=3+IERR     ! ALGORITHM FAILURE
+                RETURN
+              END IF
+C
+              IPP1=IWRK(IPE1+9)
+              IPP2=IWRK(IPE2+9)
+C
+              IWRK(IPE1+9)=0
+              IWRK(IPE2+9)=0
+C
+              IF (IG03.NE.0) THEN
+                IPSN=IG03
+                IG03=IWRK(IG03)
+              ELSE
+                IPWU=IPWU-3
+                IF (IPWU.LE.IPWL) THEN
+                   IERR=3       ! WORKSPACE-TOO-SMALL
+                   RETURN
+                  
+                END IF
+                IPSN=IPWU
+              END IF
+C
+              RWRK(IPSN  )=XINT
+              RWRK(IPSN+1)=YINT
+C
+              IF (IWRK(IPE1+5).NE.IWRK(IPE1+4)) THEN
+                IWRK(IPSN+2)=IWRK(IPP1)
+                IWRK(IPP1)=IPSN
+              ELSE
+                IWRK(IPSN+2)=0
+                IWRK(IWRK(IPP1+1)+2)=IPSN
+                IWRK(IPP1+1)=IPSN
+              END IF
+C
+C See if the meeting edges are contributing to the same polygon.
+C
+              IF (IPP1.NE.IPP2) THEN
+C
+C They aren't.  Append the subsidiary nodes of one polygon to the other.
+C
+                IWRK(IWRK(IPP2+1)+2)=IPSN
+                IWRK(IPP2+1)=IWRK(IPP1+1)
+C
+C Remove from the polygon list the polygon whose subsidiary nodes have
+C become part of the other polygon and put its principal node on the
+C garbage list for 3-word nodes, so that it can be re-used.
+C
+                IF (IPPL.EQ.IPP1) THEN
+                  IPPL=IWRK(IPP1+2)
+                ELSE
+                  ISPL=IPPL
+                  DO WHILE (.TRUE.)
+                    IF (IWRK(ISPL+2).EQ.IPP1) THEN
+                      IWRK(ISPL+2)=IWRK(IPP1+2)
+                      EXIT
+                    END IF
+                    ISPL=IWRK(ISPL+2)
+                  END DO
+                END IF
+C
+                IWRK(IPP1)=IG03
+                IG03=IPP1
+C
+C Any AET node that referenced IPP1 must now reference IPP2 instead.
+C
+                IDUM=IAET
+C
+                DO WHILE (IDUM.NE.0)
+                  IF (IWRK(IDUM+9).EQ.IPP1) IWRK(IDUM+9)=IPP2
+                  IDUM=IWRK(IDUM+6)
+                END DO
+C
+              END IF
+C
+            END IF
+C
+C Swap the positions of edge 1 and edge 2 in the AET.
+C
+            IF (IWRK(IPE1+7).NE.0) IWRK(IWRK(IPE1+7)+6)=IPE2
+            IF (IWRK(IPE2+6).NE.0) IWRK(IWRK(IPE2+6)+7)=IPE1
+            IWRK(IPE1+6)=IWRK(IPE2+6)
+            IWRK(IPE2+7)=IWRK(IPE1+7)
+            IWRK(IPE1+7)=IPE2
+            IWRK(IPE2+6)=IPE1
+C
+C If the AET started with edge 1, it now starts with edge 2.
+C
+            IF (IAET.EQ.IPE1) IAET=IPE2
+C
+C Exchange the polygon pointers of edges 1 and 2.
+C
+            IDUM=IWRK(IPE1+9)
+            IWRK(IPE1+9)=IWRK(IPE2+9)
+            IWRK(IPE2+9)=IDUM
+C
+C Advance to the next point of intersection in the list.
+C
+            IINT=IWRK(IINT+4)
+C
+C Quit if there are no more points of intersection to process.
+C
+            IF (IINT.EQ.0) EXIT 
+C
+C End of loop on points of intersection.
+C
+          END DO
+C
+C End of internal procedure to process a list of intersections.
+C
+          END subroutine
+C
+C The following internal procedure processes an edge in the AET that is
+C terminating at the top of the current scanbeam.  The variable ITMP
+C points to the edge that is to be processed.  If the edge is removed
+C from the AET (which can happen), the procedure must adjust the value
+C of ITMP so that the next-node pointer in the AET node that ITMP
+C points at properly specifies the next AET node to be examined.
+C
+        subroutine PROCESS_TERMINATING_EDGE(IERR)
+        if(ierr.ne.0) return
+C     
+C Find the index, in the user's arrays, of the end point of the
+C successor edge.
+C
+          INNP=ABS(IWRK(ITMP+8))+SIGN(1,IWRK(ITMP+8))
+C
+C Extract the X and Y coordinates of the end point of the successor
+C edge.
+C
+          IF (IWRK(ITMP+4).EQ.0) THEN
+            IF (INNP.LT.1) THEN
+              INNP=INNP+LCCP
+            ELSE IF (INNP.GT.LCCP) THEN
+              INNP=INNP-LCCP
+            END IF
+            XCNP=XCCP(INNP)
+            YCNP=YCCP(INNP)
+          ELSE
+            IF (INNP.LT.1) THEN
+              INNP=INNP+LCSP
+            ELSE IF (INNP.GT.LCSP) THEN
+              INNP=INNP-LCSP
+            END IF
+            XCNP=XCSP(INNP)
+            YCNP=YCSP(INNP)
+          END IF
+C
+C Check the vertical position of the end point of the successor edge.
+C
+          IF (YCNP.GE.YTOS) THEN
+C
+C The end point of the successor edge is above the top of the scanbeam.
+C
+C Check whether the edge is contributing to a polygon.
+C
+            IF (IWRK(ITMP+9).NE.0) THEN
+C
+C The edge is contributing to a polygon.  Form a subsidiary polygon
+C node to add to that polygon.
+C
+              IF (IG03.NE.0) THEN
+                IPSN=IG03
+                IG03=IWRK(IG03)
+              ELSE
+                IPWU=IPWU-3
+                IF (IPWU.LE.IPWL) THEN
+                   IERR=3       ! WORKSPACE-TOO-SMALL
+                   RETURN
+                  
+                END IF
+                IPSN=IPWU
+              END IF
+C
+              RWRK(IPSN  )=RWRK(ITMP)
+              RWRK(IPSN+1)=YTOS
+C
+C Add the end point of the current edge to either the left end or the
+C right end of the polygon to which the edge is contributing, whichever
+C is appropriate.
+C
+              IF (IWRK(ITMP+5).NE.IWRK(ITMP+4)) THEN
+                IWRK(IPSN+2)=IWRK(IWRK(ITMP+9))
+                IWRK(IWRK(ITMP+9))=IPSN
+              ELSE
+                IWRK(IPSN+2)=0
+                IWRK(IWRK(IWRK(ITMP+9)+1)+2)=IPSN
+                IWRK(IWRK(ITMP+9)+1)=IPSN
+              END IF
+C
+            END IF
+C
+C Update the node to represent its successor edge.
+C
+            RWRK(ITMP+1)=XCNP
+            RWRK(ITMP+2)=YCNP
+C
+            IF (YCNP.NE.YTOS) THEN
+              RWRK(ITMP+3)=(XCNP-RWRK(ITMP))/(YCNP-YTOS)
+            ELSE
+              RWRK(ITMP+3)=SIGN(RBIG,XCNP-RWRK(ITMP))
+            END IF
+C
+            IWRK(ITMP+8)=SIGN(INNP,IWRK(ITMP+8))
+C
+          ELSE
+C
+C The end point of the successor edge is below the top of the scanbeam.
+C We have arrived at a local maximum, so handle that case.
+C
+            IF (IWRK(ITMP+6).EQ.0) THEN
+              IERR=7
+              IERR=3+IERR       ! ALGORITHM FAILURE
+              RETURN
+            END IF
+C
+            IPP1=IWRK(ITMP+9)
+            IPP2=IWRK(IWRK(ITMP+6)+9)
+C
+            IF (IPP1.NE.0.OR.IPP2.NE.0) THEN
+C
+              IF (IPP1.EQ.0.OR.IPP2.EQ.0) THEN
+                IERR=8
+                IERR=3+IERR     ! ALGORITHM FAILURE
+                RETURN
+              END IF
+C
+              IF (IG03.NE.0) THEN
+                IPSN=IG03
+                IG03=IWRK(IG03)
+              ELSE
+                IPWU=IPWU-3
+                IF (IPWU.LE.IPWL) THEN
+                   IERR=3       ! WORKSPACE-TOO-SMALL
+                   RETURN
+                  
+                END IF
+                IPSN=IPWU
+              END IF
+C
+              RWRK(IPSN  )=RWRK(ITMP)
+              RWRK(IPSN+1)=YTOS
+C
+              IF (IWRK(ITMP+5).NE.IWRK(ITMP+4)) THEN
+                IWRK(IPSN+2)=IWRK(IPP1)
+                IWRK(IPP1)=IPSN
+              ELSE
+                IWRK(IPSN+2)=0
+                IWRK(IWRK(IPP1+1)+2)=IPSN
+                IWRK(IPP1+1)=IPSN
+              END IF
+C
+C See if the meeting edges are contributing to the same polygon.
+C
+              IF (IPP1.NE.IPP2) THEN
+C
+C They aren't.  Append the subsidiary nodes of one polygon to the other.
+C
+                IF (IWRK(ITMP+5).NE.IWRK(ITMP+4)) THEN
+                  IWRK(IWRK(IPP2+1)+2)=IWRK(IPP1)
+                  IWRK(IPP2+1)=IWRK(IPP1+1)
+                ELSE
+                  IWRK(IWRK(IPP1+1)+2)=IWRK(IPP2)
+                  IWRK(IPP2)=IWRK(IPP1)
+                END IF
+C
+C Remove from the polygon list the polygon whose subsidiary nodes have
+C become part of the other polygon and put its principal node on the
+C garbage list for 3-word nodes, so that it can be re-used.
+C
+                IF (IPPL.EQ.IPP1) THEN
+                  IPPL=IWRK(IPP1+2)
+                ELSE
+                  ISPL=IPPL
+                  DO WHILE (.TRUE.)
+                    IF (IWRK(ISPL+2).EQ.IPP1) THEN
+                      IWRK(ISPL+2)=IWRK(IPP1+2)
+                      EXIT
+                    END IF
+                    ISPL=IWRK(ISPL+2)
+                  END DO
+                END IF
+C
+                IWRK(IPP1)=IG03
+                IG03=IPP1
+C
+C Any AET node that referenced IPP1 must now reference IPP2 instead.
+C
+                IDUM=IAET
+C
+                DO WHILE (IDUM.NE.0)
+                  IF (IWRK(IDUM+9).EQ.IPP1) IWRK(IDUM+9)=IPP2
+                  IDUM=IWRK(IDUM+6)
+                END DO
+C
+              END IF
+C
+            END IF
+C
+C Delete from the AET the edge ITMP and the edge that follows it.  The
+C nodes go back on the garbage list for 10-word nodes.
+C
+            ITM1=IWRK(ITMP+7)
+            ITM2=IWRK(IWRK(ITMP+6)+6)
+C
+            IF (ITM1.EQ.0) THEN
+              IAET=ITM2
+            ELSE
+              IWRK(ITM1+6)=ITM2
+            END IF
+C
+            IF (ITM2.NE.0) IWRK(ITM2+7)=ITM1
+C
+            IWRK(ITMP)=IWRK(ITMP+6)
+            IWRK(IWRK(ITMP))=IG10
+            IG10=ITMP
+C
+C Adjust the pointer into the AET so as to continue looping properly.
+C
+            ITMP=IWRK(ITMP+6)
+C
+          END IF
+C
+        END subroutine
+C
+      END
+
+

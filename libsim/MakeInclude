@@ -1,0 +1,93 @@
+#
+# user set variables:
+# STATIC = list of files/directories which should NOT be 'made'
+#
+STATIC += $(shell rm -f *~; echo Make* *.*)
+TARGETS = all
+LS_ALLX    := $(shell echo *)
+LS_LIBSX   := $(shell echo lib*)
+LS_PERLX   := $(shell ./MakePerlList.pl)
+
+ifeq "$(ORDER)" ""
+  LS_ALLY=$(LS_ALLX)
+  LS_LIBSY=$(LS_LIBSX)
+  LS_PERLY=$(LS_PERLX)
+else
+  LS_ALLY  := $(shell for dir in $(ORDER);do X="0";\
+  	      for key in $(LS_ALLX);do if test $$dir = $$key;then X="1";fi;done;\
+              if test $$X = "1";then echo $$dir;fi;done; ) $(shell for dir in $(LS_ALLX);do X="0";\
+	      for key in $(ORDER);do if test $$dir = $$key;then X="1";fi;done;\
+              if test $$X = "0";then echo $$dir;fi;done; )
+  LS_LIBSY  := $(shell for dir in $(ORDER);do X="0";\
+  	       for key in $(LS_LIBSX);do if test $$dir = $$key;then X="1";fi;done;\
+	       if test $$X = "1";then echo $$dir;fi;done; ) \
+	       $(shell for dir in $(LS_LIBSX);do X="0"; \
+	       for key in $(ORDER);do if test $$dir = $$key;then X="1";fi;done;\
+               if test $$X = "0";then echo $$dir;fi;done; )
+  LS_PERLY  := $(shell for dir in $(ORDER);do X="0";\
+  	       for key in $(LS_PERLX);do if test $$dir = $$key;then X="1";fi;done;\
+               if test $$X = "1";then echo $$dir;fi;done; ) $(shell for dir in $(LS_PERLX);do X="0";\
+	       for key in $(ORDER);do if test $$dir = $$key;then X="1";fi;done;\
+               if test $$X = "0";then echo $$dir;fi;done; )
+endif
+
+ifeq "$(ONLY)" ""
+  LS_ALL=$(LS_ALLY)
+  LS_LIBS=$(LS_LIBSY)
+  LS_PERL=$(LS_PERLY)
+else
+  LS_ALL  := $(shell for dir in $(LS_ALLY);do X="0";for key in $(ONLY);\
+              do if test $$dir = $$key;then X="1";fi;done;\
+              if test $$X = "1";then echo $$dir;fi;done) 
+  LS_LIBS  := $(shell for dir in $(LS_LIBSY);do X="0";for key in $(ONLY);\
+              do if test $$dir = $$key;then X="1";fi;done;\
+              if test $$X = "1";then echo $$dir;fi;done) 
+  LS_PERL  := $(shell for dir in $(LS_PERLY);do X="0";for key in $(ONLY);\
+              do if test $$dir = $$key;then X="1";fi;done;\
+              if test $$X = "1";then echo $$dir;fi;done) 
+endif
+
+LS_ORDER := $(LS_LIBS)\
+            $(shell for dir in $(LS_ALL);do X="0";\
+	    for key in $(LS_LIBS);do if test $$dir = $$key;then X="1";fi;done;\
+	    for key in $(LS_PERL);do if test $$dir = $$key;then X="1";fi;done;\
+            if test $$X = "0";then echo $$dir;fi;done)
+
+LS_COMPILE := $(shell for dir in $(LS_ORDER);do X="0";\
+	     for key in $(STATIC);do if test $$dir = $$key;then X="1";fi;done;\
+             if test $$X = "0";then echo $$dir;fi;done)
+PWD       := $(shell pwd)
+
+#.IGNORE:
+#.KEEP_STATE:
+
+$(LS_PERL): $(TARGETS)
+	@cd $@ && perl Makefile.PL && $(MAKE) $(TARGET)
+
+$(TARGETS):
+	$(MAKE) $(LS_COMPILE) TARGET=$@
+
+
+clean:
+	@echo "Cleaning:" `pwd`
+	@$(shell rm -f *.o *~ *.bak*) 
+	$(MAKE) $(LS_COMPILE) TARGET=$@
+
+$(LS_COMPILE):     FORCE 
+	@$(shell rm -f *~ *.bak*) 
+	cd $@ && $(MAKE) $(TARGET)
+
+FORCE:
+
+debug :
+	@echo " static:" $(STATIC)
+	@echo " ls all:" $(LS_ALL)
+	@echo " ls lib:" $(LS_LIBS)
+	@echo " ls order:" $(LS_ORDER)
+	@echo " ls compile:" $(LS_COMPILE)
+	@echo " pwd   :" $(PWD)
+	@echo " LS_LIBS:" $(LS_LIBS)
+	@echo " LS_PERL:" $(LS_PERL)
+	@echo " LS_ALL:" $(LS_ALL)
+	@echo " ORDER:" $(ORDER)
+#

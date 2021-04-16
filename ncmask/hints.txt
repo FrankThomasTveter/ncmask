@@ -1,0 +1,1 @@
+valgrind  --max-stackframe=3500000  --leak-check=full ./ncmask.bin < track_aa_kyst.xml 

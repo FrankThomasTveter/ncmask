@@ -1,0 +1,148 @@
+#
+# user set variables :
+# MAINS    = list of all files containing main programs
+# LIB_NAM  = name of library for current object files
+# LIBS     = list of libraries
+# INCL     = list of directories to search for include files
+# COMPILER = compiler program (e.g. f77)
+# OPTIONS  = compiling options
+# BINOP    = binary options
+# 
+#
+ ifeq "$(COMPILER)" ""
+ COMPILER = gfortran -fdefault-real-8 -fdefault-double-8
+ endif
+#
+# arrange modules first
+#
+ LS_F := $(shell echo *.F90)
+ LS_M := $(shell echo mod_*.F90)
+ ifeq "$(LS_M)"  "mod_*.F90"
+ else 
+    XLS_F := for file in $(LS_F);do X="0";for key in $(LS_M);\
+            do if test $$file = $$key;then X="1";fi;done;\
+            if test $$X = "0";then echo $$file;fi;done
+     LS_F = $(LS_M) $(shell $(XLS_F))
+ endif
+#
+# put "order" files first
+#
+ ifeq "$(ORDER)" ""
+ else
+    ALS_F = $(LS_F)
+    XLS_F := for file in $(ALS_F);do X="0";for key in $(ORDER);\
+            do if test $$file = $$key;then X="1";fi;done;\
+            if test $$X = "0";then echo $$file;fi;done
+    LS_F  = $(ORDER) $(shell $(XLS_F))
+ endif
+#
+ LIST_SRC  = $(LS_F)
+ LIST_OBJ  = $(LIST_SRC:%.F90=%.o)
+#
+ ifeq "$(BIN)" ""
+  BIN      =   $(shell pwd)
+  MOVE_BIN = echo "Binary ($(@:$(BIN)/%=%)) put in current directory ($(BIN))."
+ else
+  MOVE_BIN = mv -f $(@:$(BIN)/%=%) $(BIN)
+ endif
+#
+ ifeq "$(MAINS)" ""
+  LIST_SUBS  := $(LIST_OBJ)
+  LIST_EXE   :=
+ else
+#  XLS_SH     = for file in $(LIST_OBJ);do X="0";for key in $(MAINS:%.F=%.o);\
+#              do if test $$file = $$key;then X="1";fi;done;\
+#              if test $$X = "0";then echo $$file;fi;done
+#  LIST_SUBS  := $(shell $(XLS_SH))
+#  LIST_EXE   := $(MAINS:%.F=$(BIN)/%$(BIN_SUFFIX))
+  XLS_SH     = for file in $(LIST_OBJ);do X="0";for key in $(MAINS:%.F90=%.o);\
+              do if test $$file = $$key;then X="1";fi;done;\
+              if test $$X = "0";then echo $$file;fi;done
+  LIST_SUBS  := $(shell $(XLS_SH))
+  LIST_EXE   := $(MAINS:%.F90=$(BIN)/%$(BIN_SUFFIX))
+ endif
+#
+ ifeq "$(LIST_SUBS)" ""
+  LIB_NAM = 
+  LIB_DYN = 
+ endif
+#
+
+ AR         =   ar
+ ARFLAGS    =   ur
+
+ SOPTIONS =
+ SAR=gfortran
+ SARFLAGS= -shared $(SOPTIONS) -o
+
+ ifeq "$(LIB_NAM)" ""
+    ifeq "$(LIB_DYN)" ""
+       LIST_AUX = $(LIST_SUBS)
+    endif
+ endif
+#
+ FFLAGS    += $(INCL:%=-I%) $(OPTIONS)
+#
+# Keep make status
+#
+.KEEP_STATE:
+#
+all:  $(LIST_EXE) $(LIB_NAM) $(LIB_DYN) $(LIST_AUX) Makefile
+#
+# intermediate target:
+#
+lib:    $(LIB_NAM) $(LIB_DYN) 
+#
+# link binary (from library) and place in $(BIN)
+#
+$(LIST_EXE):  $(BIN)/%$(BIN_SUFFIX) : %.o $(LIB_NAM) $(LIB_DYN) $(LIST_AUX) $(LIBS) Makefile
+	@echo building $@ 
+	@echo "   " since $? has changed 
+	@echo @$(COMPILER) $(@:$(BIN)/%$(BIN_SUFFIX)=%.o) -o $(@:$(BIN)/%=%) $(FFLAGS) $(LIB_NAM) $(LIB_DYN) $(LIST_AUX) $(LIBS) $(BINOP)
+	@$(COMPILER) $(@:$(BIN)/%$(BIN_SUFFIX)=%.o) -o $(@:$(BIN)/%=%) $(FFLAGS) $(LIB_NAM) $(LIB_DYN) $(LIST_AUX) $(LIBS) $(BINOP)
+	@chmod a+x $(@:$(BIN)/%=%)
+	@$(MOVE_BIN)
+	@touch .libs_status
+#
+# Library dependency
+#
+$(LIB_DYN):     $(LIST_SUBS)
+	@echo updating $@ 
+	@echo "   " since $? has changed 
+	@echo $(SAR) $(SARFLAGS) $@ $(LIST_OBJ) $(SOPTIONS)
+	@$(SAR) $(SARFLAGS) $@ $(LIST_OBJ) $(SOPTIONS)
+	@chmod a+rw $@
+	@touch .src_status
+#
+$(LIB_NAM):     $(LIST_SUBS)
+	@echo updating $@ 
+	@echo "   " since $? has changed 
+	@echo $(AR) $(ARFLAGS) $@ $?
+	@$(AR) $(ARFLAGS) $@ $?
+	@chmod a+rw $@
+	@touch .src_status
+#
+#
+# Build objects from source files
+#
+#$(LIST_OBJ):   %.o:%.F Makefile
+#	@echo $(COMPILER) $(FFLAGS) -c $*.F -o $*.o
+#	@$(COMPILER) $(FFLAGS) -c $*.F -o $*.o
+$(LIST_OBJ):   %.o:%.F90 Makefile
+	@echo $(COMPILER) $(FFLAGS) $(SOPTIONS) -c $*.F90 -o $*.o
+	@$(COMPILER) $(FFLAGS) $(SOPTIONS) -c $*.F90 -o $*.o
+#
+debug :
+	@echo " LsF:" $(LS_F)
+	@echo " Src:" $(LIST_SRC)
+	@echo " Obj:" $(LIST_OBJ)
+	@echo " Lib:" $(LIBS)
+	@echo " Ar: " $(LIB_NAM)
+	@echo " So: " $(LIB_DYN)
+	@echo " Exe:" $(LIST_EXE)
+	@echo " Aux:" $(LIST_AUX)
+#
+clean:
+	@echo "Cleaning:" `pwd`
+	@$(shell rm -f $(LIB_NAM) $(LIB_DYN) *.o *.mod *~ *.bak*) 
+#

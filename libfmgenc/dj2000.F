@@ -1,0 +1,62 @@
+      SUBROUTINE DJ2000(DAY,YY,MM,DD,HH,MI,SEC)
+CP  COMPUTES CALENDER DATE FROM MODIFIED JULIAN DAY 2000
+C   VALID FOR DATES BETWEEN 1950/JAN/1 AND 2099/DEC/31.
+C
+C   MJD(2000) = MJD(1950) - 18262.0 IS = 0 ON 2000/01/01 AT 00:00:00.
+C
+CI  (REAL*8) DAY = MOD. JUL. DAY, REFERRED TO 2000.
+CO  (INT*4) YY = YEAR WITH 4 DIGITS
+CO  (INT*4) MM = MONTH
+CO  (INT*4) DD = DAY
+CO  (INT*4) HH = HOUR
+CO  (INT*4) MI = MINUTE
+CO  (REAL*8) SEC = SECOND.
+C
+      IMPLICIT NONE
+      SAVE
+C
+      CHARACTER*40 SCCS_INFO
+      DATA SCCS_INFO
+     & /'@(#)dj2000.f \n'/
+C
+      REAL DAY, SEC,tsec,tmi,thh
+      INTEGER  YY,MM,DD,HH,MI
+C
+      REAL Z,A,ALPHA,B
+      INTEGER IC,ID,IE
+C
+C  MAKE SURE TO ROUND-OFF ONLY DOWN, ALSO FOR NEGATIVE MJD:
+      Z = NINT(-0.5D0+DAY + 2451545.0) ! true julian date
+      IF (Z .LT. 2299161D0) THEN
+         A = Z
+      ELSE
+         ALPHA = INT((Z - 1867216.25D0) / 36524.25D0)
+         A = Z + 1.0D0 + ALPHA - INT(ALPHA / 4.0D0)
+      END IF
+      B = A + 1524.0D0
+      IC = INT((B - 122.1D0) / 365.25D0)
+      ID = INT(365.25D0 * IC)
+      IE = INT((B - ID) / 30.6001D0)
+      DD = B - ID - INT(30.6001D0 * IE)
+      IF (IE .LT. 14) THEN
+         MM = IE - 1
+      ELSE
+         MM = IE - 13
+      END IF
+      IF (MM .GT. 2) THEN
+         YY = IC - 4716
+      ELSE
+         YY = IC - 4715
+      END IF
+C
+      TSEC = (DAY - NINT(-0.5D0+DAY))*86400.0D3
+      TSEC=NINT(TSEC)
+      TSEC=real(MIN(NINT(TSEC),86399999))/1000.0D0
+      TMI=TSEC/60.0D0
+      THH=TMI/60.0D0
+C
+      HH=INT(THH)
+      MI=INT(TMI-REAL(HH)*60.0D0)
+      SEC=TSEC-REAL(HH)*3600.0D0 - REAL(MI)*60.0D0
+      RETURN
+      END
