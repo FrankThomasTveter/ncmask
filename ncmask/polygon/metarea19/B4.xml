@@ -1,9 +1,0 @@
-<polygon volume="inside">
- <node lat="77.5" lon="10"/>
- <node lat="77.5" lon="15"/>
- <node lat="77.5" lon="20"/>
- <node lat="75" lon="20"/>
- <node lat="75" lon="15"/>
- <node lat="75" lon="10"/>
- <node lat="77.5" lon="10"/>
-</polygon>
