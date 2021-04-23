@@ -113,5 +113,5 @@ debug :
 #
 clean:
 	@echo "Cleaning:" `pwd`
-	@$(shell rm -f $(LIB_NAM) *.o *.mod *~ *.bak*) 
+	@$(shell rm -f $(LIB_NAM) *.a *.bin *.o *.mod *~ *.bak*) 
 #

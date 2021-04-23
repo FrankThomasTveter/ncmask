@@ -1,4 +1,3 @@
-! ecmwf netcdf filer...   ls /fou/nwparc2/ec/2013/.nc
 SUBROUTINE MNCMASK(UNITI,IRC)
   ! 
   ! ***********************************************************************
@@ -113,10 +112,11 @@ SUBROUTINE MNCMASK(UNITI,IRC)
   integer, parameter :: flt_slice = 1
   integer, parameter :: flt_cylinder = 2
   integer, parameter :: flt_polygon = 3
-  integer, parameter :: flt_duct = 4
-  integer, parameter :: flt_value = 5
-  integer, parameter :: flt_string = 6
-  integer, parameter :: flt_dimension = 7
+  integer, parameter :: flt_polyline = 4
+  integer, parameter :: flt_duct = 5
+  integer, parameter :: flt_value = 6
+  integer, parameter :: flt_string = 7
+  integer, parameter :: flt_dimension = 8
   !
   ! types of targets...
   !
@@ -158,7 +158,7 @@ SUBROUTINE MNCMASK(UNITI,IRC)
      character*250         :: name250 = ""
      character*250         :: file250 = ""
      real                  :: eps=10.0D0
-     real                  :: delta=0.0D0
+     real                  :: delta=0.0D0 ! in km
      logical               :: inside = .true.
      logical               :: simplify = .true.
      logical               :: ledge = .false.
@@ -382,6 +382,7 @@ SUBROUTINE MNCMASK(UNITI,IRC)
   type node
      type(node), pointer :: next=>null()
      type(node), pointer :: prev=>null()
+     logical :: split=.false.
      real :: lat,lon
   end type node
   type(node), pointer :: firstnode=>null()
@@ -934,6 +935,14 @@ contains
              bok=.false.
           end if
        case (flt_polygon)  ! polygon
+          if (f%inside) then
+             do ii=1,f%mpar
+                dist=max(dist,getdist(f%rpar(1)+ii-1,f%rpar(2)+ii-1,crep%clat,crep%clon))
+             end do
+          else
+             bok=.false.
+          end if
+       case (flt_polyline)  ! polyline
           if (f%inside) then
              do ii=1,f%mpar
                 dist=max(dist,getdist(f%rpar(1)+ii-1,f%rpar(2)+ii-1,crep%clat,crep%clon))
@@ -1998,7 +2007,7 @@ contains
                 write(*,*)myname,'Filter file:',buff700(1:len2)
              end if
              nfilter%file250=buff700(1:len2)
-          else if (trim(xml%attribs(1,ii)).eq."tolerance") then
+          else if (trim(xml%attribs(1,ii)).eq."tolerance") then ! in km
              read(buff700(1:len2),*,iostat=irc) nfilter%eps
              if (irc.ne.0) then
                 write(*,*)myname,'Error reading attribute:',buff700
@@ -2007,7 +2016,7 @@ contains
              if (nfilter%eps <=0.0D0) then
                 nfilter%simplify=.false.
              end if
-          else if (trim(xml%attribs(1,ii)).eq."delta") then
+          else if (trim(xml%attribs(1,ii)).eq."delta") then ! in km
              read(buff700(1:len2),*,iostat=irc) nfilter%delta
              if (irc.ne.0) then
                 write(*,*)myname,'Error reading attribute:',buff700
@@ -3032,6 +3041,9 @@ contains
        case (flt_polygon)  ! polygon
           flt => copyFilter(f,irc)
           ! write(*,*)myname,'Found polygon...',associated(flt)
+       case (flt_polyline)  ! polyline
+          flt => copyFilter(f,irc)
+          ! write(*,*)myname,'Found polyline...',associated(flt)
        case DEFAULT
           ! do nothing
        end select
@@ -3057,7 +3069,7 @@ contains
     type(operation), pointer :: cop
     type(filter), pointer :: f
     logical inside, iflag
-    integer inout, idim, ii
+    integer inout, idim, ii,ss,istart,istop,nsplit
     real dx,dy,dz,ds,ws,hs,dd
     real alt, dist,maxalt,minalt
     CHARACTER*18 MYNAME
@@ -3203,6 +3215,34 @@ contains
              !inout=1
              if (f%ledge .and. inout.eq.-1) then ! check if inside edge...
                 call checkEdge(lat, lon, f%mpar, f%rpar(1), f%rpar(1+f%mpar), f%delta, INOUT )
+             end if
+          end if
+          inside=(inout.ne.-1)
+          if ((f%inside.and..not.inside).or.(.not.f%inside.and.inside)) res=.true.
+          !if (.not.res) then
+          !   write(*,*)myname,'Polygon:',lat,lon,res
+          !end if
+       case (flt_polyline)  ! polyline
+          res=.false.
+          if (f%lpar(0)) then ! must initialise
+             f%lpar(0)=.false. ! initialised
+          end if
+          inout=-1 ! border=0, -1 outside, +1 inside
+          minlat=f%rpar(f%mpar*2+1)
+          maxlat=f%rpar(f%mpar*2+2)
+          minlon=f%rpar(f%mpar*2+3)
+          maxlon=f%rpar(f%mpar*2+4)
+          if (isClose(lat,lon,minlat,maxlat,minlon,maxlon,f%delta)) then
+             if (f%ledge) then ! check if inside edge...
+                do ss=1,f%npar(1)
+                   if (inout.eq.-1) then
+                      istart=f%npar(ss*2)
+                      istop=f%npar(ss*2+1)
+                      nsplit=istop-istart+1
+                      call checkEdge(lat,lon,nsplit,f%rpar(istart), &
+                           & f%rpar(istart+f%mpar),f%delta,INOUT )
+                   end if
+                end do
              end if
           end if
           inside=(inout.ne.-1)
@@ -4045,6 +4085,12 @@ contains
              write(*,*)myname,'Error return from definePolygon.',irc
              return
           end if
+       else if (trim(xml%tag).eq."polyline") then
+          call definePolyline(xml,info,crep,nfilter,irc)
+          if (irc.ne.0) then
+             write(*,*)myname,'Error return from definePolyline.',irc
+             return
+          end if
        else if (trim(xml%tag).eq."duct") then
           call defineDuct(xml,info,crep,nfilter,irc)
           if (irc.ne.0) then
@@ -4676,6 +4722,275 @@ contains
     !if (associated(first)) deallocate(first)
     !if (associated(last)) deallocate(last)
   end subroutine definePolygon
+
+  subroutine definePolyline(xml,info,crep,nfilter,irc)
+    implicit none
+    type(xmltype)              :: xml
+    type(XML_PARSE)            :: info
+    type(report), pointer      :: crep
+    type(filter), pointer      :: nfilter
+    integer :: irc
+    type(node), pointer :: first=>null()
+    type(node), pointer :: last=>null()
+    type(node), pointer :: cnode=>null(),nnode=>null()
+    logical llat,llon
+    real xlat,xlon
+    real minlat,maxlat,minlon,maxlon
+    integer, external :: length
+    integer :: len2,ii,cnt
+    integer :: nsplit,isplit,fsplit,lsplit
+    character*700 :: buff700
+    logical :: bok
+    CHARACTER*16 MYNAME
+    DATA MYNAME /'definePolyline'/
+    nfilter%mpar=0
+    nsplit=1 ! always one split
+    if (allocated(nfilter%lpar)) deallocate(nfilter%lpar)
+    if (allocated(nfilter%npar)) deallocate(nfilter%npar)
+    allocate(nfilter%lpar(0:1),stat=irc)
+    if (irc.ne.0) then
+       write(*,*) myname,'Unable to allocate filter-parameters.',irc
+       return
+    end if
+    if (xml%starttag) then
+       nfilter%type=flt_polyline ! polyline
+       nfilter%lpar(0)=.true. ! need initialisation
+       do ii=1,xml%no_attribs
+          buff700=xml%attribs(2,ii)
+          call replaceENV(buff700,700,bok,irc)
+          if (.not.bok) irc=132
+          if (irc.ne.0) then
+             write(*,*)myname,'Error return from replaceEnv.',irc
+             return
+          end if
+          len2=length(buff700,700,10)    
+          if (trim(xml%attribs(1,ii)).eq."volume") then
+             if (buff700(1:len2).eq."inside") then
+                nfilter%inside = .true. ! inside
+             else if (buff700(1:len2).eq."outside") then
+                nfilter%inside = .false. ! outside
+             else
+                write(*,*)myname,'Unknown setting:',trim(xml%tag)//':'//trim(xml%attribs(1,ii))
+             end if
+             !                       else if (trim(xml%attribs(1,ii)).eq."surface") then
+             !                          nfilter%var250=buff700(1:len2)
+             !                          nfilter%lpar(100)=.true.
+          else if (trim(xml%attribs(1,ii)).eq."simplify") then
+             if (buff700(1:len2).eq."never") then
+                nfilter%simplify = .false. ! dont simplify
+             end if
+          else if (trim(xml%attribs(1,ii)).eq."tolerance") then
+             read(buff700(1:len2),*,iostat=irc) nfilter%eps
+             if (irc.ne.0) then
+                write(*,*)myname,'Error reading attribute:',buff700
+                return
+             end if
+             if (nfilter%eps <=0.0D0) then
+                nfilter%simplify=.false.
+             end if
+          else if (trim(xml%attribs(1,ii)).eq."delta") then
+             read(buff700(1:len2),*,iostat=irc) nfilter%delta
+             if (irc.ne.0) then
+                write(*,*)myname,'Error reading attribute:',buff700
+                return
+             end if
+             nfilter%ledge=(nfilter%delta>0.0D0)
+          else
+             write(*,*)myname,'Unknown attribute:',trim(xml%tag)//':'//&
+                  & trim(xml%attribs(1,ii))
+             irc=810
+             return
+          end if
+       end do
+       allocate(first, last)
+       first%next => last
+       last%prev => first
+    end if
+    ! read until xml%endtag is reached
+    llat=.false.
+    llon=.false.
+    cnt=0
+    POLYLINE: do while(.not. (trim(xml%tag).eq."polyline".and.xml%endtag))
+       call xml_get( info, xml%tag, xml%starttag, xml%endtag, xml%attribs, &
+            & xml%no_attribs, xml%data, xml%no_data )
+       if ( .not. xml_ok(info) ) exit POLYLINE
+       cnt=cnt+1
+       if (bdeb.and.cnt.lt.3) write(*,*)myname,'Found DEFINE/POLYLINE xml%tag:',&
+            & trim(xml%tag),xml%starttag,xml%endtag
+       if (bdeb.and.cnt.eq.3) write(*,*)myname,'Found DEFINE/POLYLINE xml%tag...'
+       if (trim(xml%tag).eq."split") then
+             allocate(cnode,stat=irc)
+             if (irc.ne.0) then
+                write(*,*) myname,'Error return from allocate (cnode).',irc
+                return
+             end if
+             cnode%prev=>last%prev
+             cnode%next=>last
+             cnode%prev%next => cnode
+             cnode%next%prev => cnode
+             cnode%split=.true.
+             nsplit=nsplit+1
+       else if (trim(xml%tag).eq."node") then
+          do ii=1,xml%no_attribs
+             buff700=xml%attribs(2,ii)
+             call replaceENV(buff700,700,bok,irc)
+             if (.not.bok) irc=133
+             if (irc.ne.0) then
+                write(*,*)myname,'Error return from replaceEnv.',irc
+                return
+             end if
+             len2=length(buff700,700,10)    
+             if (trim(xml%attribs(1,ii)).eq."lat") then
+                read(buff700(1:len2),*,iostat=irc) lat
+                if (irc.ne.0) then
+                   write(*,*)myname,'Error reading attribute:',buff700
+                   return
+                end if
+                if (.not.llat) then
+                   llat=.true.
+                   minlat=lat
+                   maxlat=lat
+                else
+                   minlat=min(minlat,lat)
+                   maxlat=max(maxlat,lat)
+                end if
+                if (irc.ne.0) then
+                   write(*,*)myname,'Unable to read slice-ori-lat:',&
+                        & buff700(1:len2)
+                   return
+                end if
+             elseif (trim(xml%attribs(1,ii)).eq."lon") then
+                read(buff700(1:len2),*,iostat=irc) lon
+                if (irc.ne.0) then
+                   write(*,*)myname,'Error reading attribute:',buff700
+                   return
+                end if
+                if (.not.llon) then
+                   llon=.true.
+                   minlon=lon
+                   maxlon=lon
+                else
+                   minlon=min(minlon,lon)
+                   maxlon=max(maxlon,lon)
+                end if
+                if (irc.ne.0) then
+                   write(*,*)myname,'Unable to read slice-ori-lon:',&
+                        & buff700(1:len2)
+                   return
+                end if
+             else
+                write(*,*)myname,'Unknown attribute:',trim(xml%tag)//':'//&
+                     & trim(xml%attribs(1,ii))
+                irc=812
+                return
+             end if
+          end do
+          if (llat.and.llon) then
+             allocate(cnode,stat=irc)
+             if (irc.ne.0) then
+                write(*,*) myname,'Error return from allocate (cnode).',irc
+                return
+             end if
+             cnode%prev=>last%prev
+             cnode%next=>last
+             cnode%prev%next => cnode
+             cnode%next%prev => cnode
+             cnode%lat=lat
+             cnode%lon=lon
+             nfilter%mpar=nfilter%mpar+1
+             if (crep%lcen) then
+                crep%sx=crep%sx + cosdeg(lat)*cosdeg(lon)
+                crep%sy=crep%sy + cosdeg(lat)*sindeg(lon)
+                crep%sz=crep%sz + sindeg(lat)
+                crep%sn=crep%sn + 1.0D0
+             else
+                crep%lcen=.true.
+                crep%sx=cosdeg(lat)*cosdeg(lon)
+                crep%sy=cosdeg(lat)*sindeg(lon)
+                crep%sz=sindeg(lat)
+                crep%sn=1.0D0
+             end if
+          else
+             write(*,*)'Ignoring mask-node missing LAT/LON.'
+          end if
+       else if (trim(xml%tag).ne."polyline") then
+          write(*,*)myname,'Unknown xml%tag E:',trim(xml%tag)
+          irc=933
+          return
+       end if
+    end do POLYLINE
+    if (nfilter%mpar .lt. 3) then
+       write(*,*) myname,'Too few nodes in polyline.',nfilter%mpar
+       irc=458
+       return
+    end if
+    if (allocated(nfilter%rpar)) deallocate(nfilter%rpar)
+    allocate(nfilter%rpar(nfilter%mpar*2+4),stat=irc)
+    if (irc.ne.0) then
+       write(*,*) myname,'Unable to allocate filter-parameters.',irc
+       return
+    end if
+    allocate(nfilter%npar(1+2*nsplit),stat=irc)
+    if (irc.ne.0) then
+       write(*,*) myname,'Unable to allocate filter-parameters.',irc
+       return
+    end if
+    nfilter%rpar(:)=0.0D0
+    nfilter%lpar(:)=.false.
+    nfilter%npar(1)=nsplit
+    isplit=1
+    ii=0
+    cnode => first%next
+    do while (.not.associated(cnode, target=last))
+       if (cnode%split) then
+          nfilter%npar(isplit*2)=fsplit
+          nfilter%npar(isplit*2+1)=lsplit
+          isplit=isplit+1
+          fsplit=0
+          lsplit=0
+       else
+          ii=ii+1
+          if (fsplit.eq.0) fsplit=ii
+          lsplit=ii
+          nfilter%rpar(ii)=cnode%lat
+          nfilter%rpar(ii+nfilter%mpar)=cnode%lon
+       end if
+       cnode => cnode%next
+    end do
+    nfilter%npar(isplit*2)=fsplit
+    nfilter%npar(isplit*2+1)=lsplit
+    !write(*,*)myname,' LATLON:',minlat,maxlat,minlon,maxlon
+    nfilter%rpar(nfilter%mpar*2+1)=minlat
+    nfilter%rpar(nfilter%mpar*2+2)=maxlat
+    nfilter%rpar(nfilter%mpar*2+3)=minlon
+    nfilter%rpar(nfilter%mpar*2+4)=maxlon
+    ! simplify filter
+    ii=nfilter%mpar
+    if (nfilter%simplify) then
+       ! store last position, offset last to first, simplify, reset last to
+       call simplifys(nfilter%mpar,nfilter%rpar,nfilter%npar,nfilter%eps)
+       if (nfilter%mpar.gt.ii) then
+          write(*,*)myname,'Corrupt simplification.',nfilter%mpar,ii
+          irc=999
+          return
+       end if
+    end if
+    ! the next bit is done automatically by simplify...
+    !nfilter%rpar(nfilter%mpar*2+1)=nfilter%rpar(ii*2+1)
+    !nfilter%rpar(nfilter%mpar*2+2)=nfilter%rpar(ii*2+2)
+    !nfilter%rpar(nfilter%mpar*2+3)=nfilter%rpar(ii*2+3)
+    !nfilter%rpar(nfilter%mpar*2+4)=nfilter%rpar(ii*2+4)
+    cnode => first%next
+    do while (.not.associated(cnode, target=last))
+       nnode=>cnode%next
+       if (associated(cnode)) deallocate(cnode)
+       cnode => nnode
+    end do
+    if (associated(first)) deallocate(first)
+    if (associated(last)) deallocate(last)
+    !if (associated(first)) deallocate(first)
+    !if (associated(last)) deallocate(last)
+  end subroutine definePolyline
 
   subroutine defineDuct(xml,info,crep,nfilter,irc)
     implicit none
@@ -7019,28 +7334,6 @@ contains
     end if
     return   
   end function isClose
-
-  subroutine checkEdge(lat,lon,nn,lata,lona,delta,inout)
-    real :: lat,lon
-    integer :: nn
-    real :: lata(nn), lona(nn)
-    real :: delta
-    integer :: inout
-    integer :: ii
-    real :: dist
-    real, parameter :: fact=360.0D0/40075.0D0
-    real :: deltaf
-    deltaf=delta*fact ! convert to degrees
-    do ii=1,nn
-       dist=getDist(lat,lon,lata(ii),lona(ii)) ! get distance in degrees...
-       if (dist < deltaf) then
-          !write(*,*) 'checkEdge Found point:',lat,lon,ii,dist
-          inout=0
-          return
-       end if
-    end do
-    return
-  end subroutine checkEdge
   ! ZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZ
   subroutine combinePolygons(flt,fltB,type,irc)
     implicit none

@@ -256,6 +256,114 @@ contains
     deallocate( points )
     return
   end subroutine simplify
+  ! Does not work over 180-meridian
+  subroutine simplifys(mpar,latlon,npar,eps)
+    IMPLICIT NONE
+    integer :: np                          ! number of points
+    real(kind=8), allocatable :: latlon(:) ! latitude (deg)
+    integer, allocatable :: npar(:)
+    real(kind=8),INTENT(IN)  :: eps                      ! tolerance in km
+    !
+    integer :: ii,jj,ss,tt,nnp,mpar,dnp
+    real :: pst,lat,lon,xlat,xlon
+    INTEGER                                 :: nbp
+    REAL(kind=8),DIMENSION(:,:),POINTER     :: points
+    LOGICAL,DIMENSION(:),POINTER            :: valid
+    real :: re=6371.0D0 ! earth radius in km
+    logical :: meet
+    integer :: pos,npos,fcnt,lcnt,istart,istop
+    !
+    ! For the ramer-douglas-peucker algorithm, the last point must be different
+    ! of the first point to avoid a division by 0 in 'perpendicularDistance()'
+    ! nbp = 10
+    ! allocate(points(2,nbp))
+    do ss=1,npar(1) ! loop over segments
+       istart=npar(ss*2)
+       istop=npar(ss*2+1)
+       ! store last point
+       xlat=latlon(istop)
+       xlon=latlon(mpar+istop)
+       np=istop-istart+1
+       write(*,'(X,A,I0," (eps=",F0.1,"km)")')'SIMPLIFY Polygon started with: ',np,eps
+       if (np.le.3) cycle
+       ! create work-array
+       allocate(points(2,np))
+       allocate(valid(np))
+       do ii=1,np
+          points(1,ii)=sim_degtor(latlon(istart+ii-1))*re                      ! latitude
+          points(2,ii)=sim_degtor(latlon(mpar+istart+ii-1))*re*&
+               & sim_cosdeg(latlon(istart+ii-1))  ! longitude
+       end do
+       ! simplify segment
+       valid = .TRUE.
+       fcnt=0
+       lcnt=0
+       pos=1
+       npos=getMeetPos(np,points,pos)
+       meet=.false.
+       do while (pos.gt.0)
+          !write(*,*)'Simplify looping:',pos,npos
+          fcnt=fcnt+1
+          if (npos.gt.pos) then ! meet
+             nbp=npos-1
+          else
+             nbp=np
+          end if
+          call DouglasPeuckerRecursive(points, pos, nbp, eps, valid)
+          !call DouglasPeuckerIteratif(points, eps, valid)
+          if (npos.eq.np) meet=.true.
+          pos=npos
+          npos=getMeetPos(np,points,pos)
+       end do
+       if (meet) then
+          valid(np)=.true.
+       end if
+       ! get final number of points
+       nnp=0
+       do ii=1,np
+          if (valid(ii)) nnp=nnp+1
+       end do
+       pst=100.0D0*real(nnp)/real(max(1,np))
+       write(*,'(X,A,I0," (",F0.1,"%)")')'SIMPLIFY Polygon ended with: ',nnp,pst
+       ! compress data (remove extra points)
+       jj=0
+       do ii=1,size(latlon)
+          if (ii.ge.istart.and.ii.le.istop) then
+             if (ii.lt.istart+nnp) then
+                jj=jj+1
+                latlon(jj)=latlon(ii)
+             end if
+          else if (ii.ge.mpar+istart.and.ii.le.mpar+istop) then
+             if (ii.lt.mpar+istart+nnp) then
+                jj=jj+1
+                latlon(jj)=latlon(ii)
+             end if
+          else
+             jj=jj+1
+             latlon(jj)=latlon(ii)
+          end if
+       end do
+       ! correct indexes
+       dnp=np-nnp
+       mpar=mpar-dnp
+       npar(ss*2+1)=npar(ss*2+1)-dnp
+       do tt=ss+1,npar(1)
+          npar(tt*2)=npar(tt*2)-dnp
+          npar(tt*2+1)=npar(tt*2+1)-dnp
+       end do
+       ! reset last point
+       istart=npar(ss*2)
+       istop=npar(ss*2+1)
+       if (xlat.ne.latlon(istop) .or. &
+            & xlon.ne.latlon(mpar+istop)) then
+          latlon(istop)  =xlat
+          latlon(mpar+istop)=xlon
+       end if
+       deallocate( valid )
+       deallocate( points )
+    end do
+    return
+  end subroutine simplifys
 
   subroutine writePolygon(poly350,np,latlon,eps,irc)
     implicit none

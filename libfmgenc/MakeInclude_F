@@ -91,7 +91,7 @@ debug :
 #
 clean:
 	@echo "Cleaning:" `pwd`
-	@$(shell rm -f *.o *~ *.bak*) 
+	@$(shell rm -f $(LIB_NAM) *.a *.bin *.o *~ *.bak*) 
 #
 install:
 	@echo "Install not implemented"
