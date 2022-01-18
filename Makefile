@@ -4,7 +4,7 @@
 #
 #
 # A list of the files or directories that should NOT be 'made'
- STATIC = ccc  cloud2ascii  clouds  Makefile  MakeInclude  pcloud  ppcloud  vplot LICENSE README.md Makefile~ 
+ STATIC = ccc  cloud2ascii  clouds  Makefile  MakeInclude  pcloud  ppcloud  vplot LICENSE README.md Makefile~ work
 #
 include ./MakeInclude
 #

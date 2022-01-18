@@ -25,8 +25,11 @@ C
       CHARACTER*(*) STRING
       CHARACTER*1 C1
       LOGICAL BL,FORW,BDONE
+      integer length
+      external length
 C
-      LENGTHTRIM=LEN_trim(string)
+      lengthtrim=length(string,n,guess)
+C      LENGTHTRIM=LEN_trim(string)
 C
       RETURN
       END

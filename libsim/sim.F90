@@ -284,7 +284,7 @@ contains
        xlat=latlon(istop)
        xlon=latlon(mpar+istop)
        np=istop-istart+1
-       write(*,'(X,A,I0," (eps=",F0.1,"km)")')'SIMPLIFY Polygon started with: ',np,eps
+       write(*,'(X,A,I0," (eps=",F0.1,"km)")')'SIMPLIFY Polyline started with: ',np,eps
        if (np.le.3) cycle
        ! create work-array
        allocate(points(2,np))

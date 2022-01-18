@@ -25,5 +25,7 @@ C
       INTEGER II,JJ
       LOGICAL LASTBL
 C
+      CALL CHOP0(STRING,N)
+C
       RETURN
       END

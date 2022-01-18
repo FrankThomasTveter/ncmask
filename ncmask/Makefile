@@ -44,7 +44,7 @@
 #	(Put a list of FORTRAN source files containing main programs
 #	 here) 
 #
- MAINS = ncmask.F90
+ MAINS = ncmask.F90 inside.F90
 #
 # Full library name
 #	(All objects will be stored in a library (using the UNIX 
@@ -81,7 +81,7 @@ LIBS =../libncf/libncf.a \
 #  gprof : -pg
 #
  BINOP =  -L/modules/centos7/netcdf/4.7.0/lib -L/usr/lib32  -lnetcdff -Wl,-rpath,/modules/centos7/netcdf/4.7.0/lib
- COMPILER = gfortran -fdefault-real-8 -fdefault-double-8
+COMPILER = gfortran -fdefault-real-8 -fdefault-double-8
 #
 #------------------------------------------------------------------------
 #		the rest not is not likely to be changed

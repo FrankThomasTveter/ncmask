@@ -198,18 +198,22 @@ SUBROUTINE MNCMASK(UNITI,IRC)
   !
   type report
      integer :: ntim
+     integer :: nxtr
      integer nxml,nkey
      logical :: laux
      type(variable), pointer :: vaux=>null()
+     type(parameter), pointer :: vpar=>null()
+     integer :: extind(mtim) ! extreme index
      real :: auxmin(mtim),auxmax(mtim)
      !
      character*700 xml700(2,mxml),aux700(2),key700(2,mkey)
-     logical :: lxml=.false., ljson=.false.
-     character*350 xmlo350,poly350 ! var350,
+     logical :: lxml=.false., ljson=.false.,lext=.false.
+     character*350 xmlo350,poly350,ext350 ! var350,
      logical :: lpoly=.false.  ! write polygon?
      logical :: lwrite=.false. ! write empty reports?
      ! targets
      logical :: ltrg=.false.
+     logical :: larea=.false.
      integer :: mrest=0
      integer :: nrest=0
      integer :: arest=0
@@ -232,6 +236,7 @@ SUBROUTINE MNCMASK(UNITI,IRC)
      real trgval(mtrg)
      character*700 :: trgvar700(mtrg)
      integer trgtyp(mtrg)
+     integer :: iext(mtrg)=0
      character*10 trg10(mtrg)
      logical trgreq(mtrg)
      ! average values
@@ -296,6 +301,7 @@ SUBROUTINE MNCMASK(UNITI,IRC)
      logical :: find=.false.
      logical :: fiad=.false.
      logical :: fino=.false.
+     real :: scl=1.0D0
      character*350 :: par350
      integer :: nrep=0
      ! variable
@@ -320,8 +326,10 @@ SUBROUTINE MNCMASK(UNITI,IRC)
      real :: keep=0.0D0, cutoff=0.0D0, maxdays=1000.0D0
      character*350 :: inp350,ref350,nco350 ! file names
      character*80 :: iter80
+     logical :: ignorealt=.false.  ! ignore altitude, can cause problems...
      integer :: leni=0
      integer :: ilen1=-1,ilen2=-1
+     integer :: extreme = 0
      character*700 :: ign700(2)
      logical :: nodata = .true.
      integer rok(10), rrm(10)
@@ -683,6 +691,7 @@ contains
     rep%valcnt(:)=0.0D0
     rep%lfirst(:)=.true.
     rep%xmlo350="output.xml" ! report
+    rep%ext350="extreme.xml" ! report
     rep%lpoly=.false.
     rep%lwrite=.false.
     rep%poly350="polygon.json" ! report
@@ -1157,6 +1166,7 @@ contains
     if (allocated(crep%keyind)) deallocate(crep%keyind)
     if (allocated(crep%groups)) deallocate(crep%groups)
     nullify(crep%vaux)
+    nullify(crep%vpar)
     call clearOperation(crep%roperation,irc)
     if (associated(crep%firstfilter).and.associated(crep%lastfilter)) then
        cflt=>crep%firstfilter%next
@@ -1406,6 +1416,8 @@ contains
           ! end if
        elseif (trim(xml%attribs(1,ii)).eq."iter") then
           file%iter80=buff700
+       elseif (trim(xml%attribs(1,ii)).eq."ignore") then
+          if (buff700(1:len2).eq."altitude") file%ignorealt=.true.
        elseif (trim(xml%attribs(1,ii)).eq."keep") then
           if (bdeb) write(*,*)myname,'Input file:',buff700(1:len2)
           read(buff700(1:len2),*,iostat=irc) file%keep
@@ -1426,7 +1438,7 @@ contains
           if (bdeb) write(*,*)myname,'Input file maxdays:',buff700(1:len2)
           read(buff700(1:len2),*,iostat=irc) file%maxdays
           if (irc.ne.0) then
-             write(*,*)myname,'Unable to read keep "'//&
+             write(*,*)myname,'Unable to read maxdays "'//&
                   &buff700(1:len2)//'"'
              return
           end if
@@ -1450,6 +1462,7 @@ contains
     logical :: bok
     CHARACTER*18 MYNAME
     DATA MYNAME /'attributeXMLFile'/
+    cpar%scl=1.0D0
     do ii=1,xml%no_attribs
        buff700=xml%attribs(2,ii)
        call replaceENV(buff700,700,bok,irc)
@@ -1471,6 +1484,14 @@ contains
           else
              write(*,*)myname,'Unknown setting:',trim(xml%tag)//':'//&
                   & trim(xml%attribs(1,ii))
+          end if
+       else if (trim(xml%attribs(1,ii)).eq."scale") then
+          read(buff700(1:len2),*,iostat=irc) &
+               & cpar%scl
+          if (irc.ne.0) then
+             write(*,*)myname,'Error reading attribute:',&
+                  & buff700
+             return
           end if
        else 
           write(*,*)myname,'Unknown attribute:',trim(xml%tag)//':'//&
@@ -1658,6 +1679,12 @@ contains
              write(*,*)myname,'Error return from attributeOutput.',irc
              return
           end if
+       else if (trim(xml%tag).eq."extreme") then
+          call attributeExtreme(file,crep,xml,irc)
+          if (irc.ne.0) then
+             write(*,*)myname,'Error return from attributeExtreme.',irc
+             return
+          end if
        else if (trim(xml%tag).eq."define") then
           call processDefine(file,crep,xml,irc)
           if (irc.ne.0) then
@@ -1797,7 +1824,7 @@ contains
     type(report), pointer :: crep
     type(xmltype)  :: xml
     integer :: irc
-    integer :: ii,len2
+    integer :: ii,len2,lenn
     character*250 :: dat250,buff250
     character*250, external :: nukehead
     integer, parameter :: maxval=100
@@ -1809,6 +1836,7 @@ contains
     crep%ltrg=.true.
     crep%ntrg=min(mtrg,crep%ntrg+1)
     crep%trgreq(crep%ntrg)=(trim(xml%tag).eq."required")
+    crep%trg10(crep%ntrg)=""
     do ii=1,xml%no_attribs
        buff700=xml%attribs(2,ii)
        call replaceENV(buff700,700,bok,irc)
@@ -1838,6 +1866,7 @@ contains
                   & buff700
              return
           end if
+          crep%larea=.true.
        else if (trim(xml%attribs(1,ii)).eq."count") then
           crep%trgtyp(crep%ntrg)=trg_count
           read(buff700(1:len2),*,iostat=irc) &
@@ -1886,6 +1915,25 @@ contains
           do jj=1,crep%ngroups
              crep%groups(jj)=bval(jj)
           end do
+       else if (trim(xml%attribs(1,ii)).eq."extreme") then
+          if (bdeb) then
+             lenn=length(crep%trg10(crep%ntrg),10,10)
+             write(*,*)myname,'Extreme ',&
+                  & crep%trg10(crep%ntrg)(1:lenn),&
+                  & buff700(1:len2)
+          end if
+          if (buff700(1:len2).eq."none") then
+             crep%iext(crep%ntrg)=0
+          else if (buff700(1:len2).eq."min") then
+             crep%iext(crep%ntrg)=-1
+          else if (buff700(1:len2).eq."max") then
+             crep%iext(crep%ntrg)=1
+          else if (buff700(1:len2).eq."all") then
+             crep%iext(crep%ntrg)=2
+          else
+             write(*,*)myname,'Ignoring extreme (min/max/all):',&
+                  & buff700(1:len2)
+          end if
        end if
     end do
     ! can only group on fraction/area/cnt
@@ -1963,6 +2011,41 @@ contains
        end if
     end do
   end subroutine attributeOutput
+  !
+  subroutine attributeExtreme(file,crep,xml,irc)
+    implicit none
+    type(filetype) :: file
+    type(report), pointer :: crep
+    type(xmltype)  :: xml
+    integer :: irc
+    logical :: file_exists
+    integer :: ii,len2
+    character*700 :: buff700
+    logical :: bok
+    CHARACTER*18 MYNAME
+    DATA MYNAME /'attributeExtreme'/
+    do ii=1,xml%no_attribs
+       buff700=xml%attribs(2,ii)
+       call replaceENV(buff700,700,bok,irc)
+       if (.not.bok) irc=120
+       if (irc.ne.0) then
+          write(*,*)myname,'Error return from replaceEnv.',irc
+          return
+       end if
+       len2=length(buff700,700,10)    
+       if (trim(xml%attribs(1,ii)).eq."xml") then
+          if (bdeb) write(*,*)myname,'Extreme xml file:',&
+               & buff700(1:len2)
+          crep%ext350=buff700
+          crep%lext=.true.
+       else 
+          write(*,*)myname,'Unknown attribute:',&
+               & trim(xml%tag)//':'//trim(xml%attribs(1,ii))
+          irc=801
+          return
+       end if
+    end do
+  end subroutine attributeExtreme
   !
   subroutine processDefine(file,crep,xml,irc)
     implicit none
@@ -4939,6 +5022,8 @@ contains
     nfilter%lpar(:)=.false.
     nfilter%npar(1)=nsplit
     isplit=1
+    fsplit=0
+    lsplit=0
     ii=0
     cnode => first%next
     do while (.not.associated(cnode, target=last))
@@ -5421,6 +5506,10 @@ contains
        else
           file%rrm(3)=file%rrm(3)+1 ! contents error
        end if
+       if (file%ignorealt) then
+          write(*,*)myname,'*** WARNING Ignoring Altitude.'
+          nullify(file%ref%altid)
+       end if
     end if
     !
     ! make indexes
@@ -5445,7 +5534,7 @@ contains
        end if
        file%refAltDO=>ncf_makeDimOrder(file%ref%altid,irc)
        if (irc.ne.0) then
-          write(*,*)myname,'Missing: altitude (ignoring).'
+          write(*,*)myname,'Missing: altitude (ignoring).',file%ignorealt
           irc=0
        end if
        file%refTimDO=>ncf_makeDimOrder(file%ref%timid,irc)
@@ -5551,7 +5640,7 @@ contains
              write(*,*)myname,'Reading variable:',v%var250(1:v%lenv)
              call ncf_readData(v,bbok,irc)
              if (irc.ne.0) then
-                write(*,*)myname,'Error return from altid-readData.',irc
+                write(*,*)myname,'Error return from tanid-readData.',irc
                 return
              end if
           end if
@@ -5936,10 +6025,12 @@ contains
     data myname /'matchAux'/
     if (crep%laux) then
        nullify(crep%vaux)
+       nullify(crep%vpar)
        bpar=>file%firstparameter%next
        PARLOOP:do while (.not.associated(bpar,target=file%lastparameter))
           if (bpar%par350.eq.crep%aux700(2)(1:350)) then
              crep%vaux=>bpar%var
+             crep%vpar=>bpar
              lenx=length(crep%aux700(2),700,10)
              !write(*,*)myname,'Auxiliary:"'//crep%aux700(2)(1:lenx)//'"'
              exit PARLOOP
@@ -5995,6 +6086,7 @@ contains
     DATA MYNAME /'writeTimes'/
     file%a2000=file%t2000
     call dj2000(file%a2000,yy,mm,dd,hh,mi,sec)
+    !write(*,*)myname,'T2000:',file%t2000,yy,mm,dd,hh
     write (file%a24,'(I4.4,"-",I2.2,"-",I2.2,"_",I2.2,"-",I2.2,"-00.000Z")') &
          &yy,mm,dd,hh,mi
     write (ayy,'(I4.4)') yy
@@ -6240,6 +6332,8 @@ contains
        end if
        if (associated(file%ref%tanid)) then
           file%t2000=j2000(tanfact*ncf_valuePosition(file%ref%tanid,irc))
+          !write(*,*)myname,'TANID:',ncf_valuePosition(file%ref%tanid,irc),&
+          !     & (file%t2000+10957.0D0)*86400.0D0
           if (irc.ne.0) then
              write(*,*) myname,'Error return from ncf_valuePosition.',irc
              return
@@ -6262,6 +6356,7 @@ contains
     logical :: used
     logical masked
     integer loc
+    logical :: first
     CHARACTER*16 MYNAME 
     DATA MYNAME /'processDataFile'/
     used=.false.
@@ -6299,14 +6394,13 @@ contains
                    write(*,*) myname,'Error return from addDimOrder.',irc
                    return
                 end if
-                if (crep%ltrg) then
-                   file%ix=>ncf_getdimensionOrderDimension(file%refLatlonDo,1)
-                   file%iy=>ncf_getdimensionOrderDimension(file%refLatlonDo,2)
-                   file%darea=ncf_getArea(file%ref,file%ix,file%iy,irc)
-                   if (irc.ne.0) then
-                      write(*,*) myname,'Error return from ncf_getArea.',irc
-                      return
-                   end if
+                file%ix=>ncf_getdimensionOrderDimension(file%refLatlonDo,1)
+                file%iy=>ncf_getdimensionOrderDimension(file%refLatlonDo,2)
+                file%darea=ncf_getArea(file%ref,file%ix,file%iy,irc)
+                if (irc.ne.0.and..not.crep%larea) irc=0 ! not needed anyways...
+                if (irc.ne.0) then
+                   write(*,*) myname,'Error return from ncf_getArea.',irc
+                   return
                 end if
                 call ncf_clearDimOrder(file%refLatLonDO)
                 write(*,'(X,A,A,F0.2,A)')myname,&
@@ -6378,6 +6472,7 @@ contains
                       ! process auxiliaries
                       if (crep%laux) then
                          aux=ncf_valuePosition(crep%vaux,irc)
+                         aux=aux*crep%vpar%scl
                          crep%auxmax(tt)=aux
                          crep%auxmin(tt)=aux
                       end if
@@ -6401,6 +6496,7 @@ contains
                       ! process auxiliaries
                       if (crep%laux) then
                          aux=ncf_valuePosition(crep%vaux,irc)
+                         aux=aux*crep%vpar%scl
                          if (val.gt.crep%auxmax(tt)) then
                             crep%auxmax(tt)=aux
                          end if
@@ -6590,14 +6686,17 @@ contains
     type(parameter), pointer :: cpar=>null()
     type(report), pointer :: crep=>null()
     type(filter), pointer :: flt=>null()
-    integer ii
+    integer ii,kk
     CHARACTER*14 MYNAME 
     DATA MYNAME /'writeReports'/
     cpar=>file%firstparameter%next
     do while (.not.associated(cpar,target=file%lastparameter))
        crep=>cpar%firstreport%next
        do while (.not.associated(crep,target=cpar%lastreport))
-          call writeReport(file,cpar,crep,irc)
+          if (crep%lext) then
+             call writeReport(file,cpar,crep,.true.,irc)
+          end if
+          call writeReport(file,cpar,crep,.false.,irc)
           if (crep%lpoly) then          ! write masked polygon to file
              flt => getPolygonFilter(crep%roperation,irc)
              if (irc.ne.0) then
@@ -6635,11 +6734,12 @@ contains
     return
   end subroutine writeReports
   !
-  subroutine writeReport(file,cpar,crep,irc)
+  subroutine writeReport(file,cpar,crep,lext,irc)
     implicit none
     type(filetype) :: file
     type(parameter), pointer :: cpar
     type(report), pointer :: crep
+    logical :: lext
     integer :: irc
     character*25 x25,y25,z25,l25,d25
     integer lenx25,leny25,lenz25,lenl25,lend25
@@ -6652,6 +6752,8 @@ contains
     character*60 :: b60
     integer :: cpos,opos,lenx,leni,lenk,lenb,lenk1,lenk2
     integer :: iepos,ifpos,idd,lenv,ilenv,ii
+    logical :: first
+    character*350 :: name350
     character*30 :: val30
     integer, external :: length
     real :: epos,fpos,trg
@@ -6666,19 +6768,24 @@ contains
        write(*,*)myname,'Missing report...'
        return
     end if
-    call chop0(crep%xmlo350,350)
-    lenx=length(crep%xmlo350,350,10)
+    if (lext) then             ! make extreme index
+       name350=crep%ext350
+    else                            ! write all values
+       name350=crep%xmlo350
+    end if
+    call chop0(name350,350)
+    lenx=length(name350,350,10)
     if (file%nodata) then
-       write(*,*)myname,'File contains no data:'//crep%xmlo350(1:lenx)
+       write(*,*)myname,'File contains no data:'//name350(1:lenx)
     end if
     ! loop over groups... (over-write file every time)
     bgg=.false.
-    gg=1
-    do while (gg.le.max(1,crep%ngroups))
-       write(gg10,'(I10)') max(1,gg)
+    gg=0
+    do while (gg.le.max(0,crep%ngroups))
+       write(gg10,'(I10)') max(0,gg)
        call chop0(gg10,10)
        leng=length(gg10,10,1)
-       i700=crep%xmlo350(1:lenx)
+       i700=name350(1:lenx)
        call chop0(i700,700)
        leni=length(i700,700,20)
        !write(*,*) myname,'Buffer:',i700(1:leni)
@@ -6771,7 +6878,7 @@ contains
           if (bok) then
              write(unitx,'(A)',advance='no',iostat=irc) '" issued="'//file%a24
           end if
-          if (file%keep > 0.0D0) then
+          if (.not.lext .and. file%keep > 0.0D0) then
              write(unitx,'(A)',advance='no',iostat=irc) '" expires="'//file%t24
           end if
           write(unitx,'(A)',iostat=irc) '"/>'
@@ -6844,7 +6951,7 @@ contains
                 write(unitx,'(A)',iostat=irc) &
                      & "   <key "//keb700(1:lenk)//" />"
              end if
-             call writeRecords(unitx,file,cpar,crep,gg,irc)
+             call writeRecords(unitx,file,cpar,crep,gg,lext,irc)
              if (crep%nkey.eq.0) then
                 write(unitx,'(A)',iostat=irc) '  </par>'
              else
@@ -6859,7 +6966,7 @@ contains
           end if
           close(unitx,iostat=irc)
           if (irc.ne.0) then
-             write(*,*)myname,'Unable to close: ',crep%xmlo350(1:lenx)
+             write(*,*)myname,'Unable to close: ',name350(1:lenx)
              return
           end if
        end if
@@ -6868,13 +6975,14 @@ contains
     return
   end subroutine writeReport
   !
-  subroutine writeRecords(unitx,file,cpar,crep,group,irc)
+  subroutine writeRecords(unitx,file,cpar,crep,group,lext,irc)
     implicit none
     integer :: unitx
     type(filetype) :: file
     type(parameter), pointer :: cpar
     type(report), pointer :: crep
     integer :: group
+    logical :: lext
     integer :: irc
     character*25 x25,y25,z25,l25,d25
     integer lenx25,leny25,lenz25,lenl25,lend25
@@ -6886,32 +6994,38 @@ contains
     character*700 :: keb700,i700
     character*60 :: b60
     integer :: cpos,opos,lenx,leni,lenk,lenb,lenk1,lenk2
-    integer :: iepos,ifpos,idd,lenv,ilenv,ii,kk,tt
-    character*30 :: val30
+    integer :: iepos,ifpos,idd,ilenv,ii,kk,ll,tt
+    character*30 :: val30(crep%ntim,crep%ntrg)
+    integer :: lenv
     integer, external :: length
     real :: epos,fpos,trg
     real :: rpos,dpos
     real :: trgpos(mtrg)
-    logical :: bok, brm, first
+    logical :: bok(max(crep%ntim,1)), lok(max(crep%ntim,1)), brm, first
     real,allocatable :: avg(:)
-    real :: savg, scnt
+    integer :: ij2000, imax, imin, cnt
+    real :: savg, scnt, vmin, vmax
     integer,dimension(8) :: values
     integer :: nerr,grp
     CHARACTER*14 MYNAME 
     DATA MYNAME /'writeRecords'/
     nerr=0
-    !if (bdeb) write(*,*)myname,'Entering...',crep%ntim
-    if (bdeb.and.crep%ntim.eq.0) write(*,*)myname,'No times found.',crep%ltrg
-    TIM: do tt=1,crep%ntim
+    if (bdeb) write(*,*)myname,'Entering...',crep%ntim,crep%ntrg,crep%ltrg
+    if (bdeb.and.crep%nxtr.eq.0) write(*,*)myname,'No times found.',crep%ltrg
+    TIM1: do tt=1,crep%ntim
+       if (bdeb) write(*,*)myname,'Time:',tt,crep%ntim
+       bok(tt)=.false.
+       lok(tt)=.true.
        if (.not.crep%lfirst(tt)) then
           ! check if record should be written...
-          bok=.false.
+          if (bdeb) write(*,*)myname,'Checking targets:',crep%ltrg
           brm=.false.
           if (crep%ltrg) then
              TRG1: do kk=1,crep%ntrg
+                if (bdeb) write(*,*)myname,'Target:',kk,crep%trgtyp(kk)
                 if (crep%trgtyp(kk).eq.trg_macro) then
                    trgpos(kk)=0.0D0
-                   bok=.true.
+                   bok(tt)=.true.
                 else
                    ! remember ascending order
                    if (crep%trgtyp(kk).eq.trg_fraction) then
@@ -6955,21 +7069,27 @@ contains
                    iepos=nint(epos)
                    !write(*,*)myname,'Nkey:',tt,crep%nkey1(tt),crep%trgtyp(kk),crep%trgval(kk),rpos,ifpos,iepos
                    if (ifpos.ge.1 .and. iepos.le.crep%nkey1(tt)) then ! ignore?
-                      bok=.true.
+                      bok(tt)=.true.
                    else if (crep%trgreq(kk)) then
                       brm=.true.
+                      if (bdeb) write(*,*)myname,'>>> Missing required target...'
+                      
                    end if
                 end if
              end do TRG1
           else
-             bok=.true.
+             if (bdeb) write(*,*)myname,'No targets...'
+             bok(tt)=.true.
           end if
-          !write(*,*)myname,'Here:',tt,brm,bok,crep%ltrg
-          if (brm) bok=.false. ! did not meet requirements
-          if (bok.and.crep%grouptrg.ne.0.and.crep%ntrg.ge.crep%grouptrg) then
+          if (bdeb) write(*,*)myname,'Req met:',brm,bok(tt)
+          if (brm) bok(tt)=.false. ! did not meet requirements
+          if (bdeb.and..not.bok(tt)) write(*,*)myname,'>>> Removed report...',brm,bok(tt)
+          if (bok(tt).and.crep%grouptrg.ne.0.and.crep%ntrg.ge.crep%grouptrg) then
+             ! check if record is in a valid group
              kk=crep%grouptrg
+             if (bdeb) write(*,*)myname,'Checking group:',kk
              if (crep%trgtyp(kk).eq.trg_macro) then
-                bok=(group.eq.1)
+                bok(tt)=(group.eq.1)
                 ! do nothing
              else
                 rpos=trgpos(kk)
@@ -6978,11 +7098,12 @@ contains
                 dpos=max(1.0D0,epos-fpos)
                 ifpos=nint(fpos)
                 iepos=nint(epos)
-                !write(*,*)myname,"There:",ifpos,iepos,rpos,crep%nkey1(tt)
                 if (ifpos.ge.1 .and. iepos.le.crep%nkey1(tt)) then ! ignore invalid
                    if (crep%trgtyp(kk).eq.trg_average) then
                       ! do nothing
-                      bok=(group.eq.1)
+                      bok(tt)=(group.eq.1)
+                   else if (crep%ngroups.eq.0) then ! file name did not contain group
+                      bok(tt)=.true. ! use all data
                    else
                       val=crep%key1(crep%keyind(ifpos,tt),tt)+(rpos-fpos)*&
                            & (crep%key1(crep%keyind(iepos,tt),tt)-&
@@ -6993,89 +7114,182 @@ contains
                             grp=ii
                          end if
                       end do
-                      bok=(grp.eq.group)
+                      bok(tt)=(grp.eq.group)
                    end if
                 end if
              end if
-          end if
-          if (bok) then ! write record
-             first=.true.
-             ! write record
-             call writeStart(unitx,tt,file,cpar,crep,irc)
-             if (crep%ltrg) then
-                TRG2:do kk=1,crep%ntrg
-                   if (crep%trgtyp(kk).eq.trg_macro) then
-                      var700=crep%trgvar700(kk)
-                      call replaceXML(var700,mxmlvar,crep%xmlvar350(1,tt))
-                      lenv=length(var700,700,10)
-                      write(unitx,'(A,A)',advance='no',iostat=irc) &
-                           & "' "//trim(crep%trg10(kk))//"='",var700(1:lenv)
-                   else
-                      rpos=trgpos(kk)
-                      fpos=floor(rpos)
-                      epos=ceiling(rpos)
-                      dpos=max(1.0D0,epos-fpos)
-                      ifpos=nint(fpos)
-                      iepos=nint(epos)
-                      !write(*,*)myname,"There:",ifpos,iepos,rpos,crep%nkey1(tt)
-                      if (ifpos.ge.1 .and. iepos.le.crep%nkey1(tt)) then ! ignore invalid requests... (->undefined level)
-                         if (crep%trgtyp(kk).eq.trg_average) then
-                            ! average of the values below
-                            if (first) then
-                               first=.false.
-                               allocate(avg(crep%nkey1(tt)),stat=irc)
-                               if (irc.ne.0) then
-                                  write(*,*)myname,'Error return from initfile.',irc
-                                  return
-                               end if
-                               ! make avg
-                               savg=0.0D0
-                               scnt=0.0D0
-                               KEY:do ii=1,crep%nkey1(tt)
-                                  savg=savg+crep%key1(crep%keyind(ii,tt),tt)
-                                  scnt=scnt+1.0D0
-                                  avg(ii)=savg/scnt ! average of the values below
-                                  !write(*,*)myname,'Avg:',tt,ii,crep%key1(crep%keyind(ii,tt),tt),&
-                                  !     & avg(ii),savg,scnt
-
-                               end do KEY
-                            end if
-                            !write(*,*)myname,"Ind:",fpos,epos,(crep%keyind(ii,tt),ii=1,crep%nkey1(tt))
-                            val=avg(ifpos)+(rpos-fpos)*&
-                                 & (avg(iepos)-&
-                                 & avg(ifpos))/dpos
-                            if (crep%trgval(kk) .lt. 0) then ! average of the values above
-                               val= (savg - val*rpos)/scnt
-                            end if
-                         else
-                            !write(*,*)myname,'Nkey:',tt,crep%nkey1(tt),crep%trgtyp(kk),crep%trgval(kk),rpos,ifpos,iepos
-                            val=crep%key1(crep%keyind(ifpos,tt),tt)+(rpos-fpos)*&
-                                 & (crep%key1(crep%keyind(iepos,tt),tt)-&
-                                 & crep%key1(crep%keyind(ifpos,tt),tt))/dpos
-                         end if
-                         val30=pretty30(val,lenv)
-                         write(unitx,'(A,A)',advance='no',iostat=irc) &
-                              & "' "//trim(crep%trg10(kk))//"='",val30(1:lenv)
-                      end if
-                   end if
-                end do TRG2
-             else
-                write(unitx,'(2(A,F0.8))',advance='no',iostat=irc) &
-                     & "' max='",crep%valmax(tt),&
-                     & "' min='",crep%valmin(tt)
+             if (bdeb) write(*,*)myname,'Group target... ',group,grp,crep%ngroups,crep%trgtyp(kk).eq.trg_macro,bok(tt)
+             if (bdeb.and..not.bok(tt)) then
+                write(*,*)myname,'*** Value:',val,' in G',grp,' but considering G',group
+                do ii=1,crep%ngroups
+                   write(*,*)myname,'     Groups... ',ii,crep%groups(ii)
+                end do
              end if
-             write(unitx,'(A)',iostat=irc) &
-                  & "'/>"
-             ! & "' time='"//z25(1:lenz25)//&
-             ! & "' epoch='",crep%tj2000(tt),&
+          end if
+          if (bdeb) write(*,*)myname,'Making values:',tt,bok(tt),crep%ntrg
+          if (bok(tt)) then
+             first=.true.
+             TRG2:do kk=1,crep%ntrg
+                if (bdeb) write(*,*)myname,'Processing target:',kk,crep%ntrg
+                if (crep%trgtyp(kk).eq.trg_macro) then
+                   if (bdeb) write(*,*)myname,'Is macro:',kk
+                   var700=crep%trgvar700(kk)
+                   call replaceXML(var700,mxmlvar,crep%xmlvar350(1,tt))
+                   lenx=length(var700,700,10)
+                   val30(tt,kk)=var700(1:min(30,lenx))
+                else
+                   if (bdeb) write(*,*)myname,'Normal target:',kk
+                   rpos=trgpos(kk)
+                   fpos=floor(rpos)
+                   epos=ceiling(rpos)
+                   dpos=max(1.0D0,epos-fpos)
+                   ifpos=nint(fpos)
+                   iepos=nint(epos)
+                   !write(*,*)myname,"There:",ifpos,iepos,rpos,crep%nkey1(tt)
+                   if (ifpos.ge.1 .and. iepos.le.crep%nkey1(tt)) then ! ignore invalid requests... (->undefined level)
+                      if (bdeb) write(*,*)myname,'Target is valid:',ifpos,iepos,crep%trgtyp(kk).eq.trg_average
+                      if (crep%trgtyp(kk).eq.trg_average) then
+                         ! average of the values below
+                         if (first) then
+                            first=.false.
+                            allocate(avg(crep%nkey1(tt)),stat=irc)
+                            if (irc.ne.0) then
+                               write(*,*)myname,'Error return from initfile.',irc
+                               return
+                            end if
+                            ! make avg
+                            savg=0.0D0
+                            scnt=0.0D0
+                            KEY:do ii=1,crep%nkey1(tt)
+                               savg=savg+crep%key1(crep%keyind(ii,tt),tt)
+                               scnt=scnt+1.0D0
+                               avg(ii)=savg/scnt ! average of the values below
+                               !write(*,*)myname,'Avg:',tt,ii,crep%key1(crep%keyind(ii,tt),tt),&
+                               !     & avg(ii),savg,scnt
+
+                            end do KEY
+                         end if
+                         !write(*,*)myname,"Ind:",fpos,epos,(crep%keyind(ii,tt),ii=1,crep%nkey1(tt))
+                         val=avg(ifpos)+(rpos-fpos)*&
+                              & (avg(iepos)-&
+                              & avg(ifpos))/dpos
+                         if (crep%trgval(kk) .lt. 0) then ! average of the values above
+                            val= (savg - val*rpos)/scnt
+                         end if
+                      else
+                         !write(*,*)myname,'Nkey:',tt,crep%nkey1(tt),crep%trgtyp(kk),crep%trgval(kk),rpos,ifpos,iepos
+                         val=crep%key1(crep%keyind(ifpos,tt),tt)+(rpos-fpos)*&
+                              & (crep%key1(crep%keyind(iepos,tt),tt)-&
+                              & crep%key1(crep%keyind(ifpos,tt),tt))/dpos
+                      end if
+                      val30(tt,kk)=pretty30(val,lenx)
+                   else ! no data available, ignore request...
+                      val30(tt,kk)=""
+                   end if
+                end if
+             end do TRG2
              if (allocated(avg)) deallocate(avg,stat=irc)
           end if
        else if (bdeb.and.nerr.lt.5) then
           nerr=nerr+1
           write(*,*)myname,'Missing data for time:',tt
        end if
-    end do TIM
-  end subroutine writeRecords
+    end do TIM1
+    if (bdeb) write(*,*)myname,'Checking extremes:',lext
+    if (lext) then ! mark records that have extreme values...
+       lok(:)=.false.
+       cnt=0
+       do kk=1,crep%ntrg
+          if (crep%iext(kk).ne.0)cnt=cnt+1
+       end do
+       if (cnt.eq.0) then
+          do kk=1,crep%ntrg
+             crep%iext(kk)=2 ! report all extremes
+          end do
+       end if
+       TRG3:do kk=1,crep%ntrg
+          if (crep%iext(kk).eq.0) cycle TRG3
+          cnt=0
+          imax=0
+          imin=0
+          vmin=0.0D0
+          vmax=0.0D0
+          first=.true.
+          ij2000=int(crep%tj2000(1)) ! old time
+          TIM3: do tt=1,crep%ntim
+             if (.not.crep%lfirst(tt).and.bok(tt)) then ! valid time-record...
+                call chop0(val30(tt,kk),30)
+                lenv=length(val30(tt,kk),30,10)
+                if (lenv.ne.0) then
+                   read(val30(tt,kk)(1:lenv),*,iostat=irc) val
+                   if (irc.ne.0) then
+                      write(*,*)myname,"Unable to number from:",val30(tt,kk)(1:lenv)
+                      return
+                   end if
+                   if (first)  then 
+                      first=.false.
+                      imax=tt
+                      imin=tt
+                      vmin=val
+                      vmax=val
+                      ij2000=int(crep%tj2000(tt))
+                   else if (ij2000.ne.int(crep%tj2000(tt))) then
+                      if (crep%iext(kk).eq.-1.or.crep%iext(kk).eq.+2) lok(imin)=.true.
+                      if (crep%iext(kk).eq.+1.or.crep%iext(kk).eq.+2) lok(imax)=.true.
+                      imax=tt
+                      imin=tt
+                      vmin=val
+                      vmax=val
+                      ij2000=int(crep%tj2000(tt))
+                   else if (val.gt.vmax) then
+                      imax=tt
+                      vmax=val
+                   else if (val.lt. vmin) then
+                      imin=tt
+                      vmin=val
+                   end if
+                   cnt=cnt+1
+                end if
+                ! write(*,*)myname,'Vals:',tt,imin,imax,val30(tt,kk)(1:lenv),val
+             end if
+          end do TIM3
+          if (cnt.ne.0) then
+             if (crep%iext(kk).eq.-1.or.crep%iext(kk).eq.+2) lok(imin)=.true.
+             if (crep%iext(kk).eq.+1.or.crep%iext(kk).eq.+2) lok(imax)=.true.
+          end if
+       end do TRG3
+    end if
+    if (bdeb) write(*,*)myname,'Writing to file:',crep%ntim
+    ! finally write records to file...
+    TIM4: do tt=1,crep%ntim
+       if (bok(tt).and.lok(tt)) then ! write record
+          if (bdeb) write(*,*)myname,'>>> Writing record...'
+          first=.true.
+          ! write record
+          call writeStart(unitx,tt,file,cpar,crep,irc)
+          if (crep%ltrg) then
+             TRG4:do kk=1,crep%ntrg
+                call chop0(val30(tt,kk),30);
+                lenx=length(val30(tt,kk),30,10)
+                IF (lenx.ne.0) then
+                   write(unitx,'(A,A)',advance='no',iostat=irc) &
+                        & "' "//trim(crep%trg10(kk))//"='",val30(tt,kk)(1:lenx)
+                end if
+             end do TRG4
+          else
+             write(unitx,'(2(A,F0.8))',advance='no',iostat=irc) &
+                  & "' max='",crep%valmax(tt),&
+                  & "' min='",crep%valmin(tt)
+          end if
+          write(unitx,'(A)',iostat=irc) &
+               & "'/>"
+          ! & "' time='"//z25(1:lenz25)//&
+          ! & "' epoch='",crep%tj2000(tt),&
+       else if (bdeb) then
+          write(*,*)myname,'>>> ignoring report...'
+       end if
+    end do TIM4
+  end subroutine WRITERECORDS
   !
   subroutine writeStart(unitx,tt,file,cpar,crep,irc)
     implicit none
@@ -7103,13 +7317,12 @@ contains
     logical :: first
     integer,dimension(8) :: values
     CHARACTER*14 MYNAME 
-    DATA MYNAME /'writeRecords'/
+    DATA MYNAME /'writeStart'/
     write(l25,'("+",I0)') nint((crep%tj2000(tt)-file%a2000)*24.0D0);
     call chop0(l25,25)
     lenl25=length(l25,25,3);
     ! write(d25,'("+",I0)') int((crep%tj2000(tt)-int(file%a2000)));
     idd=int((crep%tj2000(tt)-int(file%i2000)));
-    !write(*,*)myname,"DAY:",crep%tj2000(tt),file%i2000,idd
     if (idd.lt.0) then
        write(d25,'(I0)') idd
     else
@@ -7118,9 +7331,10 @@ contains
     call chop0(d25,25)
     lend25=length(d25,25,3);
     call dj2000(crep%tj2000(tt),yy,mm,dd,hh,mi,sec)
-    x25=short25(yy,mm,dd,hh,mi,lenx25) ! dtg
-    y25=short25(yy,mm,dd,00,00,leny25) ! date
-    z25=short25(00,00,00,hh,mi,lenz25) ! time
+    x25=short25(+0,yy,mm,dd,hh,mi,lenx25) ! dtg
+    y25=short25(-1,yy,mm,dd,00,00,leny25) ! date
+    z25=short25(+1,00,00,00,hh,mi,lenz25) ! time
+    ! write(*,*)myname,"DAY:",tt,crep%tj2000(tt),file%i2000,idd,d25(1:lend25)
     write(unitx,'(4(A,F0.8),A)',advance='no',iostat=irc) &
          & "   <dtg dtg='"//x25(1:lenx25)//&
          & "' date='"//y25(1:leny25)//&
@@ -7252,9 +7466,10 @@ contains
     jd=jd+((hour-12.0d0)/24.0d0)+(minutes/1440.0d0)+(seconds/86400.0d0)
     return
   end subroutine date2jd
-  function short25(yy,mm,dd,hh,mi,len)
+  function short25(type,yy,mm,dd,hh,mi,len)
     implicit none
     character*25 :: short25
+    integer :: type ! -1:date, 0:dtg, 1:time
     integer :: yy
     integer :: mm
     integer :: dd
@@ -7262,7 +7477,7 @@ contains
     integer :: mi
     integer :: len
     len=0
-    if (yy.ne.0) then ! date
+    if (type.le.0) then ! add date
        if (len.ne.0) then
           short25(len+1:len+1)="_"
           len=len+1
@@ -7270,7 +7485,7 @@ contains
        write(short25(len+1:len+10),'(I4.4,"-",I2.2,"-",I2.2)') yy,mm,dd
        len=len+10
     end if
-    if (hh.ne.0.or.mi.ne.0) then
+    if (type.ge.0) then ! add time
        if (len.ne.0) then
           short25(len+1:len+1)="_"
           len=len+1
@@ -7283,7 +7498,8 @@ contains
           write(short25(len+1:len+2),'(I2.2)') mi
           len=len+2
        end if
-    else if (yy.eq.0.and.len.eq.0) then
+    end if
+    if (len.eq.0) then
        short25(1:2)="00"
        len=2
     end if
