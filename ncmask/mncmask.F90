@@ -226,6 +226,8 @@ SUBROUTINE MNCMASK(UNITI,IRC)
      character*350 xmlvar350(mxmlvar,mtim)
      character*350 keyvar350(mkeyvar)
      ! statistics
+     logical :: wmin=.false.
+     logical :: wmax=.false.
      real valmin(mtim),valmax(mtim),valavg(mtim),valcnt(mtim)
      real llmin(2,mtim),llmax(2,mtim)
      integer ttmin(mtim),ttmax(mtim)
@@ -1857,7 +1859,13 @@ contains
                   & buff700
              return
           end if
+          if (crep%trgval(crep%ntrg).gt.0.5) then
+             crep%wmax=.true.
+          else
+             crep%wmin=.true.
+          end if
        else if (trim(xml%attribs(1,ii)).eq."area") then
+          crep%wmax=.true.
           crep%trgtyp(crep%ntrg)=trg_area
           read(buff700(1:len2),*,iostat=irc) &
                & crep%trgval(crep%ntrg)
@@ -1868,6 +1876,7 @@ contains
           end if
           crep%larea=.true.
        else if (trim(xml%attribs(1,ii)).eq."count") then
+          crep%wmax=.true.
           crep%trgtyp(crep%ntrg)=trg_count
           read(buff700(1:len2),*,iostat=irc) &
                & crep%trgval(crep%ntrg)
@@ -1877,9 +1886,12 @@ contains
              return
           end if
        else if (trim(xml%attribs(1,ii)).eq."macro") then
+          crep%wmax=.true.
           crep%trgtyp(crep%ntrg)=trg_macro
           crep%trgvar700(crep%ntrg)=buff700
        else if (trim(xml%attribs(1,ii)).eq."average") then
+          crep%wmax=.true.
+          crep%wmin=.true.
           crep%trgtyp(crep%ntrg)=trg_average
           read(buff700(1:len2),*,iostat=irc) &
                & crep%trgval(crep%ntrg)
@@ -1962,6 +1974,8 @@ contains
           crep%avg10=xml%attribs(2,ii)(1:len2)
        end if
     end do
+    crep%wmax=.true.
+    crep%wmin=.true.
   end subroutine attributeAverage
   !
   subroutine attributeOutput(file,crep,xml,irc)
@@ -7335,14 +7349,21 @@ contains
     y25=short25(-1,yy,mm,dd,00,00,leny25) ! date
     z25=short25(+1,00,00,00,hh,mi,lenz25) ! time
     ! write(*,*)myname,"DAY:",tt,crep%tj2000(tt),file%i2000,idd,d25(1:lend25)
-    write(unitx,'(4(A,F0.8),A)',advance='no',iostat=irc) &
+    write(unitx,'(A)',advance='no',iostat=irc) &
          & "   <dtg dtg='"//x25(1:lenx25)//&
          & "' date='"//y25(1:leny25)//&
-         & "' maxlat='",crep%llmax(1,tt),&
-         & "' maxlon='",crep%llmax(2,tt),&
-         & "' minlat='",crep%llmin(1,tt),&
-         & "' minlon='",crep%llmin(2,tt),&
-         & "' lead='"//l25(1:lenl25)//"' day='"//d25(1:lend25)
+         & "' lead='"//l25(1:lenl25)
+    !         & "' lead='"//l25(1:lenl25)//"' day='"//d25(1:lend25)
+    if (crep%wmax) then
+       write(unitx,'(2(A,F0.8))',advance='no',iostat=irc) &
+            & "' maxlat='",crep%llmax(1,tt),&
+            & "' maxlon='",crep%llmax(2,tt)
+    end if
+    if (crep%wmin) then
+       write(unitx,'(2(A,F0.8))',advance='no',iostat=irc) &
+            & "' minlat='",crep%llmin(1,tt),&
+            & "' minlon='",crep%llmin(2,tt)
+    end if
     if (crep%lavg.and.crep%valcnt(tt).gt.0.0D0) then
        val=crep%valavg(tt)/crep%valcnt(tt)
        write(unitx,'(A,F0.8)',advance='no',iostat=irc) &
