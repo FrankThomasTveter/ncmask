@@ -351,7 +351,7 @@ SUBROUTINE MNCMASK(UNITI,IRC)
      type(dimensionOrder), pointer  :: refAltDO=>null(),refTimDO=>null()
      type(dimensionOrder), pointer  :: refAllDO=>null(),refIterDO=>null()
      type(dimensionOrder), pointer  :: refLatLonAltDO=>null(),refOut=>null()
-     type(dimensionOrder), pointer  :: refInn=>null(),refStrDO=>null()
+     type(dimensionOrder), pointer  :: refInn=>null(),refStrDO=>null(),refFlt=>null()
      type(dimensionOrder), pointer  :: refDimDO=>null()
      type(dimensionOrder), pointer  :: refLatLonDO=>null()
      type(parameter), pointer :: firstparameter=> null()
@@ -486,7 +486,7 @@ SUBROUTINE MNCMASK(UNITI,IRC)
   !
   call matchAuxs(file,irc)
   if (irc.ne.0) then
-     write(*,*)myname,'Error return from mathAuxs.',irc
+     write(*,*)myname,'Error return from matchAuxs.',irc
      return
   end if
   !
@@ -497,7 +497,8 @@ SUBROUTINE MNCMASK(UNITI,IRC)
      write(*,*) myname,'Error return from resetPos (file%refIterDO).',irc
      return
   end if
-  !call ncf_printDimOrder(file%refIterDO)
+  write(*,*)myname,'IterDO:'
+  call ncf_printDimOrder(file%refIterDO)
   ITER:do while (ncf_increment(file%ref,file%refIterDO,irc))
      !
      call reinReports(file,irc)
@@ -3437,6 +3438,7 @@ contains
              irc=458
              return
           end if
+          ! set filter-value position...XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
           val=ncf_valuePosition(f%v,irc)
           if (irc.ne.0) then
              write(*,*) myname,'Error return from ncf_valuePosition.',irc
@@ -3454,8 +3456,14 @@ contains
           if (.not.res.and.f%lpar(1)) then ! min threshold
              if (val.lt.f%rpar(1)) res=.true.
           end if
-          if (.not.res.and.f%lpar(2)) then ! min threshold
+          if (.not.res.and.f%lpar(2)) then ! max threshold
              if (val.gt.f%rpar(2)) res=.true.
+          end if
+          if (.not.res.and.f%lpar(3)) then ! value
+             if ((f%lpar(4) .AND. abs(val-f%rpar(3)).gt.f%rpar(4)) &
+                  & .OR. (.NOT.f%lpar(4) .AND. val.ne.f%rpar(3))) res=.true.
+             !write(*,*)myname,'Value:',val
+             !call ncf_printPos(f%v%f%pos)
           end if
           !write(*,*)myname,'Value:',dist,f%rpar(4)*0.5D0,alt,maxalt,minalt,res
        case (flt_string) ! string
@@ -5336,6 +5344,22 @@ contains
                 return
              end if
              nfilter%lpar(2)=.true.
+          else if (trim(xml%attribs(1,ii)).eq."value") then
+             read(buff700(1:len2),*,iostat=irc) nfilter%rpar(3)
+             if (irc.ne.0) then
+                write(*,*)myname,'Unable to read slice-ori-alt:',&
+                     & buff700(1:len2)
+                return
+             end if
+             nfilter%lpar(3)=.true.
+          else if (trim(xml%attribs(1,ii)).eq."tolerance") then
+             read(buff700(1:len2),*,iostat=irc) nfilter%rpar(4)
+             if (irc.ne.0) then
+                write(*,*)myname,'Unable to read slice-ori-alt:',&
+                     & buff700(1:len2)
+                return
+             end if
+             nfilter%lpar(4)=.true.
           else
              write(*,*)myname,'Unknown attribute:',trim(xml%tag)//':'//&
                   & trim(xml%attribs(1,ii))
@@ -5714,6 +5738,7 @@ contains
     end if
     ! read any filter fields into memory
     if (bok) then
+       file%refFlt => ncf_newDimOrder(file%ref,irc) ! empty dimOrder
        ! loop over reports, check for variables....
        write(*,*)myname,'Reading filter-variables.'
        cpar=>file%firstparameter%next
@@ -5733,7 +5758,6 @@ contains
                 ! write(*,*)myname,'Reading filter...'
                 cfilter%i=>file%ref
                 if (cfilter%ipar.and.cfilter%active) then
-                   write(*,*)myname,'Loading:',trim(cfilter%var250)
                    call ncf_checkParameter(file%ref,cfilter%var250,bok,irc)
                    if (irc.ne.0) then
                       write(*,*)myname,'Error return from CHECKPARAMETER.',irc
@@ -5741,11 +5765,10 @@ contains
                    end if
                    if (bok) then
                       cfilter%v => file%ref%parid
-                      if (associated(cfilter%v)) then
+                      if (ncf_variableClean(cfilter%v,irc)) then
                          write(*,*)myname,'Reading variable:',trim(cfilter%var250),&
-                              & ' ',cfilter%v%var250(1:cfilter%v%lenv)
+                              & ' ~> ',cfilter%v%var250(1:cfilter%v%lenv)
                          if (cfilter%type==flt_string) then
-                            write(*,*)myname,'Reading variable:',cfilter%v%var250(1:cfilter%v%lenv)
                             call ncf_readData(cfilter%v,bok,irc)
                             if (irc.ne.0) then
                                write(*,*)myname,'Error return from readData.',irc
@@ -5780,18 +5803,23 @@ contains
                             end if
                          else
                             !write(*,*)myname,'Reading variable:',trim(cfilter%var250)
-                            write(*,*)myname,'Reading variable:',&
-                                 & cfilter%v%var250(1:cfilter%v%lenv)
                             call ncf_readRealData(cfilter%v,bok,irc)
                             if (irc.ne.0) then
                                write(*,*)myname,'Error return from readData.',irc
                                return
                             end if
+                            ! add dimensions to inner dimension...
+                            cfilter%sdo=>ncf_makeDimOrder(cfilter%v,irc)
+                            call ncf_addDimOrder(file%refFlt,cfilter%sdo,irc)
+                            if (irc.ne.0) then
+                               write(*,*)myname,'Error return from addDimOrder.',irc
+                               return
+                            end if
                          end if
-                      else
+                      else if (.not.associated(cfilter%v)) then
                          write(*,*)myname,'Unable to read variable:',trim(cfilter%var250)
                       end if
-                   else
+                   else 
                       write(*,*)myname,'Unable to find variable:',trim(cfilter%var250)
                    end if
                 else if (len(trim(cfilter%var250)).gt.0) then
@@ -6207,8 +6235,12 @@ contains
        call ncf_removeDimOrder(file%refOut,file%refLatLonAltDO)
        call ncf_removeDimOrder(file%refOut,file%refIterDO)
        !
+       call ncf_removeDimOrder(file%refFlt,file%refLatLonAltDO)
+       call ncf_removeDimOrder(file%refFlt,file%refIterDO)
+       !
        file%refInn => ncf_copyDimOrder(file%refOut,irc)
        call ncf_removeDimOrder(file%refInn,file%refDimDO)
+       call ncf_removeDimOrder(file%refInn,file%refFlt)
        !
        call ncf_removeDimOrder(file%refOut,file%refInn)
        !

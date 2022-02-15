@@ -3923,6 +3923,21 @@ contains
     if (ncf_bdeb) write(*,*)myname,' Done.',irc
   end subroutine ncf_clearData
 
+  logical function ncf_variableClean(v,irc)
+    implicit none
+    type(variable),pointer :: v
+    integer irc
+    logical tainted
+    if (associated(v)) then
+       tainted=associated(v%fd).or.associated(v%fr).or.associated(v%f4)&
+            & .or.associated(v%f2).or.associated(v%f1).or.associated(v%fc)
+       ncf_variableClean=.not.tainted
+    else
+       ncf_variableClean=.false.
+    end if
+    return
+  end function ncf_variableClean
+
   subroutine ncf_clearVariable(v,irc)
     implicit none
     type(variable),pointer :: v
