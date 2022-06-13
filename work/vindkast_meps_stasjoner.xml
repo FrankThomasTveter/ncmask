@@ -1,0 +1,59 @@
+<program name="ncmask" scan="fast">
+  <file input="$FILE$" mask="mask/vindkast/vindkast_meps_$METHOD$_stasjoner.nc" iter="percentile" keep="1">
+    <parameter name="wind_speed_of_gust_return_period_$METHOD$" fail="none">
+      <report size="500">
+        <key Issued="@issued@"/>
+        <key Type="Stasjon"/>
+        <key Station="99710"/>
+        <key Place="Bjørnøya"/>
+        <key alt="16"/>
+        <key District=" "/>
+        <key Region="Svalbard"/>
+        <key Phenomenon="Vindkast"/>
+        <key Variable="Gust10m"/>
+        <key Unit="År"/>
+        <key Model="$MNAME$"/>
+        <key Output="$MOUTPUT$"/>
+        <key Partner="MetNo"/>
+        <key Method="$MITER$"/>
+        <aux name="wind_speed_of_gust_$METHOD$"/>
+        <target name="gust" macro="@maxaux@"/>
+        <required name="max" fraction="1.0" group="$GROUP$"/>
+        <output xml="$ROOT$/vindkast/stasjoner/$MITER$/G@group@/vindkast_meps_$MITER$_svalbard_stasjoner_Bjørnøya_G@group@_warning.xml.tmp"/>
+        <define filter="location">
+          <cylinder volume="inside">
+            <center lat="74.5035"  lon="18.998" width="$RESOLUTION$"/>
+          </cylinder>
+        </define>
+        <mask filter="location"/>
+      </report>
+      <report size="500">
+        <key Issued="@issued@"/>
+        <key Type="Stasjon"/>
+        <key Station="99950"/>
+        <key Place="Jan mayen"/>
+        <key alt="10"/>
+        <key District="Jan mayen"/>
+        <key Region="Jan mayen"/>
+        <key Phenomenon="Vindkast"/>
+        <key Variable="Gust10m"/>
+        <key Unit="År"/>
+        <key Model="$MNAME$"/>
+        <key Output="$MOUTPUT$"/>
+        <key Partner="MetNo"/>
+        <key Method="$MITER$"/>
+        <aux name="wind_speed_of_gust_$METHOD$"/>
+        <target name="gust" macro="@maxaux@"/>
+        <required name="max" fraction="1.0" group="$GROUP$"/>
+        <output xml="$ROOT$/vindkast/stasjoner/$MITER$/G@group@/vindkast_meps_$MITER$_janmayen_stasjoner_Janmayen_G@group@_warning.xml.tmp"/>
+        <define filter="location">
+          <cylinder volume="inside">
+            <center lat="70.9394"  lon="-8.669" width="$RESOLUTION$"/>
+          </cylinder>
+        </define>
+        <mask filter="location"/>
+      </report>
+    </parameter>
+    <parameter name="wind_speed_of_gust_$METHOD$" fail="none"/>
+  </file>
+</program>

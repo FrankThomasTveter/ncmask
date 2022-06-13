@@ -1,0 +1,52 @@
+<program name="ncmask">
+  <file input="$FILE$" keep="1">
+    <parameter name="$PARAMETER$" fail="none">
+      <report size="1000">
+	<key Issued="@issued@"/>
+	<key Region="Agder"/>
+	<key Phenomenon="$PNAME$"/>
+	<key Method="$METHOD$"/>
+	<key Unit="Indeks"/>
+	<key Model="$MNAME$"/>
+	<key Partner="MetNo"/>
+	<opt Duration="$DURATION$"/>
+	<opt Range="$RANGE$"/>
+	<key Type="Kyst"/>
+	<target name="max" fraction="1.0"/>
+	<required name="a100" area="100.0" group="$GROUP$"/>
+	<output xml="$ROOT$/$PHENOMENON$/kyst/$MITER$/G@group@/$PHENOMENON$_$MITER$_$MODEL$$RANGE$_kyst_agder_G@group@_warning.xml.tmp"/>
+	<define filter="agder" file="polygon/fylker/agder.xml" tolerance="1.0"/>
+	<define filter="kyst" file="polygon/type/kyst_norge.xml"/>
+	<mask>
+	  <intersection>
+	    <mask filter="agder"/>
+	    <mask filter="kyst"/>
+	  </intersection>
+	</mask>
+      </report>
+      <report size="1000">
+	<key Issued="@issued@"/>
+	<key Region="Rogaland"/>
+	<key Phenomenon="$PNAME$"/>
+	<key Method="$METHOD$"/>
+	<key Unit="Indeks"/>
+	<key Model="$MNAME$"/>
+	<key Partner="MetNo"/>
+	<opt Duration="$DURATION$"/>
+	<opt Range="$RANGE$"/>
+	<key Type="Kyst"/>
+	<target name="max" fraction="1.0"/>
+	<required name="a100" area="100.0" group="$GROUP$"/>
+	<output xml="$ROOT$/$PHENOMENON$/kyst/$MITER$/G@group@/$PHENOMENON$_$MITER$_$MODEL$$RANGE$_kyst_rogaland_G@group@_warning.xml.tmp"/>
+	<define filter="rogaland" file="polygon/fylker/rogaland.xml" tolerance="1.0"/>
+	<define filter="kyst" file="polygon/type/kyst_norge.xml"/>
+	<mask>
+	  <intersection>
+	    <mask filter="rogaland"/>
+	    <mask filter="kyst"/>
+	  </intersection>
+	</mask>
+      </report>
+    </parameter>
+  </file>
+</program>

@@ -1,0 +1,208 @@
+<program name="ncmask">
+  <file input="$FILE$" iter="percentile" ignore="altitude">
+    <parameter name="$PARAMETER$" fail="none">
+      <report size="15000">
+	<key Issued="@issued@"/>
+	<key Region="Agder"/>
+	<key Phenomenon="Cape"/>
+	<key Method="$METHOD$"/>
+	<key Unit="J/kg"/>
+	<key Model="$MNAME$"/>
+	<key Partner="MetNo"/>
+	<key Type="Fylke"/>
+	<target name="max" fraction="1.0"/>
+	<target name="a100" area="100.0"/>
+	<target name="a400" area="400.0"/>
+	<required name="a1000" area="1000.0"/>
+	<output xml="$ROOT$/cape/fylker/$MITER$/cape_$MODEL$_$MITER$_fylker_agder_warning.xml.tmp"/>
+	<define filter="agder" file="polygon/fylker/agder.xml" tolerance="1.0"/>
+	<mask filter="agder"/>
+      </report>
+      <report size="15000">
+	<key Issued="@issued@"/>
+	<key Region="Innlandet"/>
+	<key Phenomenon="Cape"/>
+	<key Method="$METHOD$"/>
+	<key Unit="J/kg"/>
+	<key Model="$MNAME$"/>
+	<key Partner="MetNo"/>
+	<key Type="Fylke"/>
+	<target name="max" fraction="1.0"/>
+	<target name="a100" area="100.0"/>
+	<target name="a400" area="400.0"/>
+	<required name="a1000" area="1000.0"/>
+	<output xml="$ROOT$/cape/fylker/$MITER$/cape_$MODEL$_$MITER$_fylker_innlandet_warning.xml.tmp"/>
+	<define filter="innlandet" file="polygon/fylker/innlandet.xml" tolerance="1.0"/>
+	<mask filter="innlandet"/>
+      </report>
+      <report size="15000">
+	<key Issued="@issued@"/>
+	<key Region="Møre og Romsdal"/>
+	<key Phenomenon="Cape"/>
+	<key Method="$METHOD$"/>
+	<key Unit="J/kg"/>
+	<key Model="$MNAME$"/>
+	<key Partner="MetNo"/>
+	<key Type="Fylke"/>
+	<target name="max" fraction="1.0"/>
+	<target name="a100" area="100.0"/>
+	<target name="a400" area="400.0"/>
+	<required name="a1000" area="1000.0"/>
+	<output xml="$ROOT$/cape/fylker/$MITER$/cape_$MODEL$_$MITER$_fylker_moreogromsdal_warning.xml.tmp"/>
+	<define filter="moreogromsdal" file="polygon/fylker/moreogromsdal.xml" tolerance="1.0"/>
+	<mask filter="moreogromsdal"/>
+      </report>
+      <report size="15000">
+	<key Issued="@issued@"/>
+	<key Region="Nordland"/>
+	<key Phenomenon="Cape"/>
+	<key Method="$METHOD$"/>
+	<key Unit="J/kg"/>
+	<key Model="$MNAME$"/>
+	<key Partner="MetNo"/>
+	<key Type="Fylke"/>
+	<target name="max" fraction="1.0"/>
+	<target name="a100" area="100.0"/>
+	<target name="a400" area="400.0"/>
+	<required name="a1000" area="1000.0"/>
+	<output xml="$ROOT$/cape/fylker/$MITER$/cape_$MODEL$_$MITER$_fylker_nordland_warning.xml.tmp"/>
+	<define filter="nordland" file="polygon/fylker/nordland.xml" tolerance="1.0"/>
+	<mask filter="nordland"/>
+      </report>
+      <report size="15000">
+	<key Issued="@issued@"/>
+	<key Region="Oslo"/>
+	<key Phenomenon="Cape"/>
+	<key Method="$METHOD$"/>
+	<key Unit="J/kg"/>
+	<key Model="$MNAME$"/>
+	<key Partner="MetNo"/>
+	<key Type="Fylke"/>
+	<target name="max" fraction="1.0"/>
+	<required name="a100" area="100.0"/>
+	<output xml="$ROOT$/cape/fylker/$MITER$/cape_$MODEL$_$MITER$_fylker_oslo_warning.xml.tmp"/>
+	<define filter="oslo" file="polygon/fylker/oslo.xml" tolerance="1.0"/>
+	<mask filter="oslo"/>
+      </report>
+      <report size="15000">
+	<key Issued="@issued@"/>
+	<key Region="Rogaland"/>
+	<key Phenomenon="Cape"/>
+	<key Method="$METHOD$"/>
+	<key Unit="J/kg"/>
+	<key Model="$MNAME$"/>
+	<key Partner="MetNo"/>
+	<key Type="Fylke"/>
+	<target name="max" fraction="1.0"/>
+	<target name="a100" area="100.0"/>
+	<target name="a400" area="400.0"/>
+	<required name="a1000" area="1000.0"/>
+	<output xml="$ROOT$/cape/fylker/$MITER$/cape_$MODEL$_$MITER$_fylker_rogaland_warning.xml.tmp"/>
+	<define filter="rogaland" file="polygon/fylker/rogaland.xml" tolerance="1.0"/>
+	<mask filter="rogaland"/>
+      </report>
+      <report size="20000">
+	<key Issued="@issued@"/>
+	<key Region="Troms og Finnmark"/>
+	<key Phenomenon="Cape"/>
+	<key Method="$METHOD$"/>
+	<key Unit="J/kg"/>
+	<key Model="$MNAME$"/>
+	<key Partner="MetNo"/>
+	<key Type="Fylke"/>
+	<target name="max" fraction="1.0"/>
+	<target name="a100" area="100.0"/>
+	<target name="a400" area="400.0"/>
+	<required name="a1000" area="1000.0"/>
+	<output xml="$ROOT$/cape/fylker/$MITER$/cape_$MODEL$_$MITER$_fylker_tromsogfinnmark_warning.xml.tmp"/>
+	<define filter="tromsogfinnmark" file="polygon/fylker/tromsogfinnmark.xml" tolerance="1.0"/>
+	<mask filter="tromsogfinnmark"/>
+      </report>
+      <report size="15000">
+	<key Issued="@issued@"/>
+	<key Region="Trøndelag"/>
+	<key Phenomenon="Cape"/>
+	<key Method="$METHOD$"/>
+	<key Unit="J/kg"/>
+	<key Model="$MNAME$"/>
+	<key Partner="MetNo"/>
+	<key Type="Fylke"/>
+	<target name="max" fraction="1.0"/>
+	<target name="a100" area="100.0"/>
+	<target name="a400" area="400.0"/>
+	<required name="a1000" area="1000.0"/>
+	<output xml="$ROOT$/cape/fylker/$MITER$/cape_$MODEL$_$MITER$_fylker_trondelag_warning.xml.tmp"/>
+	<define filter="trondelag" file="polygon/fylker/trondelag.xml" tolerance="1.0"/>
+	<mask filter="trondelag"/>
+      </report>
+      <report size="15000">
+	<key Issued="@issued@"/>
+	<key Region="Vestfold og Telemark"/>
+	<key Phenomenon="Cape"/>
+	<key Method="$METHOD$"/>
+	<key Unit="J/kg"/>
+	<key Model="$MNAME$"/>
+	<key Partner="MetNo"/>
+	<key Type="Fylke"/>
+	<target name="max" fraction="1.0"/>
+	<target name="a100" area="100.0"/>
+	<target name="a400" area="400.0"/>
+	<required name="a1000" area="1000.0"/>
+	<output xml="$ROOT$/cape/fylker/$MITER$/cape_$MODEL$_$MITER$_fylker_vestfoldogtelemark_warning.xml.tmp"/>
+	<define filter="vestfoldogtelemark" file="polygon/fylker/vestfoldogtelemark.xml" tolerance="1.0"/>
+	<mask filter="vestfoldogtelemark"/>
+      </report>
+      <report size="15000">
+	<key Issued="@issued@"/>
+	<key Region="Vestland"/>
+	<key Phenomenon="Cape"/>
+	<key Method="$METHOD$"/>
+	<key Unit="J/kg"/>
+	<key Model="$MNAME$"/>
+	<key Partner="MetNo"/>
+	<key Type="Fylke"/>
+	<target name="max" fraction="1.0"/>
+	<target name="a100" area="100.0"/>
+	<target name="a400" area="400.0"/>
+	<required name="a1000" area="1000.0"/>
+	<output xml="$ROOT$/cape/fylker/$MITER$/cape_$MODEL$_$MITER$_fylker_vestland_warning.xml.tmp"/>
+	<define filter="vestland" file="polygon/fylker/vestland.xml" tolerance="1.0"/>
+	<mask filter="vestland"/>
+      </report>
+      <report size="15000">
+	<key Issued="@issued@"/>
+	<key Region="Viken Øst"/>
+	<key Phenomenon="Cape"/>
+	<key Method="$METHOD$"/>
+	<key Unit="J/kg"/>
+	<key Model="$MNAME$"/>
+	<key Partner="MetNo"/>
+	<key Type="Fylke"/>
+	<target name="max" fraction="1.0"/>
+	<target name="a100" area="100.0"/>
+	<target name="a400" area="400.0"/>
+	<required name="a1000" area="1000.0"/>
+	<output xml="$ROOT$/cape/fylker/$MITER$/cape_$MODEL$_$MITER$_fylker_vikenost_warning.xml.tmp"/>
+	<define filter="vikenost" file="polygon/fylker/vikenost.xml" tolerance="1.0"/>
+	<mask filter="vikenost"/>
+      </report>
+      <report size="15000">
+	<key Issued="@issued@"/>
+	<key Region="Viken Vest"/>
+	<key Phenomenon="Cape"/>
+	<key Method="$METHOD$"/>
+	<key Unit="J/kg"/>
+	<key Model="$MNAME$"/>
+	<key Partner="MetNo"/>
+	<key Type="Fylke"/>
+	<target name="max" fraction="1.0"/>
+	<target name="a100" area="100.0"/>
+	<target name="a400" area="400.0"/>
+	<required name="a1000" area="1000.0"/>
+	<output xml="$ROOT$/cape/fylker/$MITER$/cape_$MODEL$_$MITER$_fylker_vikenvest_warning.xml.tmp"/>
+	<define filter="vikenvest" file="polygon/fylker/vikenvest.xml" tolerance="1.0"/>
+	<mask filter="vikenvest"/>
+      </report>
+    </parameter>
+  </file>
+</program>

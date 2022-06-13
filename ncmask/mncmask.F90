@@ -217,6 +217,7 @@ SUBROUTINE MNCMASK(UNITI,IRC)
      integer :: mrest=0
      integer :: nrest=0
      integer :: arest=0
+     logical :: skip=.false.
      real, allocatable :: key1(:,:)
      integer, allocatable :: nkey1(:),nkey0(:),keyind(:,:)
      integer :: grouptrg=0
@@ -325,6 +326,7 @@ SUBROUTINE MNCMASK(UNITI,IRC)
      character*24 i24,s24,e24,a24,t24
      integer :: tmin, tmax
      integer :: mtime,mrest=0,npst=0
+     logical :: skip=.false.
      real :: keep=0.0D0, cutoff=0.0D0, maxdays=1000.0D0
      character*350 :: inp350,ref350,nco350 ! file names
      character*80 :: iter80
@@ -1419,6 +1421,12 @@ contains
           ! end if
        elseif (trim(xml%attribs(1,ii)).eq."iter") then
           file%iter80=buff700
+       elseif (trim(xml%attribs(1,ii)).eq."skip") then
+          if (buff700(1:len2).eq."true") then
+             file%skip=.true.
+          else
+             file%skip=.false.
+          end if
        elseif (trim(xml%attribs(1,ii)).eq."ignore") then
           if (buff700(1:len2).eq."altitude") file%ignorealt=.true.
        elseif (trim(xml%attribs(1,ii)).eq."keep") then
@@ -1581,6 +1589,7 @@ contains
     logical :: bok
     CHARACTER*18 MYNAME
     DATA MYNAME /'attributeXMLReport'/
+    crep%skip=file%skip
     do ii=1,xml%no_attribs
        buff700=xml%attribs(2,ii)
        call replaceENV(buff700,700,bok,irc)
@@ -1596,6 +1605,12 @@ contains
              write(*,*)myname,'Unable to read size "'//&
                   &buff700(1:len2)//'"'
              return
+          end if
+       elseif (trim(xml%attribs(1,ii)).eq."skip") then
+          if (buff700(1:len2).eq."true") then
+             crep%skip= .true.
+          else
+             crep%skip= .false.
           end if
        elseif (trim(xml%attribs(1,ii)).eq."fail") then
           if (buff700(1:len2).eq."write") then
@@ -6319,12 +6334,14 @@ contains
                    cnode=>searchfirst
                    do while (associated(cnode))
                       crep=>cnode%rep
-                      if (processReport(file,v,crep,lat,lon,alt,timentry,irc)) then
-                         used=.true.
-                      end if
-                      if (irc.ne.0) then
-                         write(*,*) myname,'Error return from processreport.',irc
-                         return
+                      if (.not.crep%skip) then
+                         if (processReport(file,v,crep,lat,lon,alt,timentry,irc)) then
+                            used=.true.
+                         end if
+                         if (irc.ne.0) then
+                            write(*,*) myname,'Error return from processreport.',irc
+                            return
+                         end if
                       end if
                       cnode=>cnode%next
                    end do
@@ -6334,12 +6351,14 @@ contains
              else                    ! check all, all the time
                 crep=>cpar%firstreport%next
                 REPP:do while (.not.associated(crep,target=cpar%lastreport))
-                   if (processReport(file,v,crep,lat,lon,alt,timentry,irc)) then
-                      used=.true.
-                   end if
-                   if (irc.ne.0) then
-                      write(*,*) myname,'Error return from processreport.',irc
-                      return
+                   if (.not.crep%skip) then
+                      if (processReport(file,v,crep,lat,lon,alt,timentry,irc)) then
+                         used=.true.
+                      end if
+                      if (irc.ne.0) then
+                         write(*,*) myname,'Error return from processreport.',irc
+                         return
+                      end if
                    end if
                    crep=>crep%next
                 end do REPP
@@ -6588,7 +6607,7 @@ contains
        v => cpar%var ! variable
        crep=>cpar%firstreport%next
        do while (.not.associated(crep,target=cpar%lastreport))
-          if (crep%ltrg) then
+          if (crep%ltrg .and. .not.crep%skip) then
              do tt=1,file%mtime
                 if (crep%nkey1(tt).le.crep%mrest) then
                    call heapsort1(crep%mrest,crep%key1(1,tt),newnn,crep%nkey1(tt),&
@@ -6677,7 +6696,9 @@ contains
     do while (.not.associated(cpar,target=file%lastparameter))
        crep=>cpar%firstreport%next
        do while (.not.associated(crep,target=cpar%lastreport))
-          call hintReport(file,cpar,crep,irc)
+          if (.not.crep%skip) then
+             call hintReport(file,cpar,crep,irc)
+          end if
           crep=>crep%next
        end do
        cpar=>cpar%next
@@ -6739,32 +6760,34 @@ contains
     do while (.not.associated(cpar,target=file%lastparameter))
        crep=>cpar%firstreport%next
        do while (.not.associated(crep,target=cpar%lastreport))
-          if (crep%lext) then
-             call writeReport(file,cpar,crep,.true.,irc)
-          end if
-          call writeReport(file,cpar,crep,.false.,irc)
-          if (crep%lpoly) then          ! write masked polygon to file
-             flt => getPolygonFilter(crep%roperation,irc)
-             if (irc.ne.0) then
-                write(*,*)myname,'Error return from getPolygonFilter.',irc
-                return
+          if (.not.crep%skip) then
+             if (crep%lext) then
+                call writeReport(file,cpar,crep,.true.,irc)
              end if
-             if (associated(flt)) then
-                write(*,*)myname,'Polygon nodes:',flt%mpar
-                !do ii=1,min(100,flt%mpar)
-                !   write(*,*) 'DEBUG POS:',ii,flt%rpar(ii),flt%rpar(ii+flt%mpar)
-                !end do
-
-                call chop0(crep%poly350,350)
-                call writePolygon(crep%poly350,flt%mpar,flt%rpar,flt%eps,irc)
+             call writeReport(file,cpar,crep,.false.,irc)
+             if (crep%lpoly) then          ! write masked polygon to file
+                flt => getPolygonFilter(crep%roperation,irc)
                 if (irc.ne.0) then
-                   write(*,*) myname,'Error return from writePolygon.',irc
+                   write(*,*)myname,'Error return from getPolygonFilter.',irc
                    return
                 end if
-                call clearFilter(flt,irc)
-                if (irc.ne.0) then
-                   write(*,*) myname,'Error return from clearFilter.',irc
-                   return
+                if (associated(flt)) then
+                   write(*,*)myname,'Polygon nodes:',flt%mpar
+                   !do ii=1,min(100,flt%mpar)
+                   !   write(*,*) 'DEBUG POS:',ii,flt%rpar(ii),flt%rpar(ii+flt%mpar)
+                   !end do
+                   
+                   call chop0(crep%poly350,350)
+                   call writePolygon(crep%poly350,flt%mpar,flt%rpar,flt%eps,irc)
+                   if (irc.ne.0) then
+                      write(*,*) myname,'Error return from writePolygon.',irc
+                      return
+                   end if
+                   call clearFilter(flt,irc)
+                   if (irc.ne.0) then
+                      write(*,*) myname,'Error return from clearFilter.',irc
+                      return
+                   end if
                 end if
              end if
           end if

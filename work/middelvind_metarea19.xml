@@ -1,0 +1,550 @@
+<program name="ncmask">
+  <file input="$FILE$" mask="mask/middelvind/$MODEL$_middelvind_metarea19_$METHOD$.nc" iter="percentile" keep="1">
+    <parameter name="$PARAMETER$" fail="none">
+      <report size="15000" fail="write">
+	<key Issued="@issued@"/>
+	<key Region="A1"/>
+	<key Phenomenon="Middelvind"/>
+	<key Variable="Wind10m"/>
+	<key Unit="Meter per sekund"/>
+	<key Model="$MNAME$"/>
+	<key Output="$MOUTPUT$"/>
+	<key Partner="MetNo"/>
+	<key Type="Metarea19"/>
+	<key Method="$MITER$"/>
+	<target name="max" fraction="1.0"/>
+	<required name="a1000" area="1000.0" group="$GROUP$"/>
+	<output xml="$ROOT$/middelvind/metarea19/$MITER$/G@group@/middelvind_$MODEL$_$MITER$_metarea19_a1_G@group@_warning.xml.tmp" polygon="simplified/Metarea19_A1.json"/>
+	<define filter="a1" file="polygon/metarea19/A1.xml" tolerance="1.0"/>
+	<mask filter="a1"/>
+      </report>
+      <report size="10000" fail="write">
+	<key Issued="@issued@"/>
+	<key Region="A2"/>
+	<key Phenomenon="Middelvind"/>
+	<key Variable="Wind10m"/>
+	<key Unit="Meter per sekund"/>
+	<key Model="$MNAME$"/>
+	<key Output="$MOUTPUT$"/>
+	<key Partner="MetNo"/>
+	<key Type="Metarea19"/>
+	<key Method="$MITER$"/>
+	<target name="max" fraction="1.0"/>
+	<required name="a1000" area="1000.0" group="$GROUP$"/>
+	<output xml="$ROOT$/middelvind/metarea19/$MITER$/G@group@/middelvind_$MODEL$_$MITER$_metarea19_a2_G@group@_warning.xml.tmp" polygon="simplified/Metarea19_A2.json"/>
+	<define filter="a2" file="polygon/metarea19/A2.xml" tolerance="1.0"/>
+	<mask filter="a2"/>
+      </report>
+      <report size="10000" fail="write">
+	<key Issued="@issued@"/>
+	<key Region="A3"/>
+	<key Phenomenon="Middelvind"/>
+	<key Variable="Wind10m"/>
+	<key Unit="Meter per sekund"/>
+	<key Model="$MNAME$"/>
+	<key Output="$MOUTPUT$"/>
+	<key Partner="MetNo"/>
+	<key Type="Metarea19"/>
+	<key Method="$MITER$"/>
+	<target name="max" fraction="1.0"/>
+	<required name="a1000" area="1000.0" group="$GROUP$"/>
+	<output xml="$ROOT$/middelvind/metarea19/$MITER$/G@group@/middelvind_$MODEL$_$MITER$_metarea19_a3_G@group@_warning.xml.tmp" polygon="simplified/Metarea19_A3.json"/>
+	<define filter="a3" file="polygon/metarea19/A3.xml" tolerance="1.0"/>
+	<mask filter="a3"/>
+      </report>
+      <report size="10000" fail="write">
+	<key Issued="@issued@"/>
+	<key Region="A4"/>
+	<key Phenomenon="Middelvind"/>
+	<key Variable="Wind10m"/>
+	<key Unit="Meter per sekund"/>
+	<key Model="$MNAME$"/>
+	<key Output="$MOUTPUT$"/>
+	<key Partner="MetNo"/>
+	<key Type="Metarea19"/>
+	<key Method="$MITER$"/>
+	<target name="max" fraction="1.0"/>
+	<required name="a1000" area="1000.0" group="$GROUP$"/>
+	<output xml="$ROOT$/middelvind/metarea19/$MITER$/G@group@/middelvind_$MODEL$_$MITER$_metarea19_a4_G@group@_warning.xml.tmp" polygon="simplified/Metarea19_A4.json"/>
+	<define filter="a4" file="polygon/metarea19/A4.xml" tolerance="1.0"/>
+	<mask filter="a4"/>
+      </report>
+      <report size="10000" fail="write">
+	<key Issued="@issued@"/>
+	<key Region="A5"/>
+	<key Phenomenon="Middelvind"/>
+	<key Variable="Wind10m"/>
+	<key Unit="Meter per sekund"/>
+	<key Model="$MNAME$"/>
+	<key Output="$MOUTPUT$"/>
+	<key Partner="MetNo"/>
+	<key Type="Metarea19"/>
+	<key Method="$MITER$"/>
+	<target name="max" fraction="1.0"/>
+	<required name="a1000" area="1000.0" group="$GROUP$"/>
+	<output xml="$ROOT$/middelvind/metarea19/$MITER$/G@group@/middelvind_$MODEL$_$MITER$_metarea19_a5_G@group@_warning.xml.tmp" polygon="simplified/Metarea19_A5.json"/>
+	<define filter="a5" file="polygon/metarea19/A5.xml" tolerance="1.0"/>
+	<mask filter="a5"/>
+      </report>
+      <report size="15000" fail="write">
+	<key Issued="@issued@"/>
+	<key Region="Amundsenbassenget"/>
+	<key Phenomenon="Middelvind"/>
+	<key Variable="Wind10m"/>
+	<key Unit="Meter per sekund"/>
+	<key Model="$MNAME$"/>
+	<key Output="$MOUTPUT$"/>
+	<key Partner="MetNo"/>
+	<key Type="Metarea19"/>
+	<key Method="$MITER$"/>
+	<target name="max" fraction="1.0"/>
+	<required name="a1000" area="1000.0" group="$GROUP$"/>
+	<output xml="$ROOT$/middelvind/metarea19/$MITER$/G@group@/middelvind_$MODEL$_$MITER$_metarea19_amundsenbassenget_G@group@_warning.xml.tmp" polygon="simplified/Metarea19_Amundsenbassenget.json"/>
+	<define filter="amundsenbassenget" file="polygon/metarea19/amundsenbassenget.xml" tolerance="1.0"/>
+	<mask filter="amundsenbassenget"/>
+      </report>
+      <report size="6000" fail="write">
+	<key Issued="@issued@"/>
+	<key Region="B1"/>
+	<key Phenomenon="Middelvind"/>
+	<key Variable="Wind10m"/>
+	<key Unit="Meter per sekund"/>
+	<key Model="$MNAME$"/>
+	<key Output="$MOUTPUT$"/>
+	<key Partner="MetNo"/>
+	<key Type="Metarea19"/>
+	<key Method="$MITER$"/>
+	<target name="max" fraction="1.0"/>
+	<required name="a1000" area="1000.0" group="$GROUP$"/>
+	<output xml="$ROOT$/middelvind/metarea19/$MITER$/G@group@/middelvind_$MODEL$_$MITER$_metarea19_b1_G@group@_warning.xml.tmp" polygon="simplified/Metarea19_B1.json"/>
+	<define filter="b1" file="polygon/metarea19/B1.xml" tolerance="1.0"/>
+	<mask filter="b1"/>
+      </report>
+      <report size="12000" fail="write">
+	<key Issued="@issued@"/>
+	<key Region="B2"/>
+	<key Phenomenon="Middelvind"/>
+	<key Variable="Wind10m"/>
+	<key Unit="Meter per sekund"/>
+	<key Model="$MNAME$"/>
+	<key Output="$MOUTPUT$"/>
+	<key Partner="MetNo"/>
+	<key Type="Metarea19"/>
+	<key Method="$MITER$"/>
+	<target name="max" fraction="1.0"/>
+	<required name="a1000" area="1000.0" group="$GROUP$"/>
+	<output xml="$ROOT$/middelvind/metarea19/$MITER$/G@group@/middelvind_$MODEL$_$MITER$_metarea19_b2_G@group@_warning.xml.tmp" polygon="simplified/Metarea19_B2.json"/>
+	<define filter="b2" file="polygon/metarea19/B2.xml" tolerance="1.0"/>
+	<mask filter="b2"/>
+      </report>
+      <report size="13000" fail="write">
+	<key Issued="@issued@"/>
+	<key Region="B3"/>
+	<key Phenomenon="Middelvind"/>
+	<key Variable="Wind10m"/>
+	<key Unit="Meter per sekund"/>
+	<key Model="$MNAME$"/>
+	<key Output="$MOUTPUT$"/>
+	<key Partner="MetNo"/>
+	<key Type="Metarea19"/>
+	<key Method="$MITER$"/>
+	<target name="max" fraction="1.0"/>
+	<required name="a1000" area="1000.0" group="$GROUP$"/>
+	<output xml="$ROOT$/middelvind/metarea19/$MITER$/G@group@/middelvind_$MODEL$_$MITER$_metarea19_b3_G@group@_warning.xml.tmp" polygon="simplified/Metarea19_B3.json"/>
+	<define filter="b3" file="polygon/metarea19/B3.xml" tolerance="1.0"/>
+	<mask filter="b3"/>
+      </report>
+      <report size="12000" fail="write">
+	<key Issued="@issued@"/>
+	<key Region="B4"/>
+	<key Phenomenon="Middelvind"/>
+	<key Variable="Wind10m"/>
+	<key Unit="Meter per sekund"/>
+	<key Model="$MNAME$"/>
+	<key Output="$MOUTPUT$"/>
+	<key Partner="MetNo"/>
+	<key Type="Metarea19"/>
+	<key Method="$MITER$"/>
+	<target name="max" fraction="1.0"/>
+	<required name="a1000" area="1000.0" group="$GROUP$"/>
+	<output xml="$ROOT$/middelvind/metarea19/$MITER$/G@group@/middelvind_$MODEL$_$MITER$_metarea19_b4_G@group@_warning.xml.tmp" polygon="simplified/Metarea19_B4.json"/>
+	<define filter="b4" file="polygon/metarea19/B4.xml" tolerance="1.0"/>
+	<mask filter="b4"/>
+      </report>
+      <report size="12000" fail="write">
+	<key Issued="@issued@"/>
+	<key Region="B5"/>
+	<key Phenomenon="Middelvind"/>
+	<key Variable="Wind10m"/>
+	<key Unit="Meter per sekund"/>
+	<key Model="$MNAME$"/>
+	<key Output="$MOUTPUT$"/>
+	<key Partner="MetNo"/>
+	<key Type="Metarea19"/>
+	<key Method="$MITER$"/>
+	<target name="max" fraction="1.0"/>
+	<required name="a1000" area="1000.0" group="$GROUP$"/>
+	<output xml="$ROOT$/middelvind/metarea19/$MITER$/G@group@/middelvind_$MODEL$_$MITER$_metarea19_b5_G@group@_warning.xml.tmp" polygon="simplified/Metarea19_B5.json"/>
+	<define filter="b5" file="polygon/metarea19/B5.xml" tolerance="1.0"/>
+	<mask filter="b5"/>
+      </report>
+      <report size="15000" fail="write">
+	<key Issued="@issued@"/>
+	<key Region="Bankene i Wandelhavet"/>
+	<key Phenomenon="Middelvind"/>
+	<key Variable="Wind10m"/>
+	<key Unit="Meter per sekund"/>
+	<key Model="$MNAME$"/>
+	<key Output="$MOUTPUT$"/>
+	<key Partner="MetNo"/>
+	<key Type="Metarea19"/>
+	<key Method="$MITER$"/>
+	<target name="max" fraction="1.0"/>
+	<required name="a1000" area="1000.0" group="$GROUP$"/>
+	<output xml="$ROOT$/middelvind/metarea19/$MITER$/G@group@/middelvind_$MODEL$_$MITER$_metarea19_bankene_i_wandelhavet_G@group@_warning.xml.tmp" polygon="simplified/Metarea19_Bankene i Wandelhavet.json"/>
+	<define filter="bankene_i_wandelhavet" file="polygon/metarea19/bankene_i_wandelhavet.xml" tolerance="1.0"/>
+	<mask filter="bankene_i_wandelhavet"/>
+      </report>
+      <report size="15000" fail="write">
+	<key Issued="@issued@"/>
+	<key Region="Bankene nord for Svalbard"/>
+	<key Phenomenon="Middelvind"/>
+	<key Variable="Wind10m"/>
+	<key Unit="Meter per sekund"/>
+	<key Model="$MNAME$"/>
+	<key Output="$MOUTPUT$"/>
+	<key Partner="MetNo"/>
+	<key Type="Metarea19"/>
+	<key Method="$MITER$"/>
+	<target name="max" fraction="1.0"/>
+	<required name="a1000" area="1000.0" group="$GROUP$"/>
+	<output xml="$ROOT$/middelvind/metarea19/$MITER$/G@group@/middelvind_$MODEL$_$MITER$_metarea19_bankene_nord_for_svalbard_G@group@_warning.xml.tmp" polygon="simplified/Metarea19_Bankene nord for Svalbard.json"/>
+	<define filter="bankene_nord_for_svalbard" file="polygon/metarea19/bankene_nord_for_svalbard.xml" tolerance="1.0"/>
+	<mask filter="bankene_nord_for_svalbard"/>
+      </report>
+      <report size="15000" fail="write">
+	<key Issued="@issued@"/>
+	<key Region="C2"/>
+	<key Phenomenon="Middelvind"/>
+	<key Variable="Wind10m"/>
+	<key Unit="Meter per sekund"/>
+	<key Model="$MNAME$"/>
+	<key Output="$MOUTPUT$"/>
+	<key Partner="MetNo"/>
+	<key Type="Metarea19"/>
+	<key Method="$MITER$"/>
+	<target name="max" fraction="1.0"/>
+	<required name="a1000" area="1000.0" group="$GROUP$"/>
+	<output xml="$ROOT$/middelvind/metarea19/$MITER$/G@group@/middelvind_$MODEL$_$MITER$_metarea19_c2_G@group@_warning.xml.tmp" polygon="simplified/Metarea19_C2.json"/>
+	<define filter="c2" file="polygon/metarea19/C2.xml" tolerance="1.0"/>
+	<mask filter="c2"/>
+      </report>
+      <report size="15000" fail="write">
+	<key Issued="@issued@"/>
+	<key Region="C3"/>
+	<key Phenomenon="Middelvind"/>
+	<key Variable="Wind10m"/>
+	<key Unit="Meter per sekund"/>
+	<key Model="$MNAME$"/>
+	<key Output="$MOUTPUT$"/>
+	<key Partner="MetNo"/>
+	<key Type="Metarea19"/>
+	<key Method="$MITER$"/>
+	<target name="max" fraction="1.0"/>
+	<required name="a1000" area="1000.0" group="$GROUP$"/>
+	<output xml="$ROOT$/middelvind/metarea19/$MITER$/G@group@/middelvind_$MODEL$_$MITER$_metarea19_c3_G@group@_warning.xml.tmp" polygon="simplified/Metarea19_C3.json"/>
+	<define filter="c3" file="polygon/metarea19/C3.xml" tolerance="1.0"/>
+	<mask filter="c3"/>
+      </report>
+      <report size="15000" fail="write">
+	<key Issued="@issued@"/>
+	<key Region="C4"/>
+	<key Phenomenon="Middelvind"/>
+	<key Variable="Wind10m"/>
+	<key Unit="Meter per sekund"/>
+	<key Model="$MNAME$"/>
+	<key Output="$MOUTPUT$"/>
+	<key Partner="MetNo"/>
+	<key Type="Metarea19"/>
+	<key Method="$MITER$"/>
+	<target name="max" fraction="1.0"/>
+	<required name="a1000" area="1000.0" group="$GROUP$"/>
+	<output xml="$ROOT$/middelvind/metarea19/$MITER$/G@group@/middelvind_$MODEL$_$MITER$_metarea19_c4_G@group@_warning.xml.tmp" polygon="simplified/Metarea19_C4.json"/>
+	<define filter="c4" file="polygon/metarea19/C4.xml" tolerance="1.0"/>
+	<mask filter="c4"/>
+      </report>
+      <report size="15000" fail="write">
+	<key Issued="@issued@"/>
+	<key Region="C5"/>
+	<key Phenomenon="Middelvind"/>
+	<key Variable="Wind10m"/>
+	<key Unit="Meter per sekund"/>
+	<key Model="$MNAME$"/>
+	<key Output="$MOUTPUT$"/>
+	<key Partner="MetNo"/>
+	<key Type="Metarea19"/>
+	<key Method="$MITER$"/>
+	<target name="max" fraction="1.0"/>
+	<required name="a1000" area="1000.0" group="$GROUP$"/>
+	<output xml="$ROOT$/middelvind/metarea19/$MITER$/G@group@/middelvind_$MODEL$_$MITER$_metarea19_c5_G@group@_warning.xml.tmp" polygon="simplified/Metarea19_C5.json"/>
+	<define filter="c5" file="polygon/metarea19/C5.xml" tolerance="1.0"/>
+	<mask filter="c5"/>
+      </report>
+      <report size="17000" fail="write">
+	<key Issued="@issued@"/>
+	<key Region="D2"/>
+	<key Phenomenon="Middelvind"/>
+	<key Variable="Wind10m"/>
+	<key Unit="Meter per sekund"/>
+	<key Model="$MNAME$"/>
+	<key Output="$MOUTPUT$"/>
+	<key Partner="MetNo"/>
+	<key Type="Metarea19"/>
+	<key Method="$MITER$"/>
+	<target name="max" fraction="1.0"/>
+	<required name="a1000" area="1000.0" group="$GROUP$"/>
+	<output xml="$ROOT$/middelvind/metarea19/$MITER$/G@group@/middelvind_$MODEL$_$MITER$_metarea19_d2_G@group@_warning.xml.tmp" polygon="simplified/Metarea19_D2.json"/>
+	<define filter="d2" file="polygon/metarea19/D2.xml" tolerance="1.0"/>
+	<mask filter="d2"/>
+      </report>
+      <report size="17000" fail="write">
+	<key Issued="@issued@"/>
+	<key Region="D3"/>
+	<key Phenomenon="Middelvind"/>
+	<key Variable="Wind10m"/>
+	<key Unit="Meter per sekund"/>
+	<key Model="$MNAME$"/>
+	<key Output="$MOUTPUT$"/>
+	<key Partner="MetNo"/>
+	<key Type="Metarea19"/>
+	<key Method="$MITER$"/>
+	<target name="max" fraction="1.0"/>
+	<required name="a1000" area="1000.0" group="$GROUP$"/>
+	<output xml="$ROOT$/middelvind/metarea19/$MITER$/G@group@/middelvind_$MODEL$_$MITER$_metarea19_d3_G@group@_warning.xml.tmp" polygon="simplified/Metarea19_D3.json"/>
+	<define filter="d3" file="polygon/metarea19/D3.xml" tolerance="1.0"/>
+	<mask filter="d3"/>
+      </report>
+      <report size="11000" fail="write">
+	<key Issued="@issued@"/>
+	<key Region="Dype D4"/>
+	<key Phenomenon="Middelvind"/>
+	<key Variable="Wind10m"/>
+	<key Unit="Meter per sekund"/>
+	<key Model="$MNAME$"/>
+	<key Output="$MOUTPUT$"/>
+	<key Partner="MetNo"/>
+	<key Type="Metarea19"/>
+	<key Method="$MITER$"/>
+	<target name="max" fraction="1.0"/>
+	<required name="a1000" area="1000.0" group="$GROUP$"/>
+	<output xml="$ROOT$/middelvind/metarea19/$MITER$/G@group@/middelvind_$MODEL$_$MITER$_metarea19_dype_d4_G@group@_warning.xml.tmp" polygon="simplified/Metarea19_Dype D4.json"/>
+	<define filter="dype_d4" file="polygon/metarea19/dype_D4.xml" tolerance="1.0"/>
+	<mask filter="dype_d4"/>
+      </report>
+      <report size="5000" fail="write">
+	<key Issued="@issued@"/>
+	<key Region="Dype E4"/>
+	<key Phenomenon="Middelvind"/>
+	<key Variable="Wind10m"/>
+	<key Unit="Meter per sekund"/>
+	<key Model="$MNAME$"/>
+	<key Output="$MOUTPUT$"/>
+	<key Partner="MetNo"/>
+	<key Type="Metarea19"/>
+	<key Method="$MITER$"/>
+	<target name="max" fraction="1.0"/>
+	<required name="a1000" area="1000.0" group="$GROUP$"/>
+	<output xml="$ROOT$/middelvind/metarea19/$MITER$/G@group@/middelvind_$MODEL$_$MITER$_metarea19_dype_e4_G@group@_warning.xml.tmp" polygon="simplified/Metarea19_Dype E4.json"/>
+	<define filter="dype_e4" file="polygon/metarea19/dype_E4.xml" tolerance="1.0"/>
+	<mask filter="dype_e4"/>
+      </report>
+      <report size="15000" fail="write">
+	<key Issued="@issued@"/>
+	<key Region="Dype Wandelhav"/>
+	<key Phenomenon="Middelvind"/>
+	<key Variable="Wind10m"/>
+	<key Unit="Meter per sekund"/>
+	<key Model="$MNAME$"/>
+	<key Output="$MOUTPUT$"/>
+	<key Partner="MetNo"/>
+	<key Type="Metarea19"/>
+	<key Method="$MITER$"/>
+	<target name="max" fraction="1.0"/>
+	<required name="a1000" area="1000.0" group="$GROUP$"/>
+	<output xml="$ROOT$/middelvind/metarea19/$MITER$/G@group@/middelvind_$MODEL$_$MITER$_metarea19_dype_wandelhav_G@group@_warning.xml.tmp" polygon="simplified/Metarea19_Dype Wandelhav.json"/>
+	<define filter="dype_wandelhav" file="polygon/metarea19/dype_wandelhav.xml" tolerance="1.0"/>
+	<mask filter="dype_wandelhav"/>
+      </report>
+      <report size="10000" fail="write">
+	<key Issued="@issued@"/>
+	<key Region="E2"/>
+	<key Phenomenon="Middelvind"/>
+	<key Variable="Wind10m"/>
+	<key Unit="Meter per sekund"/>
+	<key Model="$MNAME$"/>
+	<key Output="$MOUTPUT$"/>
+	<key Partner="MetNo"/>
+	<key Type="Metarea19"/>
+	<key Method="$MITER$"/>
+	<target name="max" fraction="1.0"/>
+	<required name="a1000" area="1000.0" group="$GROUP$"/>
+	<output xml="$ROOT$/middelvind/metarea19/$MITER$/G@group@/middelvind_$MODEL$_$MITER$_metarea19_e2_G@group@_warning.xml.tmp" polygon="simplified/Metarea19_E2.json"/>
+	<define filter="e2" file="polygon/metarea19/E2.xml" tolerance="1.0"/>
+	<mask filter="e2"/>
+      </report>
+      <report size="19000" fail="write">
+	<key Issued="@issued@"/>
+	<key Region="E3"/>
+	<key Phenomenon="Middelvind"/>
+	<key Variable="Wind10m"/>
+	<key Unit="Meter per sekund"/>
+	<key Model="$MNAME$"/>
+	<key Output="$MOUTPUT$"/>
+	<key Partner="MetNo"/>
+	<key Type="Metarea19"/>
+	<key Method="$MITER$"/>
+	<target name="max" fraction="1.0"/>
+	<required name="a1000" area="1000.0" group="$GROUP$"/>
+	<output xml="$ROOT$/middelvind/metarea19/$MITER$/G@group@/middelvind_$MODEL$_$MITER$_metarea19_e3_G@group@_warning.xml.tmp" polygon="simplified/Metarea19_E3.json"/>
+	<define filter="e3" file="polygon/metarea19/E3.xml" tolerance="1.0"/>
+	<mask filter="e3"/>
+      </report>
+      <report size="10000" fail="write">
+	<key Issued="@issued@"/>
+	<key Region="F2"/>
+	<key Phenomenon="Middelvind"/>
+	<key Variable="Wind10m"/>
+	<key Unit="Meter per sekund"/>
+	<key Model="$MNAME$"/>
+	<key Output="$MOUTPUT$"/>
+	<key Partner="MetNo"/>
+	<key Type="Metarea19"/>
+	<key Method="$MITER$"/>
+	<target name="max" fraction="1.0"/>
+	<required name="a1000" area="1000.0" group="$GROUP$"/>
+	<output xml="$ROOT$/middelvind/metarea19/$MITER$/G@group@/middelvind_$MODEL$_$MITER$_metarea19_f2_G@group@_warning.xml.tmp" polygon="simplified/Metarea19_F2.json"/>
+	<define filter="f2" file="polygon/metarea19/F2.xml" tolerance="1.0"/>
+	<mask filter="f2"/>
+      </report>
+      <report size="20000" fail="write">
+	<key Issued="@issued@"/>
+	<key Region="F3"/>
+	<key Phenomenon="Middelvind"/>
+	<key Variable="Wind10m"/>
+	<key Unit="Meter per sekund"/>
+	<key Model="$MNAME$"/>
+	<key Output="$MOUTPUT$"/>
+	<key Partner="MetNo"/>
+	<key Type="Metarea19"/>
+	<key Method="$MITER$"/>
+	<target name="max" fraction="1.0"/>
+	<required name="a1000" area="1000.0" group="$GROUP$"/>
+	<output xml="$ROOT$/middelvind/metarea19/$MITER$/G@group@/middelvind_$MODEL$_$MITER$_metarea19_f3_G@group@_warning.xml.tmp" polygon="simplified/Metarea19_F3.json"/>
+	<define filter="f3" file="polygon/metarea19/F3.xml" tolerance="1.0"/>
+	<mask filter="f3"/>
+      </report>
+      <report size="15000" fail="write">
+	<key Issued="@issued@"/>
+	<key Region="Gakkelryggen"/>
+	<key Phenomenon="Middelvind"/>
+	<key Variable="Wind10m"/>
+	<key Unit="Meter per sekund"/>
+	<key Model="$MNAME$"/>
+	<key Output="$MOUTPUT$"/>
+	<key Partner="MetNo"/>
+	<key Type="Metarea19"/>
+	<key Method="$MITER$"/>
+	<target name="max" fraction="1.0"/>
+	<required name="a1000" area="1000.0" group="$GROUP$"/>
+	<output xml="$ROOT$/middelvind/metarea19/$MITER$/G@group@/middelvind_$MODEL$_$MITER$_metarea19_gakkelryggen_G@group@_warning.xml.tmp" polygon="simplified/Metarea19_Gakkelryggen.json"/>
+	<define filter="gakkelryggen" file="polygon/metarea19/gakkelryggen.xml" tolerance="1.0"/>
+	<mask filter="gakkelryggen"/>
+      </report>
+      <report size="15000" fail="write">
+	<key Issued="@issued@"/>
+	<key Region="Lenadypet"/>
+	<key Phenomenon="Middelvind"/>
+	<key Variable="Wind10m"/>
+	<key Unit="Meter per sekund"/>
+	<key Model="$MNAME$"/>
+	<key Output="$MOUTPUT$"/>
+	<key Partner="MetNo"/>
+	<key Type="Metarea19"/>
+	<key Method="$MITER$"/>
+	<target name="max" fraction="1.0"/>
+	<required name="a1000" area="1000.0" group="$GROUP$"/>
+	<output xml="$ROOT$/middelvind/metarea19/$MITER$/G@group@/middelvind_$MODEL$_$MITER$_metarea19_lenadypet_G@group@_warning.xml.tmp" polygon="simplified/Metarea19_Lenadypet.json"/>
+	<define filter="lenadypet" file="polygon/metarea19/lenadypet.xml" tolerance="1.0"/>
+	<mask filter="lenadypet"/>
+      </report>
+      <report size="15000" fail="write">
+	<key Issued="@issued@"/>
+	<key Region="Litkedypet"/>
+	<key Phenomenon="Middelvind"/>
+	<key Variable="Wind10m"/>
+	<key Unit="Meter per sekund"/>
+	<key Model="$MNAME$"/>
+	<key Output="$MOUTPUT$"/>
+	<key Partner="MetNo"/>
+	<key Type="Metarea19"/>
+	<key Method="$MITER$"/>
+	<target name="max" fraction="1.0"/>
+	<required name="a1000" area="1000.0" group="$GROUP$"/>
+	<output xml="$ROOT$/middelvind/metarea19/$MITER$/G@group@/middelvind_$MODEL$_$MITER$_metarea19_litkedypet_G@group@_warning.xml.tmp" polygon="simplified/Metarea19_Litkedypet.json"/>
+	<define filter="litkedypet" file="polygon/metarea19/litkedypet.xml" tolerance="1.0"/>
+	<mask filter="litkedypet"/>
+      </report>
+      <report size="17000" fail="write">
+	<key Issued="@issued@"/>
+	<key Region="Nansenbassenget"/>
+	<key Phenomenon="Middelvind"/>
+	<key Variable="Wind10m"/>
+	<key Unit="Meter per sekund"/>
+	<key Model="$MNAME$"/>
+	<key Output="$MOUTPUT$"/>
+	<key Partner="MetNo"/>
+	<key Type="Metarea19"/>
+	<key Method="$MITER$"/>
+	<target name="max" fraction="1.0"/>
+	<required name="a1000" area="1000.0" group="$GROUP$"/>
+	<output xml="$ROOT$/middelvind/metarea19/$MITER$/G@group@/middelvind_$MODEL$_$MITER$_metarea19_nansenbassenget_G@group@_warning.xml.tmp" polygon="simplified/Metarea19_Nansenbassenget.json"/>
+	<define filter="nansenbassenget" file="polygon/metarea19/nansenbassenget.xml" tolerance="1.0"/>
+	<mask filter="nansenbassenget"/>
+      </report>
+      <report size="15000" fail="write">
+	<key Issued="@issued@"/>
+	<key Region="Nordlige Belgica bank"/>
+	<key Phenomenon="Middelvind"/>
+	<key Variable="Wind10m"/>
+	<key Unit="Meter per sekund"/>
+	<key Model="$MNAME$"/>
+	<key Output="$MOUTPUT$"/>
+	<key Partner="MetNo"/>
+	<key Type="Metarea19"/>
+	<key Method="$MITER$"/>
+	<target name="max" fraction="1.0"/>
+	<required name="a1000" area="1000.0" group="$GROUP$"/>
+	<output xml="$ROOT$/middelvind/metarea19/$MITER$/G@group@/middelvind_$MODEL$_$MITER$_metarea19_nordlige_belgica_bank_G@group@_warning.xml.tmp" polygon="simplified/Metarea19_Nordlige Belgica bank.json"/>
+	<define filter="nordlige_belgica_bank" file="polygon/metarea19/nordlige_belgica_bank.xml" tolerance="1.0"/>
+	<mask filter="nordlige_belgica_bank"/>
+      </report>
+      <report size="15000" fail="write">
+	<key Issued="@issued@"/>
+	<key Region="Yermakplataet"/>
+	<key Phenomenon="Middelvind"/>
+	<key Variable="Wind10m"/>
+	<key Unit="Meter per sekund"/>
+	<key Model="$MNAME$"/>
+	<key Output="$MOUTPUT$"/>
+	<key Partner="MetNo"/>
+	<key Type="Metarea19"/>
+	<key Method="$MITER$"/>
+	<target name="max" fraction="1.0"/>
+	<required name="a1000" area="1000.0" group="$GROUP$"/>
+	<output xml="$ROOT$/middelvind/metarea19/$MITER$/G@group@/middelvind_$MODEL$_$MITER$_metarea19_yermakplataet_G@group@_warning.xml.tmp" polygon="simplified/Metarea19_Yermakplataet.json"/>
+	<define filter="yermakplataet" file="polygon/metarea19/yermakplataet.xml" tolerance="1.0"/>
+	<mask filter="yermakplataet"/>
+      </report>
+    </parameter>
+  </file>
+</program>
