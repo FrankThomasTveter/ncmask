@@ -76,7 +76,7 @@ encosed by `$`, for instance `$FILE$` will be replaced by the contents of the en
 
 The program may scan one NetCDF file, whose name is specified in the `<file input="input.nc">` XML tag. If you specify the attribute `mask` the program will produce a NetCDF file that only contains the data which passed through the mask.
 
-The parameter tag specifies that a field should be loaded from the file into the program memory. The parameter value can be an expression of other parameters, for instance `exp="1000*wind_speed_of_gust_return_period_mb0"`. If the other parameter is assigned a name, you may use this name in your parameter. The parameter values are changed when the reports are processed, and will be available in the mask file. You may use an empty report `<report />` in a parameter to overwrite the values in the field using your expression. Make sure the parameter is overwritten before you use it in a later parameter. For instance:
+The parameter tag specifies that a field should be loaded from the file into the program memory and processed to yield some output. The parameter value can be an expression of other parameters, for instance `exp="1000*wind_speed_of_gust_return_period_mb0"`. If the other parameter is assigned a name, you may use this name in your expression. Note that the parameter field values are changed when any reports are processed. Later use of that parameter will return the masked expression value and not the original field. You may use an empty report `<report />` in a parameter, in which case there is no mask and all data is passed through the mask. For instance:
 
 
       <program name="ncmask" scan="fast">
@@ -98,7 +98,7 @@ The parameter tag specifies that a field should be loaded from the file into the
 In addition to normal mathematical operations, expressions can contain mathematical functions like `exp(x)`, `log10(x)`, `log(x), `sqrt(x)`, sin(x)`, `cos(x)`, `tan(x)`, `acos(x)`, asin(x), atan(x), atan2(y,x), and logical functions like `isbelow(x,y1,y2...)`, isbetween(x,y1,y2...)`, `isabove(x,y1,y2...)`, `and(x,y,z...)`, `or(x,y,z...)`, `not(x,y,z...)`, there are also meteorological functions like `td2q(td,p)`, `rh2td(rh,t,ice)`, `td2rh(td,t,ice)`, `q2rh(q,t,rp)`.
 
 You may request several reports when scanning an NetCDF file. Each report has a seperate mask and may produce an output XML file.
-The output XML file will contain records with key-value pairs. 
+The output XML file will contain records with key-value pairs requested by the report. 
 
 Static report keys that are passed from the input file to the output and are specified using the `<key/>` tag, for instance `<key Region="Svalbard"/>`. Dynamic keys are specified using the tags `<target/>` or `<required/>`. Dynamic values are calculated from the data, for instance `<required name="max" fraction="1.0"/>` will report the max value within the mask for each time, and name it `max`. If you want the median value, use `fraction="0.5"`. Other attributes are `area` in km2  and `count` number of grid points. If you for instance specify `area="100"` you get the lowest value in the 100 km2 area with the highest values. You may group data according to their value using the group attribute, for instance `group="0,10,25"`. The group can be retrieved using the macro `@group@`. 
 
