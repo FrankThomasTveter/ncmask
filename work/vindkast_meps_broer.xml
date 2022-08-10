@@ -1,0 +1,1753 @@
+<program name="ncmask" scan="fast">
+  <file input="$FILE$" mask="mask/regn/regn_vindkast_$MODEL$_$METHOD$_stasjoner.nc" iter="percentile" keep="1">
+    <parameter field="wind_speed_of_gust_$METHOD$" fail="none">
+      <report size="400">
+	<key Issued="@issued@"/>
+	<key Region="Nordland"/>
+	<key Bridge="Andøybrua"/>
+	<key Phenomenon="Vindkast"/>
+	<key Variable="Gust10m"/>
+	<key Unit="Meter per sekund"/>
+	<key Model="$MNAME$"/>
+	<key Output="$MOUTPUT$"/>
+	<key Partner="MetNo"/>
+	<key Type="Bro"/>
+	<key Method="$MITER$"/>
+	<aux name="yrp" exp="wind_speed_of_gust_return_period_$METHOD$" location="max"/>
+	<required name="max" fraction="1.0"/>
+	<output xml="$ROOT$/vindkast/broer/$MITER$/vindkast_$MODEL$_$MITER$_nordland_broer_andøybrua_warning.xml.tmp"/>
+	<filter name="andøybrua" file="polygon/broer/andøybrua.xml" tolerance="1.0" delta="2"/>
+	<mask filter="andøybrua"/>
+      </report>
+      <report size="400">
+	<key Issued="@issued@"/>
+	<key Region="Viken Øst"/>
+	<key Bridge="Årnesbrua"/>
+	<key Phenomenon="Vindkast"/>
+	<key Variable="Gust10m"/>
+	<key Unit="Meter per sekund"/>
+	<key Model="$MNAME$"/>
+	<key Output="$MOUTPUT$"/>
+	<key Partner="MetNo"/>
+	<key Type="Bro"/>
+	<key Method="$MITER$"/>
+	<aux name="yrp" exp="wind_speed_of_gust_return_period_$METHOD$" location="max"/>
+	<required name="max" fraction="1.0"/>
+	<output xml="$ROOT$/vindkast/broer/$MITER$/vindkast_$MODEL$_$MITER$_vikenost_broer_årnesbrua_warning.xml.tmp"/>
+	<filter name="årnesbrua" file="polygon/broer/årnesbrua.xml" tolerance="1.0" delta="2"/>
+	<mask filter="årnesbrua"/>
+      </report>
+      <report size="400">
+	<key Issued="@issued@"/>
+	<key Region="Vestland"/>
+	<key Bridge="Askøybrua"/>
+	<key Phenomenon="Vindkast"/>
+	<key Variable="Gust10m"/>
+	<key Unit="Meter per sekund"/>
+	<key Model="$MNAME$"/>
+	<key Output="$MOUTPUT$"/>
+	<key Partner="MetNo"/>
+	<key Type="Bro"/>
+	<key Method="$MITER$"/>
+	<aux name="yrp" exp="wind_speed_of_gust_return_period_$METHOD$" location="max"/>
+	<required name="max" fraction="1.0"/>
+	<output xml="$ROOT$/vindkast/broer/$MITER$/vindkast_$MODEL$_$MITER$_vestland_broer_askøybrua_warning.xml.tmp"/>
+	<filter name="askøybrua" file="polygon/broer/askøybrua.xml" tolerance="1.0" delta="2"/>
+	<mask filter="askøybrua"/>
+      </report>
+      <report size="400">
+	<key Issued="@issued@"/>
+	<key Region="Møre og Romsdal"/>
+	<key Bridge="Aursundbrua"/>
+	<key Phenomenon="Vindkast"/>
+	<key Variable="Gust10m"/>
+	<key Unit="Meter per sekund"/>
+	<key Model="$MNAME$"/>
+	<key Output="$MOUTPUT$"/>
+	<key Partner="MetNo"/>
+	<key Type="Bro"/>
+	<key Method="$MITER$"/>
+	<aux name="yrp" exp="wind_speed_of_gust_return_period_$METHOD$" location="max"/>
+	<required name="max" fraction="1.0"/>
+	<output xml="$ROOT$/vindkast/broer/$MITER$/vindkast_$MODEL$_$MITER$_moreogromsdal_broer_aursundbrua_warning.xml.tmp"/>
+	<filter name="aursundbrua" file="polygon/broer/aursundbrua.xml" tolerance="1.0" delta="2"/>
+	<mask filter="aursundbrua"/>
+      </report>
+      <report size="400">
+	<key Issued="@issued@"/>
+	<key Region="Trøndelag"/>
+	<key Bridge="Beitstadsundbrua"/>
+	<key Phenomenon="Vindkast"/>
+	<key Variable="Gust10m"/>
+	<key Unit="Meter per sekund"/>
+	<key Model="$MNAME$"/>
+	<key Output="$MOUTPUT$"/>
+	<key Partner="MetNo"/>
+	<key Type="Bro"/>
+	<key Method="$MITER$"/>
+	<aux name="yrp" exp="wind_speed_of_gust_return_period_$METHOD$" location="max"/>
+	<required name="max" fraction="1.0"/>
+	<output xml="$ROOT$/vindkast/broer/$MITER$/vindkast_$MODEL$_$MITER$_trondelag_broer_beitstadsundbrua_warning.xml.tmp"/>
+	<filter name="beitstadsundbrua" file="polygon/broer/beitstadsundbrua.xml" tolerance="1.0" delta="2"/>
+	<mask filter="beitstadsundbrua"/>
+      </report>
+      <report size="400">
+	<key Issued="@issued@"/>
+	<key Region="Møre og Romsdal"/>
+	<key Bridge="Bergsøysundbrua"/>
+	<key Phenomenon="Vindkast"/>
+	<key Variable="Gust10m"/>
+	<key Unit="Meter per sekund"/>
+	<key Model="$MNAME$"/>
+	<key Output="$MOUTPUT$"/>
+	<key Partner="MetNo"/>
+	<key Type="Bro"/>
+	<key Method="$MITER$"/>
+	<aux name="yrp" exp="wind_speed_of_gust_return_period_$METHOD$" location="max"/>
+	<required name="max" fraction="1.0"/>
+	<output xml="$ROOT$/vindkast/broer/$MITER$/vindkast_$MODEL$_$MITER$_moreogromsdal_broer_bergsøysundbrua_warning.xml.tmp"/>
+	<filter name="bergsøysundbrua" file="polygon/broer/bergsøysundbrua.xml" tolerance="1.0" delta="2"/>
+	<mask filter="bergsøysundbrua"/>
+      </report>
+      <report size="400">
+	<key Issued="@issued@"/>
+	<key Region="Møre og Romsdal"/>
+	<key Bridge="Bolsøybrua"/>
+	<key Phenomenon="Vindkast"/>
+	<key Variable="Gust10m"/>
+	<key Unit="Meter per sekund"/>
+	<key Model="$MNAME$"/>
+	<key Output="$MOUTPUT$"/>
+	<key Partner="MetNo"/>
+	<key Type="Bro"/>
+	<key Method="$MITER$"/>
+	<aux name="yrp" exp="wind_speed_of_gust_return_period_$METHOD$" location="max"/>
+	<required name="max" fraction="1.0"/>
+	<output xml="$ROOT$/vindkast/broer/$MITER$/vindkast_$MODEL$_$MITER$_moreogromsdal_broer_bolsøybrua_warning.xml.tmp"/>
+	<filter name="bolsøybrua" file="polygon/broer/bolsøybrua.xml" tolerance="1.0" delta="2"/>
+	<mask filter="bolsøybrua"/>
+      </report>
+      <report size="400">
+	<key Issued="@issued@"/>
+	<key Region="Vestland"/>
+	<key Bridge="Bømlabrua"/>
+	<key Phenomenon="Vindkast"/>
+	<key Variable="Gust10m"/>
+	<key Unit="Meter per sekund"/>
+	<key Model="$MNAME$"/>
+	<key Output="$MOUTPUT$"/>
+	<key Partner="MetNo"/>
+	<key Type="Bro"/>
+	<key Method="$MITER$"/>
+	<aux name="yrp" exp="wind_speed_of_gust_return_period_$METHOD$" location="max"/>
+	<required name="max" fraction="1.0"/>
+	<output xml="$ROOT$/vindkast/broer/$MITER$/vindkast_$MODEL$_$MITER$_vestland_broer_bømlabrua_warning.xml.tmp"/>
+	<filter name="bømlabrua" file="polygon/broer/bømlabrua.xml" tolerance="1.0" delta="2"/>
+	<mask filter="bømlabrua"/>
+      </report>
+      <report size="400">
+	<key Issued="@issued@"/>
+	<key Region="Vestfold og Telemark"/>
+	<key Bridge="Breviksbrua"/>
+	<key Phenomenon="Vindkast"/>
+	<key Variable="Gust10m"/>
+	<key Unit="Meter per sekund"/>
+	<key Model="$MNAME$"/>
+	<key Output="$MOUTPUT$"/>
+	<key Partner="MetNo"/>
+	<key Type="Bro"/>
+	<key Method="$MITER$"/>
+	<aux name="yrp" exp="wind_speed_of_gust_return_period_$METHOD$" location="max"/>
+	<required name="max" fraction="1.0"/>
+	<output xml="$ROOT$/vindkast/broer/$MITER$/vindkast_$MODEL$_$MITER$_vestfoldogtelemark_broer_breviksbrua_warning.xml.tmp"/>
+	<filter name="breviksbrua" file="polygon/broer/breviksbrua.xml" tolerance="1.0" delta="2"/>
+	<mask filter="breviksbrua"/>
+      </report>
+      <report size="400">
+	<key Issued="@issued@"/>
+	<key Region="Nordland"/>
+	<key Bridge="Brønnøysundbrua"/>
+	<key Phenomenon="Vindkast"/>
+	<key Variable="Gust10m"/>
+	<key Unit="Meter per sekund"/>
+	<key Model="$MNAME$"/>
+	<key Output="$MOUTPUT$"/>
+	<key Partner="MetNo"/>
+	<key Type="Bro"/>
+	<key Method="$MITER$"/>
+	<aux name="yrp" exp="wind_speed_of_gust_return_period_$METHOD$" location="max"/>
+	<required name="max" fraction="1.0"/>
+	<output xml="$ROOT$/vindkast/broer/$MITER$/vindkast_$MODEL$_$MITER$_nordland_broer_brønnøysundbrua_warning.xml.tmp"/>
+	<filter name="brønnøysundbrua" file="polygon/broer/brønnøysundbrua.xml" tolerance="1.0" delta="2"/>
+	<mask filter="brønnøysundbrua"/>
+      </report>
+      <report size="400">
+	<key Issued="@issued@"/>
+	<key Region="Vestland"/>
+	<key Bridge="Dalsfjordbrua"/>
+	<key Phenomenon="Vindkast"/>
+	<key Variable="Gust10m"/>
+	<key Unit="Meter per sekund"/>
+	<key Model="$MNAME$"/>
+	<key Output="$MOUTPUT$"/>
+	<key Partner="MetNo"/>
+	<key Type="Bro"/>
+	<key Method="$MITER$"/>
+	<aux name="yrp" exp="wind_speed_of_gust_return_period_$METHOD$" location="max"/>
+	<required name="max" fraction="1.0"/>
+	<output xml="$ROOT$/vindkast/broer/$MITER$/vindkast_$MODEL$_$MITER$_vestland_broer_dalsfjordbrua_warning.xml.tmp"/>
+	<filter name="dalsfjordbrua" file="polygon/broer/dalsfjordbrua.xml" tolerance="1.0" delta="2"/>
+	<mask filter="dalsfjordbrua"/>
+      </report>
+      <report size="400">
+	<key Issued="@issued@"/>
+	<key Region="Trøndelag"/>
+	<key Bridge="Dolmsundbrua"/>
+	<key Phenomenon="Vindkast"/>
+	<key Variable="Gust10m"/>
+	<key Unit="Meter per sekund"/>
+	<key Model="$MNAME$"/>
+	<key Output="$MOUTPUT$"/>
+	<key Partner="MetNo"/>
+	<key Type="Bro"/>
+	<key Method="$MITER$"/>
+	<aux name="yrp" exp="wind_speed_of_gust_return_period_$METHOD$" location="max"/>
+	<required name="max" fraction="1.0"/>
+	<output xml="$ROOT$/vindkast/broer/$MITER$/vindkast_$MODEL$_$MITER$_trondelag_broer_dolmsundbrua_warning.xml.tmp"/>
+	<filter name="dolmsundbrua" file="polygon/broer/dolmsundbrua.xml" tolerance="1.0" delta="2"/>
+	<mask filter="dolmsundbrua"/>
+      </report>
+      <report size="400">
+	<key Issued="@issued@"/>
+	<key Region="Viken Vest"/>
+	<key Bridge="Drammensbrua"/>
+	<key Phenomenon="Vindkast"/>
+	<key Variable="Gust10m"/>
+	<key Unit="Meter per sekund"/>
+	<key Model="$MNAME$"/>
+	<key Output="$MOUTPUT$"/>
+	<key Partner="MetNo"/>
+	<key Type="Bro"/>
+	<key Method="$MITER$"/>
+	<aux name="yrp" exp="wind_speed_of_gust_return_period_$METHOD$" location="max"/>
+	<required name="max" fraction="1.0"/>
+	<output xml="$ROOT$/vindkast/broer/$MITER$/vindkast_$MODEL$_$MITER$_vikenvest_broer_drammensbrua_warning.xml.tmp"/>
+	<filter name="drammensbrua" file="polygon/broer/drammensbrua.xml" tolerance="1.0" delta="2"/>
+	<mask filter="drammensbrua"/>
+      </report>
+      <report size="400">
+	<key Issued="@issued@"/>
+	<key Region="Troms og Finnmark"/>
+	<key Bridge="Dyrøybrua"/>
+	<key Phenomenon="Vindkast"/>
+	<key Variable="Gust10m"/>
+	<key Unit="Meter per sekund"/>
+	<key Model="$MNAME$"/>
+	<key Output="$MOUTPUT$"/>
+	<key Partner="MetNo"/>
+	<key Type="Bro"/>
+	<key Method="$MITER$"/>
+	<aux name="yrp" exp="wind_speed_of_gust_return_period_$METHOD$" location="max"/>
+	<required name="max" fraction="1.0"/>
+	<output xml="$ROOT$/vindkast/broer/$MITER$/vindkast_$MODEL$_$MITER$_tromsogfinnmark_broer_dyrøybrua_warning.xml.tmp"/>
+	<filter name="dyrøybrua" file="polygon/broer/dyrøybrua.xml" tolerance="1.0" delta="2"/>
+	<mask filter="dyrøybrua"/>
+      </report>
+      <report size="400">
+	<key Issued="@issued@"/>
+	<key Region="Møre og Romsdal"/>
+	<key Bridge="Eiksundbrua"/>
+	<key Phenomenon="Vindkast"/>
+	<key Variable="Gust10m"/>
+	<key Unit="Meter per sekund"/>
+	<key Model="$MNAME$"/>
+	<key Output="$MOUTPUT$"/>
+	<key Partner="MetNo"/>
+	<key Type="Bro"/>
+	<key Method="$MITER$"/>
+	<aux name="yrp" exp="wind_speed_of_gust_return_period_$METHOD$" location="max"/>
+	<required name="max" fraction="1.0"/>
+	<output xml="$ROOT$/vindkast/broer/$MITER$/vindkast_$MODEL$_$MITER$_moreogromsdal_broer_eiksundbrua_warning.xml.tmp"/>
+	<filter name="eiksundbrua" file="polygon/broer/eiksundbrua.xml" tolerance="1.0" delta="2"/>
+	<mask filter="eiksundbrua"/>
+      </report>
+      <report size="400">
+	<key Issued="@issued@"/>
+	<key Region="Nordland"/>
+	<key Bridge="Engeløybrua"/>
+	<key Phenomenon="Vindkast"/>
+	<key Variable="Gust10m"/>
+	<key Unit="Meter per sekund"/>
+	<key Model="$MNAME$"/>
+	<key Output="$MOUTPUT$"/>
+	<key Partner="MetNo"/>
+	<key Type="Bro"/>
+	<key Method="$MITER$"/>
+	<aux name="yrp" exp="wind_speed_of_gust_return_period_$METHOD$" location="max"/>
+	<required name="max" fraction="1.0"/>
+	<output xml="$ROOT$/vindkast/broer/$MITER$/vindkast_$MODEL$_$MITER$_nordland_broer_engeløybrua_warning.xml.tmp"/>
+	<filter name="engeløybrua" file="polygon/broer/engeløybrua.xml" tolerance="1.0" delta="2"/>
+	<mask filter="engeløybrua"/>
+      </report>
+      <report size="400">
+	<key Issued="@issued@"/>
+	<key Region="Vestfold og Telemark"/>
+	<key Bridge="Farrisbrua"/>
+	<key Phenomenon="Vindkast"/>
+	<key Variable="Gust10m"/>
+	<key Unit="Meter per sekund"/>
+	<key Model="$MNAME$"/>
+	<key Output="$MOUTPUT$"/>
+	<key Partner="MetNo"/>
+	<key Type="Bro"/>
+	<key Method="$MITER$"/>
+	<aux name="yrp" exp="wind_speed_of_gust_return_period_$METHOD$" location="max"/>
+	<required name="max" fraction="1.0"/>
+	<output xml="$ROOT$/vindkast/broer/$MITER$/vindkast_$MODEL$_$MITER$_vestfoldogtelemark_broer_farrisbrua_warning.xml.tmp"/>
+	<filter name="farrisbrua" file="polygon/broer/farrisbrua.xml" tolerance="1.0" delta="2"/>
+	<mask filter="farrisbrua"/>
+      </report>
+      <report size="400">
+	<key Issued="@issued@"/>
+	<key Region="Agder"/>
+	<key Bridge="Fedafjorden"/>
+	<key Phenomenon="Vindkast"/>
+	<key Variable="Gust10m"/>
+	<key Unit="Meter per sekund"/>
+	<key Model="$MNAME$"/>
+	<key Output="$MOUTPUT$"/>
+	<key Partner="MetNo"/>
+	<key Type="Bro"/>
+	<key Method="$MITER$"/>
+	<aux name="yrp" exp="wind_speed_of_gust_return_period_$METHOD$" location="max"/>
+	<required name="max" fraction="1.0"/>
+	<output xml="$ROOT$/vindkast/broer/$MITER$/vindkast_$MODEL$_$MITER$_agder_broer_fedafjorden_warning.xml.tmp"/>
+	<filter name="fedafjorden" file="polygon/broer/fedafjorden.xml" tolerance="1.0" delta="2"/>
+	<mask filter="fedafjorden"/>
+      </report>
+      <report size="400">
+	<key Issued="@issued@"/>
+	<key Region="Viken Øst"/>
+	<key Bridge="Fetsundbrua"/>
+	<key Phenomenon="Vindkast"/>
+	<key Variable="Gust10m"/>
+	<key Unit="Meter per sekund"/>
+	<key Model="$MNAME$"/>
+	<key Output="$MOUTPUT$"/>
+	<key Partner="MetNo"/>
+	<key Type="Bro"/>
+	<key Method="$MITER$"/>
+	<aux name="yrp" exp="wind_speed_of_gust_return_period_$METHOD$" location="max"/>
+	<required name="max" fraction="1.0"/>
+	<output xml="$ROOT$/vindkast/broer/$MITER$/vindkast_$MODEL$_$MITER$_vikenost_broer_fetsundbrua_warning.xml.tmp"/>
+	<filter name="fetsundbrua" file="polygon/broer/fetsundbrua.xml" tolerance="1.0" delta="2"/>
+	<mask filter="fetsundbrua"/>
+      </report>
+      <report size="400">
+	<key Issued="@issued@"/>
+	<key Region="Vestland"/>
+	<key Bridge="Fosnstraumbrua"/>
+	<key Phenomenon="Vindkast"/>
+	<key Variable="Gust10m"/>
+	<key Unit="Meter per sekund"/>
+	<key Model="$MNAME$"/>
+	<key Output="$MOUTPUT$"/>
+	<key Partner="MetNo"/>
+	<key Type="Bro"/>
+	<key Method="$MITER$"/>
+	<aux name="yrp" exp="wind_speed_of_gust_return_period_$METHOD$" location="max"/>
+	<required name="max" fraction="1.0"/>
+	<output xml="$ROOT$/vindkast/broer/$MITER$/vindkast_$MODEL$_$MITER$_vestland_broer_fosnstraumbrua_warning.xml.tmp"/>
+	<filter name="fosnstraumbrua" file="polygon/broer/fosnstraumbrua.xml" tolerance="1.0" delta="2"/>
+	<mask filter="fosnstraumbrua"/>
+      </report>
+      <report size="400">
+	<key Issued="@issued@"/>
+	<key Region="Vestfold og Telemark"/>
+	<key Bridge="Frednesbrua"/>
+	<key Phenomenon="Vindkast"/>
+	<key Variable="Gust10m"/>
+	<key Unit="Meter per sekund"/>
+	<key Model="$MNAME$"/>
+	<key Output="$MOUTPUT$"/>
+	<key Partner="MetNo"/>
+	<key Type="Bro"/>
+	<key Method="$MITER$"/>
+	<aux name="yrp" exp="wind_speed_of_gust_return_period_$METHOD$" location="max"/>
+	<required name="max" fraction="1.0"/>
+	<output xml="$ROOT$/vindkast/broer/$MITER$/vindkast_$MODEL$_$MITER$_vestfoldogtelemark_broer_frednesbrua_warning.xml.tmp"/>
+	<filter name="frednesbrua" file="polygon/broer/frednesbrua.xml" tolerance="1.0" delta="2"/>
+	<mask filter="frednesbrua"/>
+      </report>
+      <report size="400">
+	<key Issued="@issued@"/>
+	<key Region="Viken Øst"/>
+	<key Bridge="Fredrikstadbrua"/>
+	<key Phenomenon="Vindkast"/>
+	<key Variable="Gust10m"/>
+	<key Unit="Meter per sekund"/>
+	<key Model="$MNAME$"/>
+	<key Output="$MOUTPUT$"/>
+	<key Partner="MetNo"/>
+	<key Type="Bro"/>
+	<key Method="$MITER$"/>
+	<aux name="yrp" exp="wind_speed_of_gust_return_period_$METHOD$" location="max"/>
+	<required name="max" fraction="1.0"/>
+	<output xml="$ROOT$/vindkast/broer/$MITER$/vindkast_$MODEL$_$MITER$_vikenost_broer_fredrikstadbrua_warning.xml.tmp"/>
+	<filter name="fredrikstadbrua" file="polygon/broer/fredrikstadbrua.xml" tolerance="1.0" delta="2"/>
+	<mask filter="fredrikstadbrua"/>
+      </report>
+      <report size="400">
+	<key Issued="@issued@"/>
+	<key Region="Nordland"/>
+	<key Bridge="Gimsøystraumenbrua"/>
+	<key Phenomenon="Vindkast"/>
+	<key Variable="Gust10m"/>
+	<key Unit="Meter per sekund"/>
+	<key Model="$MNAME$"/>
+	<key Output="$MOUTPUT$"/>
+	<key Partner="MetNo"/>
+	<key Type="Bro"/>
+	<key Method="$MITER$"/>
+	<aux name="yrp" exp="wind_speed_of_gust_return_period_$METHOD$" location="max"/>
+	<required name="max" fraction="1.0"/>
+	<output xml="$ROOT$/vindkast/broer/$MITER$/vindkast_$MODEL$_$MITER$_nordland_broer_gimsøystraumenbrua_warning.xml.tmp"/>
+	<filter name="gimsøystraumenbrua" file="polygon/broer/gimsøystraumenbrua.xml" tolerance="1.0" delta="2"/>
+	<mask filter="gimsøystraumenbrua"/>
+      </report>
+      <report size="400">
+	<key Issued="@issued@"/>
+	<key Region="Møre og Romsdal"/>
+	<key Bridge="Giskebrua"/>
+	<key Phenomenon="Vindkast"/>
+	<key Variable="Gust10m"/>
+	<key Unit="Meter per sekund"/>
+	<key Model="$MNAME$"/>
+	<key Output="$MOUTPUT$"/>
+	<key Partner="MetNo"/>
+	<key Type="Bro"/>
+	<key Method="$MITER$"/>
+	<aux name="yrp" exp="wind_speed_of_gust_return_period_$METHOD$" location="max"/>
+	<required name="max" fraction="1.0"/>
+	<output xml="$ROOT$/vindkast/broer/$MITER$/vindkast_$MODEL$_$MITER$_moreogromsdal_broer_giskebrua_warning.xml.tmp"/>
+	<filter name="giskebrua" file="polygon/broer/giskebrua.xml" tolerance="1.0" delta="2"/>
+	<mask filter="giskebrua"/>
+      </report>
+      <report size="400">
+	<key Issued="@issued@"/>
+	<key Region="Troms og Finnmark"/>
+	<key Bridge="Gisundbrua"/>
+	<key Phenomenon="Vindkast"/>
+	<key Variable="Gust10m"/>
+	<key Unit="Meter per sekund"/>
+	<key Model="$MNAME$"/>
+	<key Output="$MOUTPUT$"/>
+	<key Partner="MetNo"/>
+	<key Type="Bro"/>
+	<key Method="$MITER$"/>
+	<aux name="yrp" exp="wind_speed_of_gust_return_period_$METHOD$" location="max"/>
+	<required name="max" fraction="1.0"/>
+	<output xml="$ROOT$/vindkast/broer/$MITER$/vindkast_$MODEL$_$MITER$_tromsogfinnmark_broer_gisundbrua_warning.xml.tmp"/>
+	<filter name="gisundbrua" file="polygon/broer/gisundbrua.xml" tolerance="1.0" delta="2"/>
+	<mask filter="gisundbrua"/>
+      </report>
+      <report size="400">
+	<key Issued="@issued@"/>
+	<key Region="Møre og Romsdal"/>
+	<key Bridge="Gjemnessundbrua"/>
+	<key Phenomenon="Vindkast"/>
+	<key Variable="Gust10m"/>
+	<key Unit="Meter per sekund"/>
+	<key Model="$MNAME$"/>
+	<key Output="$MOUTPUT$"/>
+	<key Partner="MetNo"/>
+	<key Type="Bro"/>
+	<key Method="$MITER$"/>
+	<aux name="yrp" exp="wind_speed_of_gust_return_period_$METHOD$" location="max"/>
+	<required name="max" fraction="1.0"/>
+	<output xml="$ROOT$/vindkast/broer/$MITER$/vindkast_$MODEL$_$MITER$_moreogromsdal_broer_gjemnessundbrua_warning.xml.tmp"/>
+	<filter name="gjemnessundbrua" file="polygon/broer/gjemnessundbrua.xml" tolerance="1.0" delta="2"/>
+	<mask filter="gjemnessundbrua"/>
+      </report>
+      <report size="400">
+	<key Issued="@issued@"/>
+	<key Region="Vestfold og Telemark"/>
+	<key Bridge="Grenlandsbrua"/>
+	<key Phenomenon="Vindkast"/>
+	<key Variable="Gust10m"/>
+	<key Unit="Meter per sekund"/>
+	<key Model="$MNAME$"/>
+	<key Output="$MOUTPUT$"/>
+	<key Partner="MetNo"/>
+	<key Type="Bro"/>
+	<key Method="$MITER$"/>
+	<aux name="yrp" exp="wind_speed_of_gust_return_period_$METHOD$" location="max"/>
+	<required name="max" fraction="1.0"/>
+	<output xml="$ROOT$/vindkast/broer/$MITER$/vindkast_$MODEL$_$MITER$_vestfoldogtelemark_broer_grenlandsbrua_warning.xml.tmp"/>
+	<filter name="grenlandsbrua" file="polygon/broer/grenlandsbrua.xml" tolerance="1.0" delta="2"/>
+	<mask filter="grenlandsbrua"/>
+      </report>
+      <report size="400">
+	<key Issued="@issued@"/>
+	<key Region="Innlandet"/>
+	<key Bridge="Gullibrua"/>
+	<key Phenomenon="Vindkast"/>
+	<key Variable="Gust10m"/>
+	<key Unit="Meter per sekund"/>
+	<key Model="$MNAME$"/>
+	<key Output="$MOUTPUT$"/>
+	<key Partner="MetNo"/>
+	<key Type="Bro"/>
+	<key Method="$MITER$"/>
+	<aux name="yrp" exp="wind_speed_of_gust_return_period_$METHOD$" location="max"/>
+	<required name="max" fraction="1.0"/>
+	<output xml="$ROOT$/vindkast/broer/$MITER$/vindkast_$MODEL$_$MITER$_innlandet_broer_gullibrua_warning.xml.tmp"/>
+	<filter name="gullibrua" file="polygon/broer/gullibrua.xml" tolerance="1.0" delta="2"/>
+	<mask filter="gullibrua"/>
+      </report>
+      <report size="400">
+	<key Issued="@issued@"/>
+	<key Region="Nordland"/>
+	<key Bridge="Hadselbrua"/>
+	<key Phenomenon="Vindkast"/>
+	<key Variable="Gust10m"/>
+	<key Unit="Meter per sekund"/>
+	<key Model="$MNAME$"/>
+	<key Output="$MOUTPUT$"/>
+	<key Partner="MetNo"/>
+	<key Type="Bro"/>
+	<key Method="$MITER$"/>
+	<aux name="yrp" exp="wind_speed_of_gust_return_period_$METHOD$" location="max"/>
+	<required name="max" fraction="1.0"/>
+	<output xml="$ROOT$/vindkast/broer/$MITER$/vindkast_$MODEL$_$MITER$_nordland_broer_hadselbrua_warning.xml.tmp"/>
+	<filter name="hadselbrua" file="polygon/broer/hadselbrua.xml" tolerance="1.0" delta="2"/>
+	<mask filter="hadselbrua"/>
+      </report>
+      <report size="400">
+	<key Issued="@issued@"/>
+	<key Region="Vestland"/>
+	<key Bridge="Hagelsundbrua"/>
+	<key Phenomenon="Vindkast"/>
+	<key Variable="Gust10m"/>
+	<key Unit="Meter per sekund"/>
+	<key Model="$MNAME$"/>
+	<key Output="$MOUTPUT$"/>
+	<key Partner="MetNo"/>
+	<key Type="Bro"/>
+	<key Method="$MITER$"/>
+	<aux name="yrp" exp="wind_speed_of_gust_return_period_$METHOD$" location="max"/>
+	<required name="max" fraction="1.0"/>
+	<output xml="$ROOT$/vindkast/broer/$MITER$/vindkast_$MODEL$_$MITER$_vestland_broer_hagelsundbrua_warning.xml.tmp"/>
+	<filter name="hagelsundbrua" file="polygon/broer/hagelsundbrua.xml" tolerance="1.0" delta="2"/>
+	<mask filter="hagelsundbrua"/>
+      </report>
+      <report size="400">
+	<key Issued="@issued@"/>
+	<key Region="Nordland"/>
+	<key Bridge="Hålogalandsbrua"/>
+	<key Phenomenon="Vindkast"/>
+	<key Variable="Gust10m"/>
+	<key Unit="Meter per sekund"/>
+	<key Model="$MNAME$"/>
+	<key Output="$MOUTPUT$"/>
+	<key Partner="MetNo"/>
+	<key Type="Bro"/>
+	<key Method="$MITER$"/>
+	<aux name="yrp" exp="wind_speed_of_gust_return_period_$METHOD$" location="max"/>
+	<required name="max" fraction="1.0"/>
+	<output xml="$ROOT$/vindkast/broer/$MITER$/vindkast_$MODEL$_$MITER$_nordland_broer_hålogalandsbrua_warning.xml.tmp"/>
+	<filter name="hålogalandsbrua" file="polygon/broer/hålogalandsbrua.xml" tolerance="1.0" delta="2"/>
+	<mask filter="hålogalandsbrua"/>
+      </report>
+      <report size="400">
+	<key Issued="@issued@"/>
+	<key Region="Vestland"/>
+	<key Bridge="Hardangerbrua"/>
+	<key Phenomenon="Vindkast"/>
+	<key Variable="Gust10m"/>
+	<key Unit="Meter per sekund"/>
+	<key Model="$MNAME$"/>
+	<key Output="$MOUTPUT$"/>
+	<key Partner="MetNo"/>
+	<key Type="Bro"/>
+	<key Method="$MITER$"/>
+	<aux name="yrp" exp="wind_speed_of_gust_return_period_$METHOD$" location="max"/>
+	<required name="max" fraction="1.0"/>
+	<output xml="$ROOT$/vindkast/broer/$MITER$/vindkast_$MODEL$_$MITER$_vestland_broer_hardangerbrua_warning.xml.tmp"/>
+	<filter name="hardangerbrua" file="polygon/broer/hardangerbrua.xml" tolerance="1.0" delta="2"/>
+	<mask filter="hardangerbrua"/>
+      </report>
+      <report size="400">
+	<key Issued="@issued@"/>
+	<key Region="Nordland"/>
+	<key Bridge="Helgelandsbrua"/>
+	<key Phenomenon="Vindkast"/>
+	<key Variable="Gust10m"/>
+	<key Unit="Meter per sekund"/>
+	<key Model="$MNAME$"/>
+	<key Output="$MOUTPUT$"/>
+	<key Partner="MetNo"/>
+	<key Type="Bro"/>
+	<key Method="$MITER$"/>
+	<aux name="yrp" exp="wind_speed_of_gust_return_period_$METHOD$" location="max"/>
+	<required name="max" fraction="1.0"/>
+	<output xml="$ROOT$/vindkast/broer/$MITER$/vindkast_$MODEL$_$MITER$_nordland_broer_helgelandsbrua_warning.xml.tmp"/>
+	<filter name="helgelandsbrua" file="polygon/broer/helgelandsbrua.xml" tolerance="1.0" delta="2"/>
+	<mask filter="helgelandsbrua"/>
+      </report>
+      <report size="400">
+	<key Issued="@issued@"/>
+	<key Region="Vestfold og Telemark"/>
+	<key Bridge="Hellandbrua"/>
+	<key Phenomenon="Vindkast"/>
+	<key Variable="Gust10m"/>
+	<key Unit="Meter per sekund"/>
+	<key Model="$MNAME$"/>
+	<key Output="$MOUTPUT$"/>
+	<key Partner="MetNo"/>
+	<key Type="Bro"/>
+	<key Method="$MITER$"/>
+	<aux name="yrp" exp="wind_speed_of_gust_return_period_$METHOD$" location="max"/>
+	<required name="max" fraction="1.0"/>
+	<output xml="$ROOT$/vindkast/broer/$MITER$/vindkast_$MODEL$_$MITER$_vestfoldogtelemark_broer_hellandbrua_warning.xml.tmp"/>
+	<filter name="hellandbrua" file="polygon/broer/hellandbrua.xml" tolerance="1.0" delta="2"/>
+	<mask filter="hellandbrua"/>
+      </report>
+      <report size="400">
+	<key Issued="@issued@"/>
+	<key Region="Møre og Romsdal"/>
+	<key Bridge="Herøybrua"/>
+	<key Phenomenon="Vindkast"/>
+	<key Variable="Gust10m"/>
+	<key Unit="Meter per sekund"/>
+	<key Model="$MNAME$"/>
+	<key Output="$MOUTPUT$"/>
+	<key Partner="MetNo"/>
+	<key Type="Bro"/>
+	<key Method="$MITER$"/>
+	<aux name="yrp" exp="wind_speed_of_gust_return_period_$METHOD$" location="max"/>
+	<required name="max" fraction="1.0"/>
+	<output xml="$ROOT$/vindkast/broer/$MITER$/vindkast_$MODEL$_$MITER$_moreogromsdal_broer_herøybrua_warning.xml.tmp"/>
+	<filter name="herøybrua" file="polygon/broer/herøybrua.xml" tolerance="1.0" delta="2"/>
+	<mask filter="herøybrua"/>
+      </report>
+      <report size="400">
+	<key Issued="@issued@"/>
+	<key Region="Vestland"/>
+	<key Bridge="Hundvåkøybrua"/>
+	<key Phenomenon="Vindkast"/>
+	<key Variable="Gust10m"/>
+	<key Unit="Meter per sekund"/>
+	<key Model="$MNAME$"/>
+	<key Output="$MOUTPUT$"/>
+	<key Partner="MetNo"/>
+	<key Type="Bro"/>
+	<key Method="$MITER$"/>
+	<aux name="yrp" exp="wind_speed_of_gust_return_period_$METHOD$" location="max"/>
+	<required name="max" fraction="1.0"/>
+	<output xml="$ROOT$/vindkast/broer/$MITER$/vindkast_$MODEL$_$MITER$_vestland_broer_hundvåkøybrua_warning.xml.tmp"/>
+	<filter name="hundvåkøybrua" file="polygon/broer/hundvåkøybrua.xml" tolerance="1.0" delta="2"/>
+	<mask filter="hundvåkøybrua"/>
+      </report>
+      <report size="400">
+	<key Issued="@issued@"/>
+	<key Region="Møre og Romsdal"/>
+	<key Bridge="Imarsundbrua"/>
+	<key Phenomenon="Vindkast"/>
+	<key Variable="Gust10m"/>
+	<key Unit="Meter per sekund"/>
+	<key Model="$MNAME$"/>
+	<key Output="$MOUTPUT$"/>
+	<key Partner="MetNo"/>
+	<key Type="Bro"/>
+	<key Method="$MITER$"/>
+	<aux name="yrp" exp="wind_speed_of_gust_return_period_$METHOD$" location="max"/>
+	<required name="max" fraction="1.0"/>
+	<output xml="$ROOT$/vindkast/broer/$MITER$/vindkast_$MODEL$_$MITER$_moreogromsdal_broer_imarsundbrua_warning.xml.tmp"/>
+	<filter name="imarsundbrua" file="polygon/broer/imarsundbrua.xml" tolerance="1.0" delta="2"/>
+	<mask filter="imarsundbrua"/>
+      </report>
+      <report size="400">
+	<key Issued="@issued@"/>
+	<key Region="Rogaland"/>
+	<key Bridge="Karmsundbrua"/>
+	<key Phenomenon="Vindkast"/>
+	<key Variable="Gust10m"/>
+	<key Unit="Meter per sekund"/>
+	<key Model="$MNAME$"/>
+	<key Output="$MOUTPUT$"/>
+	<key Partner="MetNo"/>
+	<key Type="Bro"/>
+	<key Method="$MITER$"/>
+	<aux name="yrp" exp="wind_speed_of_gust_return_period_$METHOD$" location="max"/>
+	<required name="max" fraction="1.0"/>
+	<output xml="$ROOT$/vindkast/broer/$MITER$/vindkast_$MODEL$_$MITER$_rogaland_broer_karmsundbrua_warning.xml.tmp"/>
+	<filter name="karmsundbrua" file="polygon/broer/karmsundbrua.xml" tolerance="1.0" delta="2"/>
+	<mask filter="karmsundbrua"/>
+      </report>
+      <report size="400">
+	<key Issued="@issued@"/>
+	<key Region="Nordland"/>
+	<key Bridge="Kjellingstraumenbrua"/>
+	<key Phenomenon="Vindkast"/>
+	<key Variable="Gust10m"/>
+	<key Unit="Meter per sekund"/>
+	<key Model="$MNAME$"/>
+	<key Output="$MOUTPUT$"/>
+	<key Partner="MetNo"/>
+	<key Type="Bro"/>
+	<key Method="$MITER$"/>
+	<aux name="yrp" exp="wind_speed_of_gust_return_period_$METHOD$" location="max"/>
+	<required name="max" fraction="1.0"/>
+	<output xml="$ROOT$/vindkast/broer/$MITER$/vindkast_$MODEL$_$MITER$_nordland_broer_kjellingstraumenbrua_warning.xml.tmp"/>
+	<filter name="kjellingstraumenbrua" file="polygon/broer/kjellingstraumenbrua.xml" tolerance="1.0" delta="2"/>
+	<mask filter="kjellingstraumenbrua"/>
+      </report>
+      <report size="400">
+	<key Issued="@issued@"/>
+	<key Region="Nordland"/>
+	<key Bridge="Kjerringstraumenbrua"/>
+	<key Phenomenon="Vindkast"/>
+	<key Variable="Gust10m"/>
+	<key Unit="Meter per sekund"/>
+	<key Model="$MNAME$"/>
+	<key Output="$MOUTPUT$"/>
+	<key Partner="MetNo"/>
+	<key Type="Bro"/>
+	<key Method="$MITER$"/>
+	<aux name="yrp" exp="wind_speed_of_gust_return_period_$METHOD$" location="max"/>
+	<required name="max" fraction="1.0"/>
+	<output xml="$ROOT$/vindkast/broer/$MITER$/vindkast_$MODEL$_$MITER$_nordland_broer_kjerringstraumenbrua_warning.xml.tmp"/>
+	<filter name="kjerringstraumenbrua" file="polygon/broer/kjerringstraumenbrua.xml" tolerance="1.0" delta="2"/>
+	<mask filter="kjerringstraumenbrua"/>
+      </report>
+      <report size="400">
+	<key Issued="@issued@"/>
+	<key Region="Trøndelag"/>
+	<key Bridge="Kråkvågbrua"/>
+	<key Phenomenon="Vindkast"/>
+	<key Variable="Gust10m"/>
+	<key Unit="Meter per sekund"/>
+	<key Model="$MNAME$"/>
+	<key Output="$MOUTPUT$"/>
+	<key Partner="MetNo"/>
+	<key Type="Bro"/>
+	<key Method="$MITER$"/>
+	<aux name="yrp" exp="wind_speed_of_gust_return_period_$METHOD$" location="max"/>
+	<required name="max" fraction="1.0"/>
+	<output xml="$ROOT$/vindkast/broer/$MITER$/vindkast_$MODEL$_$MITER$_trondelag_broer_kråkvågbrua_warning.xml.tmp"/>
+	<filter name="kråkvågbrua" file="polygon/broer/kråkvågbrua.xml" tolerance="1.0" delta="2"/>
+	<mask filter="kråkvågbrua"/>
+      </report>
+      <report size="400">
+	<key Issued="@issued@"/>
+	<key Region="Trøndelag"/>
+	<key Bridge="Kroppanbrua"/>
+	<key Phenomenon="Vindkast"/>
+	<key Variable="Gust10m"/>
+	<key Unit="Meter per sekund"/>
+	<key Model="$MNAME$"/>
+	<key Output="$MOUTPUT$"/>
+	<key Partner="MetNo"/>
+	<key Type="Bro"/>
+	<key Method="$MITER$"/>
+	<aux name="yrp" exp="wind_speed_of_gust_return_period_$METHOD$" location="max"/>
+	<required name="max" fraction="1.0"/>
+	<output xml="$ROOT$/vindkast/broer/$MITER$/vindkast_$MODEL$_$MITER$_trondelag_broer_kroppanbrua_warning.xml.tmp"/>
+	<filter name="kroppanbrua" file="polygon/broer/kroppanbrua.xml" tolerance="1.0" delta="2"/>
+	<mask filter="kroppanbrua"/>
+      </report>
+      <report size="400">
+	<key Issued="@issued@"/>
+	<key Region="Nordland"/>
+	<key Bridge="Kvalsaukanbrua"/>
+	<key Phenomenon="Vindkast"/>
+	<key Variable="Gust10m"/>
+	<key Unit="Meter per sekund"/>
+	<key Model="$MNAME$"/>
+	<key Output="$MOUTPUT$"/>
+	<key Partner="MetNo"/>
+	<key Type="Bro"/>
+	<key Method="$MITER$"/>
+	<aux name="yrp" exp="wind_speed_of_gust_return_period_$METHOD$" location="max"/>
+	<required name="max" fraction="1.0"/>
+	<output xml="$ROOT$/vindkast/broer/$MITER$/vindkast_$MODEL$_$MITER$_nordland_broer_kvalsaukanbrua_warning.xml.tmp"/>
+	<filter name="kvalsaukanbrua" file="polygon/broer/kvalsaukanbrua.xml" tolerance="1.0" delta="2"/>
+	<mask filter="kvalsaukanbrua"/>
+      </report>
+      <report size="400">
+	<key Issued="@issued@"/>
+	<key Region="Troms og Finnmark"/>
+	<key Bridge="Kvalsundbrua"/>
+	<key Phenomenon="Vindkast"/>
+	<key Variable="Gust10m"/>
+	<key Unit="Meter per sekund"/>
+	<key Model="$MNAME$"/>
+	<key Output="$MOUTPUT$"/>
+	<key Partner="MetNo"/>
+	<key Type="Bro"/>
+	<key Method="$MITER$"/>
+	<aux name="yrp" exp="wind_speed_of_gust_return_period_$METHOD$" location="max"/>
+	<required name="max" fraction="1.0"/>
+	<output xml="$ROOT$/vindkast/broer/$MITER$/vindkast_$MODEL$_$MITER$_tromsogfinnmark_broer_kvalsundbrua_warning.xml.tmp"/>
+	<filter name="kvalsundbrua" file="polygon/broer/kvalsundbrua.xml" tolerance="1.0" delta="2"/>
+	<mask filter="kvalsundbrua"/>
+      </report>
+      <report size="400">
+	<key Issued="@issued@"/>
+	<key Region="Viken Øst"/>
+	<key Bridge="Langsetbrua"/>
+	<key Phenomenon="Vindkast"/>
+	<key Variable="Gust10m"/>
+	<key Unit="Meter per sekund"/>
+	<key Model="$MNAME$"/>
+	<key Output="$MOUTPUT$"/>
+	<key Partner="MetNo"/>
+	<key Type="Bro"/>
+	<key Method="$MITER$"/>
+	<aux name="yrp" exp="wind_speed_of_gust_return_period_$METHOD$" location="max"/>
+	<required name="max" fraction="1.0"/>
+	<output xml="$ROOT$/vindkast/broer/$MITER$/vindkast_$MODEL$_$MITER$_vikenost_broer_langsetbrua_warning.xml.tmp"/>
+	<filter name="langsetbrua" file="polygon/broer/langsetbrua.xml" tolerance="1.0" delta="2"/>
+	<mask filter="langsetbrua"/>
+      </report>
+      <report size="400">
+	<key Issued="@issued@"/>
+	<key Region="Innlandet"/>
+	<key Bridge="Lillehammer"/>
+	<key Phenomenon="Vindkast"/>
+	<key Variable="Gust10m"/>
+	<key Unit="Meter per sekund"/>
+	<key Model="$MNAME$"/>
+	<key Output="$MOUTPUT$"/>
+	<key Partner="MetNo"/>
+	<key Type="Bro"/>
+	<key Method="$MITER$"/>
+	<aux name="yrp" exp="wind_speed_of_gust_return_period_$METHOD$" location="max"/>
+	<required name="max" fraction="1.0"/>
+	<output xml="$ROOT$/vindkast/broer/$MITER$/vindkast_$MODEL$_$MITER$_innlandet_broer_lillehammer_warning.xml.tmp"/>
+	<filter name="lillehammer" file="polygon/broer/lillehammer.xml" tolerance="1.0" delta="2"/>
+	<mask filter="lillehammer"/>
+      </report>
+      <report size="400">
+	<key Issued="@issued@"/>
+	<key Region="Trøndelag"/>
+	<key Bridge="Lokkarenbrua"/>
+	<key Phenomenon="Vindkast"/>
+	<key Variable="Gust10m"/>
+	<key Unit="Meter per sekund"/>
+	<key Model="$MNAME$"/>
+	<key Output="$MOUTPUT$"/>
+	<key Partner="MetNo"/>
+	<key Type="Bro"/>
+	<key Method="$MITER$"/>
+	<aux name="yrp" exp="wind_speed_of_gust_return_period_$METHOD$" location="max"/>
+	<required name="max" fraction="1.0"/>
+	<output xml="$ROOT$/vindkast/broer/$MITER$/vindkast_$MODEL$_$MITER$_trondelag_broer_lokkarenbrua_warning.xml.tmp"/>
+	<filter name="lokkarenbrua" file="polygon/broer/lokkarenbrua.xml" tolerance="1.0" delta="2"/>
+	<mask filter="lokkarenbrua"/>
+      </report>
+      <report size="400">
+	<key Issued="@issued@"/>
+	<key Region="Rogaland"/>
+	<key Bridge="Lysefjordbrua"/>
+	<key Phenomenon="Vindkast"/>
+	<key Variable="Gust10m"/>
+	<key Unit="Meter per sekund"/>
+	<key Model="$MNAME$"/>
+	<key Output="$MOUTPUT$"/>
+	<key Partner="MetNo"/>
+	<key Type="Bro"/>
+	<key Method="$MITER$"/>
+	<aux name="yrp" exp="wind_speed_of_gust_return_period_$METHOD$" location="max"/>
+	<required name="max" fraction="1.0"/>
+	<output xml="$ROOT$/vindkast/broer/$MITER$/vindkast_$MODEL$_$MITER$_rogaland_broer_lysefjordbrua_warning.xml.tmp"/>
+	<filter name="lysefjordbrua" file="polygon/broer/lysefjordbrua.xml" tolerance="1.0" delta="2"/>
+	<mask filter="lysefjordbrua"/>
+      </report>
+      <report size="400">
+	<key Issued="@issued@"/>
+	<key Region="Vestland"/>
+	<key Bridge="Måløybrua"/>
+	<key Phenomenon="Vindkast"/>
+	<key Variable="Gust10m"/>
+	<key Unit="Meter per sekund"/>
+	<key Model="$MNAME$"/>
+	<key Output="$MOUTPUT$"/>
+	<key Partner="MetNo"/>
+	<key Type="Bro"/>
+	<key Method="$MITER$"/>
+	<aux name="yrp" exp="wind_speed_of_gust_return_period_$METHOD$" location="max"/>
+	<required name="max" fraction="1.0"/>
+	<output xml="$ROOT$/vindkast/broer/$MITER$/vindkast_$MODEL$_$MITER$_vestland_broer_måløybrua_warning.xml.tmp"/>
+	<filter name="måløybrua" file="polygon/broer/måløybrua.xml" tolerance="1.0" delta="2"/>
+	<mask filter="måløybrua"/>
+      </report>
+      <report size="400">
+	<key Issued="@issued@"/>
+	<key Region="Trøndelag"/>
+	<key Bridge="Marøybrua"/>
+	<key Phenomenon="Vindkast"/>
+	<key Variable="Gust10m"/>
+	<key Unit="Meter per sekund"/>
+	<key Model="$MNAME$"/>
+	<key Output="$MOUTPUT$"/>
+	<key Partner="MetNo"/>
+	<key Type="Bro"/>
+	<key Method="$MITER$"/>
+	<aux name="yrp" exp="wind_speed_of_gust_return_period_$METHOD$" location="max"/>
+	<required name="max" fraction="1.0"/>
+	<output xml="$ROOT$/vindkast/broer/$MITER$/vindkast_$MODEL$_$MITER$_trondelag_broer_marøybrua_warning.xml.tmp"/>
+	<filter name="marøybrua" file="polygon/broer/marøybrua.xml" tolerance="1.0" delta="2"/>
+	<mask filter="marøybrua"/>
+      </report>
+      <report size="400">
+	<key Issued="@issued@"/>
+	<key Region="Trøndelag"/>
+	<key Bridge="Melhusbrua"/>
+	<key Phenomenon="Vindkast"/>
+	<key Variable="Gust10m"/>
+	<key Unit="Meter per sekund"/>
+	<key Model="$MNAME$"/>
+	<key Output="$MOUTPUT$"/>
+	<key Partner="MetNo"/>
+	<key Type="Bro"/>
+	<key Method="$MITER$"/>
+	<aux name="yrp" exp="wind_speed_of_gust_return_period_$METHOD$" location="max"/>
+	<required name="max" fraction="1.0"/>
+	<output xml="$ROOT$/vindkast/broer/$MITER$/vindkast_$MODEL$_$MITER$_trondelag_broer_melhusbrua_warning.xml.tmp"/>
+	<filter name="melhusbrua" file="polygon/broer/melhusbrua.xml" tolerance="1.0" delta="2"/>
+	<mask filter="melhusbrua"/>
+      </report>
+      <report size="400">
+	<key Issued="@issued@"/>
+	<key Region="Viken Øst"/>
+	<key Bridge="Minnesund"/>
+	<key Phenomenon="Vindkast"/>
+	<key Variable="Gust10m"/>
+	<key Unit="Meter per sekund"/>
+	<key Model="$MNAME$"/>
+	<key Output="$MOUTPUT$"/>
+	<key Partner="MetNo"/>
+	<key Type="Bro"/>
+	<key Method="$MITER$"/>
+	<aux name="yrp" exp="wind_speed_of_gust_return_period_$METHOD$" location="max"/>
+	<required name="max" fraction="1.0"/>
+	<output xml="$ROOT$/vindkast/broer/$MITER$/vindkast_$MODEL$_$MITER$_vikenost_broer_minnesund_warning.xml.tmp"/>
+	<filter name="minnesund" file="polygon/broer/minnesund.xml" tolerance="1.0" delta="2"/>
+	<mask filter="minnesund"/>
+      </report>
+      <report size="400">
+	<key Issued="@issued@"/>
+	<key Region="Innlandet"/>
+	<key Bridge="Mjøsbrua"/>
+	<key Phenomenon="Vindkast"/>
+	<key Variable="Gust10m"/>
+	<key Unit="Meter per sekund"/>
+	<key Model="$MNAME$"/>
+	<key Output="$MOUTPUT$"/>
+	<key Partner="MetNo"/>
+	<key Type="Bro"/>
+	<key Method="$MITER$"/>
+	<aux name="yrp" exp="wind_speed_of_gust_return_period_$METHOD$" location="max"/>
+	<required name="max" fraction="1.0"/>
+	<output xml="$ROOT$/vindkast/broer/$MITER$/vindkast_$MODEL$_$MITER$_innlandet_broer_mjøsbrua_warning.xml.tmp"/>
+	<filter name="mjøsbrua" file="polygon/broer/mjøsbrua.xml" tolerance="1.0" delta="2"/>
+	<mask filter="mjøsbrua"/>
+      </report>
+      <report size="400">
+	<key Issued="@issued@"/>
+	<key Region="Troms og Finnmark"/>
+	<key Bridge="Mjøsundbrua"/>
+	<key Phenomenon="Vindkast"/>
+	<key Variable="Gust10m"/>
+	<key Unit="Meter per sekund"/>
+	<key Model="$MNAME$"/>
+	<key Output="$MOUTPUT$"/>
+	<key Partner="MetNo"/>
+	<key Type="Bro"/>
+	<key Method="$MITER$"/>
+	<aux name="yrp" exp="wind_speed_of_gust_return_period_$METHOD$" location="max"/>
+	<required name="max" fraction="1.0"/>
+	<output xml="$ROOT$/vindkast/broer/$MITER$/vindkast_$MODEL$_$MITER$_tromsogfinnmark_broer_mjøsundbrua_warning.xml.tmp"/>
+	<filter name="mjøsundbrua" file="polygon/broer/mjøsundbrua.xml" tolerance="1.0" delta="2"/>
+	<mask filter="mjøsundbrua"/>
+      </report>
+      <report size="400">
+	<key Issued="@issued@"/>
+	<key Region="Trøndelag"/>
+	<key Bridge="Nærøysundbrua"/>
+	<key Phenomenon="Vindkast"/>
+	<key Variable="Gust10m"/>
+	<key Unit="Meter per sekund"/>
+	<key Model="$MNAME$"/>
+	<key Output="$MOUTPUT$"/>
+	<key Partner="MetNo"/>
+	<key Type="Bro"/>
+	<key Method="$MITER$"/>
+	<aux name="yrp" exp="wind_speed_of_gust_return_period_$METHOD$" location="max"/>
+	<required name="max" fraction="1.0"/>
+	<output xml="$ROOT$/vindkast/broer/$MITER$/vindkast_$MODEL$_$MITER$_trondelag_broer_nærøysundbrua_warning.xml.tmp"/>
+	<filter name="nærøysundbrua" file="polygon/broer/nærøysundbrua.xml" tolerance="1.0" delta="2"/>
+	<mask filter="nærøysundbrua"/>
+      </report>
+      <report size="400">
+	<key Issued="@issued@"/>
+	<key Region="Møre og Romsdal"/>
+	<key Bridge="Nerlandsøybrua"/>
+	<key Phenomenon="Vindkast"/>
+	<key Variable="Gust10m"/>
+	<key Unit="Meter per sekund"/>
+	<key Model="$MNAME$"/>
+	<key Output="$MOUTPUT$"/>
+	<key Partner="MetNo"/>
+	<key Type="Bro"/>
+	<key Method="$MITER$"/>
+	<aux name="yrp" exp="wind_speed_of_gust_return_period_$METHOD$" location="max"/>
+	<required name="max" fraction="1.0"/>
+	<output xml="$ROOT$/vindkast/broer/$MITER$/vindkast_$MODEL$_$MITER$_moreogromsdal_broer_nerlandsøybrua_warning.xml.tmp"/>
+	<filter name="nerlandsøybrua" file="polygon/broer/nerlandsøybrua.xml" tolerance="1.0" delta="2"/>
+	<mask filter="nerlandsøybrua"/>
+      </report>
+      <report size="400">
+	<key Issued="@issued@"/>
+	<key Region="Vestland"/>
+	<key Bridge="Norddalsfjordbrua"/>
+	<key Phenomenon="Vindkast"/>
+	<key Variable="Gust10m"/>
+	<key Unit="Meter per sekund"/>
+	<key Model="$MNAME$"/>
+	<key Output="$MOUTPUT$"/>
+	<key Partner="MetNo"/>
+	<key Type="Bro"/>
+	<key Method="$MITER$"/>
+	<aux name="yrp" exp="wind_speed_of_gust_return_period_$METHOD$" location="max"/>
+	<required name="max" fraction="1.0"/>
+	<output xml="$ROOT$/vindkast/broer/$MITER$/vindkast_$MODEL$_$MITER$_vestland_broer_norddalsfjordbrua_warning.xml.tmp"/>
+	<filter name="norddalsfjordbrua" file="polygon/broer/norddalsfjordbrua.xml" tolerance="1.0" delta="2"/>
+	<mask filter="norddalsfjordbrua"/>
+      </report>
+      <report size="400">
+	<key Issued="@issued@"/>
+	<key Region="Vestland"/>
+	<key Bridge="Nordhordlandsbrua"/>
+	<key Phenomenon="Vindkast"/>
+	<key Variable="Gust10m"/>
+	<key Unit="Meter per sekund"/>
+	<key Model="$MNAME$"/>
+	<key Output="$MOUTPUT$"/>
+	<key Partner="MetNo"/>
+	<key Type="Bro"/>
+	<key Method="$MITER$"/>
+	<aux name="yrp" exp="wind_speed_of_gust_return_period_$METHOD$" location="max"/>
+	<required name="max" fraction="1.0"/>
+	<output xml="$ROOT$/vindkast/broer/$MITER$/vindkast_$MODEL$_$MITER$_vestland_broer_nordhordlandsbrua_warning.xml.tmp"/>
+	<filter name="nordhordlandsbrua" file="polygon/broer/nordhordlandsbrua.xml" tolerance="1.0" delta="2"/>
+	<mask filter="nordhordlandsbrua"/>
+      </report>
+      <report size="400">
+	<key Issued="@issued@"/>
+	<key Region="Rogaland"/>
+	<key Bridge="Ognasundbrua"/>
+	<key Phenomenon="Vindkast"/>
+	<key Variable="Gust10m"/>
+	<key Unit="Meter per sekund"/>
+	<key Model="$MNAME$"/>
+	<key Output="$MOUTPUT$"/>
+	<key Partner="MetNo"/>
+	<key Type="Bro"/>
+	<key Method="$MITER$"/>
+	<aux name="yrp" exp="wind_speed_of_gust_return_period_$METHOD$" location="max"/>
+	<required name="max" fraction="1.0"/>
+	<output xml="$ROOT$/vindkast/broer/$MITER$/vindkast_$MODEL$_$MITER$_rogaland_broer_ognasundbrua_warning.xml.tmp"/>
+	<filter name="ognasundbrua" file="polygon/broer/ognasundbrua.xml" tolerance="1.0" delta="2"/>
+	<mask filter="ognasundbrua"/>
+      </report>
+      <report size="400">
+	<key Issued="@issued@"/>
+	<key Region="Vestland"/>
+	<key Bridge="Osterøybrua"/>
+	<key Phenomenon="Vindkast"/>
+	<key Variable="Gust10m"/>
+	<key Unit="Meter per sekund"/>
+	<key Model="$MNAME$"/>
+	<key Output="$MOUTPUT$"/>
+	<key Partner="MetNo"/>
+	<key Type="Bro"/>
+	<key Method="$MITER$"/>
+	<aux name="yrp" exp="wind_speed_of_gust_return_period_$METHOD$" location="max"/>
+	<required name="max" fraction="1.0"/>
+	<output xml="$ROOT$/vindkast/broer/$MITER$/vindkast_$MODEL$_$MITER$_vestland_broer_osterøybrua_warning.xml.tmp"/>
+	<filter name="osterøybrua" file="polygon/broer/osterøybrua.xml" tolerance="1.0" delta="2"/>
+	<mask filter="osterøybrua"/>
+      </report>
+      <report size="400">
+	<key Issued="@issued@"/>
+	<key Region="Vestland"/>
+	<key Bridge="Puddefjordsbroen"/>
+	<key Phenomenon="Vindkast"/>
+	<key Variable="Gust10m"/>
+	<key Unit="Meter per sekund"/>
+	<key Model="$MNAME$"/>
+	<key Output="$MOUTPUT$"/>
+	<key Partner="MetNo"/>
+	<key Type="Bro"/>
+	<key Method="$MITER$"/>
+	<aux name="yrp" exp="wind_speed_of_gust_return_period_$METHOD$" location="max"/>
+	<required name="max" fraction="1.0"/>
+	<output xml="$ROOT$/vindkast/broer/$MITER$/vindkast_$MODEL$_$MITER$_vestland_broer_puddefjordsbroen_warning.xml.tmp"/>
+	<filter name="puddefjordsbroen" file="polygon/broer/puddefjordsbroen.xml" tolerance="1.0" delta="2"/>
+	<mask filter="puddefjordsbroen"/>
+      </report>
+      <report size="400">
+	<key Issued="@issued@"/>
+	<key Region="Nordland"/>
+	<key Bridge="Raftsundbrua"/>
+	<key Phenomenon="Vindkast"/>
+	<key Variable="Gust10m"/>
+	<key Unit="Meter per sekund"/>
+	<key Model="$MNAME$"/>
+	<key Output="$MOUTPUT$"/>
+	<key Partner="MetNo"/>
+	<key Type="Bro"/>
+	<key Method="$MITER$"/>
+	<aux name="yrp" exp="wind_speed_of_gust_return_period_$METHOD$" location="max"/>
+	<required name="max" fraction="1.0"/>
+	<output xml="$ROOT$/vindkast/broer/$MITER$/vindkast_$MODEL$_$MITER$_nordland_broer_raftsundbrua_warning.xml.tmp"/>
+	<filter name="raftsundbrua" file="polygon/broer/raftsundbrua.xml" tolerance="1.0" delta="2"/>
+	<mask filter="raftsundbrua"/>
+      </report>
+      <report size="400">
+	<key Issued="@issued@"/>
+	<key Region="Nordland"/>
+	<key Bridge="Rombaksbrua"/>
+	<key Phenomenon="Vindkast"/>
+	<key Variable="Gust10m"/>
+	<key Unit="Meter per sekund"/>
+	<key Model="$MNAME$"/>
+	<key Output="$MOUTPUT$"/>
+	<key Partner="MetNo"/>
+	<key Type="Bro"/>
+	<key Method="$MITER$"/>
+	<aux name="yrp" exp="wind_speed_of_gust_return_period_$METHOD$" location="max"/>
+	<required name="max" fraction="1.0"/>
+	<output xml="$ROOT$/vindkast/broer/$MITER$/vindkast_$MODEL$_$MITER$_nordland_broer_rombaksbrua_warning.xml.tmp"/>
+	<filter name="rombaksbrua" file="polygon/broer/rombaksbrua.xml" tolerance="1.0" delta="2"/>
+	<mask filter="rombaksbrua"/>
+      </report>
+      <report size="400">
+	<key Issued="@issued@"/>
+	<key Region="Vestland"/>
+	<key Bridge="Rongesundetbrua"/>
+	<key Phenomenon="Vindkast"/>
+	<key Variable="Gust10m"/>
+	<key Unit="Meter per sekund"/>
+	<key Model="$MNAME$"/>
+	<key Output="$MOUTPUT$"/>
+	<key Partner="MetNo"/>
+	<key Type="Bro"/>
+	<key Method="$MITER$"/>
+	<aux name="yrp" exp="wind_speed_of_gust_return_period_$METHOD$" location="max"/>
+	<required name="max" fraction="1.0"/>
+	<output xml="$ROOT$/vindkast/broer/$MITER$/vindkast_$MODEL$_$MITER$_vestland_broer_rongesundetbrua_warning.xml.tmp"/>
+	<filter name="rongesundetbrua" file="polygon/broer/rongesundetbrua.xml" tolerance="1.0" delta="2"/>
+	<mask filter="rongesundetbrua"/>
+      </report>
+      <report size="400">
+	<key Issued="@issued@"/>
+	<key Region="Møre og Romsdal"/>
+	<key Bridge="Rundebrua"/>
+	<key Phenomenon="Vindkast"/>
+	<key Variable="Gust10m"/>
+	<key Unit="Meter per sekund"/>
+	<key Model="$MNAME$"/>
+	<key Output="$MOUTPUT$"/>
+	<key Partner="MetNo"/>
+	<key Type="Bro"/>
+	<key Method="$MITER$"/>
+	<aux name="yrp" exp="wind_speed_of_gust_return_period_$METHOD$" location="max"/>
+	<required name="max" fraction="1.0"/>
+	<output xml="$ROOT$/vindkast/broer/$MITER$/vindkast_$MODEL$_$MITER$_moreogromsdal_broer_rundebrua_warning.xml.tmp"/>
+	<filter name="rundebrua" file="polygon/broer/rundebrua.xml" tolerance="1.0" delta="2"/>
+	<mask filter="rundebrua"/>
+      </report>
+      <report size="400">
+	<key Issued="@issued@"/>
+	<key Region="Nordland"/>
+	<key Bridge="Saltstraumenbrua"/>
+	<key Phenomenon="Vindkast"/>
+	<key Variable="Gust10m"/>
+	<key Unit="Meter per sekund"/>
+	<key Model="$MNAME$"/>
+	<key Output="$MOUTPUT$"/>
+	<key Partner="MetNo"/>
+	<key Type="Bro"/>
+	<key Method="$MITER$"/>
+	<aux name="yrp" exp="wind_speed_of_gust_return_period_$METHOD$" location="max"/>
+	<required name="max" fraction="1.0"/>
+	<output xml="$ROOT$/vindkast/broer/$MITER$/vindkast_$MODEL$_$MITER$_nordland_broer_saltstraumenbrua_warning.xml.tmp"/>
+	<filter name="saltstraumenbrua" file="polygon/broer/saltstraumenbrua.xml" tolerance="1.0" delta="2"/>
+	<mask filter="saltstraumenbrua"/>
+      </report>
+      <report size="400">
+	<key Issued="@issued@"/>
+	<key Region="Viken Øst"/>
+	<key Bridge="Sandesundsbrua"/>
+	<key Phenomenon="Vindkast"/>
+	<key Variable="Gust10m"/>
+	<key Unit="Meter per sekund"/>
+	<key Model="$MNAME$"/>
+	<key Output="$MOUTPUT$"/>
+	<key Partner="MetNo"/>
+	<key Type="Bro"/>
+	<key Method="$MITER$"/>
+	<aux name="yrp" exp="wind_speed_of_gust_return_period_$METHOD$" location="max"/>
+	<required name="max" fraction="1.0"/>
+	<output xml="$ROOT$/vindkast/broer/$MITER$/vindkast_$MODEL$_$MITER$_vikenost_broer_sandesundsbrua_warning.xml.tmp"/>
+	<filter name="sandesundsbrua" file="polygon/broer/sandesundsbrua.xml" tolerance="1.0" delta="2"/>
+	<mask filter="sandesundsbrua"/>
+      </report>
+      <report size="400">
+	<key Issued="@issued@"/>
+	<key Region="Troms og Finnmark"/>
+	<key Bridge="Sandnessundbrua"/>
+	<key Phenomenon="Vindkast"/>
+	<key Variable="Gust10m"/>
+	<key Unit="Meter per sekund"/>
+	<key Model="$MNAME$"/>
+	<key Output="$MOUTPUT$"/>
+	<key Partner="MetNo"/>
+	<key Type="Bro"/>
+	<key Method="$MITER$"/>
+	<aux name="yrp" exp="wind_speed_of_gust_return_period_$METHOD$" location="max"/>
+	<required name="max" fraction="1.0"/>
+	<output xml="$ROOT$/vindkast/broer/$MITER$/vindkast_$MODEL$_$MITER$_tromsogfinnmark_broer_sandnessundbrua_warning.xml.tmp"/>
+	<filter name="sandnessundbrua" file="polygon/broer/sandnessundbrua.xml" tolerance="1.0" delta="2"/>
+	<mask filter="sandnessundbrua"/>
+      </report>
+      <report size="400">
+	<key Issued="@issued@"/>
+	<key Region="Rogaland"/>
+	<key Bridge="Sandsfjordbrua"/>
+	<key Phenomenon="Vindkast"/>
+	<key Variable="Gust10m"/>
+	<key Unit="Meter per sekund"/>
+	<key Model="$MNAME$"/>
+	<key Output="$MOUTPUT$"/>
+	<key Partner="MetNo"/>
+	<key Type="Bro"/>
+	<key Method="$MITER$"/>
+	<aux name="yrp" exp="wind_speed_of_gust_return_period_$METHOD$" location="max"/>
+	<required name="max" fraction="1.0"/>
+	<output xml="$ROOT$/vindkast/broer/$MITER$/vindkast_$MODEL$_$MITER$_rogaland_broer_sandsfjordbrua_warning.xml.tmp"/>
+	<filter name="sandsfjordbrua" file="polygon/broer/sandsfjordbrua.xml" tolerance="1.0" delta="2"/>
+	<mask filter="sandsfjordbrua"/>
+      </report>
+      <report size="400">
+	<key Issued="@issued@"/>
+	<key Region="Viken Vest"/>
+	<key Bridge="Sandvikabrua"/>
+	<key Phenomenon="Vindkast"/>
+	<key Variable="Gust10m"/>
+	<key Unit="Meter per sekund"/>
+	<key Model="$MNAME$"/>
+	<key Output="$MOUTPUT$"/>
+	<key Partner="MetNo"/>
+	<key Type="Bro"/>
+	<key Method="$MITER$"/>
+	<aux name="yrp" exp="wind_speed_of_gust_return_period_$METHOD$" location="max"/>
+	<required name="max" fraction="1.0"/>
+	<output xml="$ROOT$/vindkast/broer/$MITER$/vindkast_$MODEL$_$MITER$_vikenvest_broer_sandvikabrua_warning.xml.tmp"/>
+	<filter name="sandvikabrua" file="polygon/broer/sandvikabrua.xml" tolerance="1.0" delta="2"/>
+	<mask filter="sandvikabrua"/>
+      </report>
+      <report size="400">
+	<key Issued="@issued@"/>
+	<key Region="Trøndelag"/>
+	<key Bridge="Skarnsundbrua"/>
+	<key Phenomenon="Vindkast"/>
+	<key Variable="Gust10m"/>
+	<key Unit="Meter per sekund"/>
+	<key Model="$MNAME$"/>
+	<key Output="$MOUTPUT$"/>
+	<key Partner="MetNo"/>
+	<key Type="Bro"/>
+	<key Method="$MITER$"/>
+	<aux name="yrp" exp="wind_speed_of_gust_return_period_$METHOD$" location="max"/>
+	<required name="max" fraction="1.0"/>
+	<output xml="$ROOT$/vindkast/broer/$MITER$/vindkast_$MODEL$_$MITER$_trondelag_broer_skarnsundbrua_warning.xml.tmp"/>
+	<filter name="skarnsundbrua" file="polygon/broer/skarnsundbrua.xml" tolerance="1.0" delta="2"/>
+	<mask filter="skarnsundbrua"/>
+      </report>
+      <report size="400">
+	<key Issued="@issued@"/>
+	<key Region="Troms og Finnmark"/>
+	<key Bridge="Skattørsundet"/>
+	<key Phenomenon="Vindkast"/>
+	<key Variable="Gust10m"/>
+	<key Unit="Meter per sekund"/>
+	<key Model="$MNAME$"/>
+	<key Output="$MOUTPUT$"/>
+	<key Partner="MetNo"/>
+	<key Type="Bro"/>
+	<key Method="$MITER$"/>
+	<aux name="yrp" exp="wind_speed_of_gust_return_period_$METHOD$" location="max"/>
+	<required name="max" fraction="1.0"/>
+	<output xml="$ROOT$/vindkast/broer/$MITER$/vindkast_$MODEL$_$MITER$_tromsogfinnmark_broer_skattørsundet_warning.xml.tmp"/>
+	<filter name="skattørsundet" file="polygon/broer/skattørsundet.xml" tolerance="1.0" delta="2"/>
+	<mask filter="skattørsundet"/>
+      </report>
+      <report size="400">
+	<key Issued="@issued@"/>
+	<key Region="Nordland"/>
+	<key Bridge="Skjomenbrua"/>
+	<key Phenomenon="Vindkast"/>
+	<key Variable="Gust10m"/>
+	<key Unit="Meter per sekund"/>
+	<key Model="$MNAME$"/>
+	<key Output="$MOUTPUT$"/>
+	<key Partner="MetNo"/>
+	<key Type="Bro"/>
+	<key Method="$MITER$"/>
+	<aux name="yrp" exp="wind_speed_of_gust_return_period_$METHOD$" location="max"/>
+	<required name="max" fraction="1.0"/>
+	<output xml="$ROOT$/vindkast/broer/$MITER$/vindkast_$MODEL$_$MITER$_nordland_broer_skjomenbrua_warning.xml.tmp"/>
+	<filter name="skjomenbrua" file="polygon/broer/skjomenbrua.xml" tolerance="1.0" delta="2"/>
+	<mask filter="skjomenbrua"/>
+      </report>
+      <report size="400">
+	<key Issued="@issued@"/>
+	<key Region="Troms og Finnmark"/>
+	<key Bridge="Sommarøybrua"/>
+	<key Phenomenon="Vindkast"/>
+	<key Variable="Gust10m"/>
+	<key Unit="Meter per sekund"/>
+	<key Model="$MNAME$"/>
+	<key Output="$MOUTPUT$"/>
+	<key Partner="MetNo"/>
+	<key Type="Bro"/>
+	<key Method="$MITER$"/>
+	<aux name="yrp" exp="wind_speed_of_gust_return_period_$METHOD$" location="max"/>
+	<required name="max" fraction="1.0"/>
+	<output xml="$ROOT$/vindkast/broer/$MITER$/vindkast_$MODEL$_$MITER$_tromsogfinnmark_broer_sommarøybrua_warning.xml.tmp"/>
+	<filter name="sommarøybrua" file="polygon/broer/sommarøybrua.xml" tolerance="1.0" delta="2"/>
+	<mask filter="sommarøybrua"/>
+      </report>
+      <report size="400">
+	<key Issued="@issued@"/>
+	<key Region="Troms og Finnmark"/>
+	<key Bridge="Sørstraumenbrua"/>
+	<key Phenomenon="Vindkast"/>
+	<key Variable="Gust10m"/>
+	<key Unit="Meter per sekund"/>
+	<key Model="$MNAME$"/>
+	<key Output="$MOUTPUT$"/>
+	<key Partner="MetNo"/>
+	<key Type="Bro"/>
+	<key Method="$MITER$"/>
+	<aux name="yrp" exp="wind_speed_of_gust_return_period_$METHOD$" location="max"/>
+	<required name="max" fraction="1.0"/>
+	<output xml="$ROOT$/vindkast/broer/$MITER$/vindkast_$MODEL$_$MITER$_tromsogfinnmark_broer_sørstraumenbrua_warning.xml.tmp"/>
+	<filter name="sørstraumenbrua" file="polygon/broer/sørstraumenbrua.xml" tolerance="1.0" delta="2"/>
+	<mask filter="sørstraumenbrua"/>
+      </report>
+      <report size="400">
+	<key Issued="@issued@"/>
+	<key Region="Møre og Romsdal"/>
+	<key Bridge="Sørsundbrua"/>
+	<key Phenomenon="Vindkast"/>
+	<key Variable="Gust10m"/>
+	<key Unit="Meter per sekund"/>
+	<key Model="$MNAME$"/>
+	<key Output="$MOUTPUT$"/>
+	<key Partner="MetNo"/>
+	<key Type="Bro"/>
+	<key Method="$MITER$"/>
+	<aux name="yrp" exp="wind_speed_of_gust_return_period_$METHOD$" location="max"/>
+	<required name="max" fraction="1.0"/>
+	<output xml="$ROOT$/vindkast/broer/$MITER$/vindkast_$MODEL$_$MITER$_moreogromsdal_broer_sørsundbrua_warning.xml.tmp"/>
+	<filter name="sørsundbrua" file="polygon/broer/sørsundbrua.xml" tolerance="1.0" delta="2"/>
+	<mask filter="sørsundbrua"/>
+      </report>
+      <report size="400">
+	<key Issued="@issued@"/>
+	<key Region="Nordland"/>
+	<key Bridge="Sortlandsbrua"/>
+	<key Phenomenon="Vindkast"/>
+	<key Variable="Gust10m"/>
+	<key Unit="Meter per sekund"/>
+	<key Model="$MNAME$"/>
+	<key Output="$MOUTPUT$"/>
+	<key Partner="MetNo"/>
+	<key Type="Bro"/>
+	<key Method="$MITER$"/>
+	<aux name="yrp" exp="wind_speed_of_gust_return_period_$METHOD$" location="max"/>
+	<required name="max" fraction="1.0"/>
+	<output xml="$ROOT$/vindkast/broer/$MITER$/vindkast_$MODEL$_$MITER$_nordland_broer_sortlandsbrua_warning.xml.tmp"/>
+	<filter name="sortlandsbrua" file="polygon/broer/sortlandsbrua.xml" tolerance="1.0" delta="2"/>
+	<mask filter="sortlandsbrua"/>
+      </report>
+      <report size="400">
+	<key Issued="@issued@"/>
+	<key Region="Vestland"/>
+	<key Bridge="Sotrabrua"/>
+	<key Phenomenon="Vindkast"/>
+	<key Variable="Gust10m"/>
+	<key Unit="Meter per sekund"/>
+	<key Model="$MNAME$"/>
+	<key Output="$MOUTPUT$"/>
+	<key Partner="MetNo"/>
+	<key Type="Bro"/>
+	<key Method="$MITER$"/>
+	<aux name="yrp" exp="wind_speed_of_gust_return_period_$METHOD$" location="max"/>
+	<required name="max" fraction="1.0"/>
+	<output xml="$ROOT$/vindkast/broer/$MITER$/vindkast_$MODEL$_$MITER$_vestland_broer_sotrabrua_warning.xml.tmp"/>
+	<filter name="sotrabrua" file="polygon/broer/sotrabrua.xml" tolerance="1.0" delta="2"/>
+	<mask filter="sotrabrua"/>
+      </report>
+      <report size="400">
+	<key Issued="@issued@"/>
+	<key Region="Rogaland"/>
+	<key Bridge="Stavangerbybrua"/>
+	<key Phenomenon="Vindkast"/>
+	<key Variable="Gust10m"/>
+	<key Unit="Meter per sekund"/>
+	<key Model="$MNAME$"/>
+	<key Output="$MOUTPUT$"/>
+	<key Partner="MetNo"/>
+	<key Type="Bro"/>
+	<key Method="$MITER$"/>
+	<aux name="yrp" exp="wind_speed_of_gust_return_period_$METHOD$" location="max"/>
+	<required name="max" fraction="1.0"/>
+	<output xml="$ROOT$/vindkast/broer/$MITER$/vindkast_$MODEL$_$MITER$_rogaland_broer_stavangerbybrua_warning.xml.tmp"/>
+	<filter name="stavangerbybrua" file="polygon/broer/stavangerbybrua.xml" tolerance="1.0" delta="2"/>
+	<mask filter="stavangerbybrua"/>
+      </report>
+      <report size="400">
+	<key Issued="@issued@"/>
+	<key Region="Trøndelag"/>
+	<key Bridge="Stokkøybrua"/>
+	<key Phenomenon="Vindkast"/>
+	<key Variable="Gust10m"/>
+	<key Unit="Meter per sekund"/>
+	<key Model="$MNAME$"/>
+	<key Output="$MOUTPUT$"/>
+	<key Partner="MetNo"/>
+	<key Type="Bro"/>
+	<key Method="$MITER$"/>
+	<aux name="yrp" exp="wind_speed_of_gust_return_period_$METHOD$" location="max"/>
+	<required name="max" fraction="1.0"/>
+	<output xml="$ROOT$/vindkast/broer/$MITER$/vindkast_$MODEL$_$MITER$_trondelag_broer_stokkøybrua_warning.xml.tmp"/>
+	<filter name="stokkøybrua" file="polygon/broer/stokkøybrua.xml" tolerance="1.0" delta="2"/>
+	<mask filter="stokkøybrua"/>
+      </report>
+      <report size="400">
+	<key Issued="@issued@"/>
+	<key Region="Vestland"/>
+	<key Bridge="Stolmabrua"/>
+	<key Phenomenon="Vindkast"/>
+	<key Variable="Gust10m"/>
+	<key Unit="Meter per sekund"/>
+	<key Model="$MNAME$"/>
+	<key Output="$MOUTPUT$"/>
+	<key Partner="MetNo"/>
+	<key Type="Bro"/>
+	<key Method="$MITER$"/>
+	<aux name="yrp" exp="wind_speed_of_gust_return_period_$METHOD$" location="max"/>
+	<required name="max" fraction="1.0"/>
+	<output xml="$ROOT$/vindkast/broer/$MITER$/vindkast_$MODEL$_$MITER$_vestland_broer_stolmabrua_warning.xml.tmp"/>
+	<filter name="stolmabrua" file="polygon/broer/stolmabrua.xml" tolerance="1.0" delta="2"/>
+	<mask filter="stolmabrua"/>
+      </report>
+      <report size="400">
+	<key Issued="@issued@"/>
+	<key Region="Vestland"/>
+	<key Bridge="Stordabrua"/>
+	<key Phenomenon="Vindkast"/>
+	<key Variable="Gust10m"/>
+	<key Unit="Meter per sekund"/>
+	<key Model="$MNAME$"/>
+	<key Output="$MOUTPUT$"/>
+	<key Partner="MetNo"/>
+	<key Type="Bro"/>
+	<key Method="$MITER$"/>
+	<aux name="yrp" exp="wind_speed_of_gust_return_period_$METHOD$" location="max"/>
+	<required name="max" fraction="1.0"/>
+	<output xml="$ROOT$/vindkast/broer/$MITER$/vindkast_$MODEL$_$MITER$_vestland_broer_stordabrua_warning.xml.tmp"/>
+	<filter name="stordabrua" file="polygon/broer/stordabrua.xml" tolerance="1.0" delta="2"/>
+	<mask filter="stordabrua"/>
+      </report>
+      <report size="400">
+	<key Issued="@issued@"/>
+	<key Region="Vestland"/>
+	<key Bridge="Storholmenbrua"/>
+	<key Phenomenon="Vindkast"/>
+	<key Variable="Gust10m"/>
+	<key Unit="Meter per sekund"/>
+	<key Model="$MNAME$"/>
+	<key Output="$MOUTPUT$"/>
+	<key Partner="MetNo"/>
+	<key Type="Bro"/>
+	<key Method="$MITER$"/>
+	<aux name="yrp" exp="wind_speed_of_gust_return_period_$METHOD$" location="max"/>
+	<required name="max" fraction="1.0"/>
+	<output xml="$ROOT$/vindkast/broer/$MITER$/vindkast_$MODEL$_$MITER$_vestland_broer_storholmenbrua_warning.xml.tmp"/>
+	<filter name="storholmenbrua" file="polygon/broer/storholmenbrua.xml" tolerance="1.0" delta="2"/>
+	<mask filter="storholmenbrua"/>
+      </report>
+      <report size="400">
+	<key Issued="@issued@"/>
+	<key Region="Nordland"/>
+	<key Bridge="Støvsetbrua"/>
+	<key Phenomenon="Vindkast"/>
+	<key Variable="Gust10m"/>
+	<key Unit="Meter per sekund"/>
+	<key Model="$MNAME$"/>
+	<key Output="$MOUTPUT$"/>
+	<key Partner="MetNo"/>
+	<key Type="Bro"/>
+	<key Method="$MITER$"/>
+	<aux name="yrp" exp="wind_speed_of_gust_return_period_$METHOD$" location="max"/>
+	<required name="max" fraction="1.0"/>
+	<output xml="$ROOT$/vindkast/broer/$MITER$/vindkast_$MODEL$_$MITER$_nordland_broer_støvsetbrua_warning.xml.tmp"/>
+	<filter name="støvsetbrua" file="polygon/broer/støvsetbrua.xml" tolerance="1.0" delta="2"/>
+	<mask filter="støvsetbrua"/>
+      </report>
+      <report size="400">
+	<key Issued="@issued@"/>
+	<key Region="Møre og Romsdal"/>
+	<key Bridge="Straumsundbrua"/>
+	<key Phenomenon="Vindkast"/>
+	<key Variable="Gust10m"/>
+	<key Unit="Meter per sekund"/>
+	<key Model="$MNAME$"/>
+	<key Output="$MOUTPUT$"/>
+	<key Partner="MetNo"/>
+	<key Type="Bro"/>
+	<key Method="$MITER$"/>
+	<aux name="yrp" exp="wind_speed_of_gust_return_period_$METHOD$" location="max"/>
+	<required name="max" fraction="1.0"/>
+	<output xml="$ROOT$/vindkast/broer/$MITER$/vindkast_$MODEL$_$MITER$_moreogromsdal_broer_straumsundbrua_warning.xml.tmp"/>
+	<filter name="straumsundbrua" file="polygon/broer/straumsundbrua.xml" tolerance="1.0" delta="2"/>
+	<mask filter="straumsundbrua"/>
+      </report>
+      <report size="400">
+	<key Issued="@issued@"/>
+	<key Region="Viken Øst"/>
+	<key Bridge="Svinesundbrua"/>
+	<key Phenomenon="Vindkast"/>
+	<key Variable="Gust10m"/>
+	<key Unit="Meter per sekund"/>
+	<key Model="$MNAME$"/>
+	<key Output="$MOUTPUT$"/>
+	<key Partner="MetNo"/>
+	<key Type="Bro"/>
+	<key Method="$MITER$"/>
+	<aux name="yrp" exp="wind_speed_of_gust_return_period_$METHOD$" location="max"/>
+	<required name="max" fraction="1.0"/>
+	<output xml="$ROOT$/vindkast/broer/$MITER$/vindkast_$MODEL$_$MITER$_vikenost_broer_svinesundbrua_warning.xml.tmp"/>
+	<filter name="svinesundbrua" file="polygon/broer/svinesundbrua.xml" tolerance="1.0" delta="2"/>
+	<mask filter="svinesundbrua"/>
+      </report>
+      <report size="400">
+	<key Issued="@issued@"/>
+	<key Region="Møre og Romsdal"/>
+	<key Bridge="Sykkylvsbrua"/>
+	<key Phenomenon="Vindkast"/>
+	<key Variable="Gust10m"/>
+	<key Unit="Meter per sekund"/>
+	<key Model="$MNAME$"/>
+	<key Output="$MOUTPUT$"/>
+	<key Partner="MetNo"/>
+	<key Type="Bro"/>
+	<key Method="$MITER$"/>
+	<aux name="yrp" exp="wind_speed_of_gust_return_period_$METHOD$" location="max"/>
+	<required name="max" fraction="1.0"/>
+	<output xml="$ROOT$/vindkast/broer/$MITER$/vindkast_$MODEL$_$MITER$_moreogromsdal_broer_sykkylvsbrua_warning.xml.tmp"/>
+	<filter name="sykkylvsbrua" file="polygon/broer/sykkylvsbrua.xml" tolerance="1.0" delta="2"/>
+	<mask filter="sykkylvsbrua"/>
+      </report>
+      <report size="400">
+	<key Issued="@issued@"/>
+	<key Region="Troms og Finnmark"/>
+	<key Bridge="Tjeldsundbrua"/>
+	<key Phenomenon="Vindkast"/>
+	<key Variable="Gust10m"/>
+	<key Unit="Meter per sekund"/>
+	<key Model="$MNAME$"/>
+	<key Output="$MOUTPUT$"/>
+	<key Partner="MetNo"/>
+	<key Type="Bro"/>
+	<key Method="$MITER$"/>
+	<aux name="yrp" exp="wind_speed_of_gust_return_period_$METHOD$" location="max"/>
+	<required name="max" fraction="1.0"/>
+	<output xml="$ROOT$/vindkast/broer/$MITER$/vindkast_$MODEL$_$MITER$_tromsogfinnmark_broer_tjeldsundbrua_warning.xml.tmp"/>
+	<filter name="tjeldsundbrua" file="polygon/broer/tjeldsundbrua.xml" tolerance="1.0" delta="2"/>
+	<mask filter="tjeldsundbrua"/>
+      </report>
+      <report size="400">
+	<key Issued="@issued@"/>
+	<key Region="Møre og Romsdal"/>
+	<key Bridge="Tresfjordbrua"/>
+	<key Phenomenon="Vindkast"/>
+	<key Variable="Gust10m"/>
+	<key Unit="Meter per sekund"/>
+	<key Model="$MNAME$"/>
+	<key Output="$MOUTPUT$"/>
+	<key Partner="MetNo"/>
+	<key Type="Bro"/>
+	<key Method="$MITER$"/>
+	<aux name="yrp" exp="wind_speed_of_gust_return_period_$METHOD$" location="max"/>
+	<required name="max" fraction="1.0"/>
+	<output xml="$ROOT$/vindkast/broer/$MITER$/vindkast_$MODEL$_$MITER$_moreogromsdal_broer_tresfjordbrua_warning.xml.tmp"/>
+	<filter name="tresfjordbrua" file="polygon/broer/tresfjordbrua.xml" tolerance="1.0" delta="2"/>
+	<mask filter="tresfjordbrua"/>
+      </report>
+      <report size="400">
+	<key Issued="@issued@"/>
+	<key Region="Troms og Finnmark"/>
+	<key Bridge="Tromsøbrua"/>
+	<key Phenomenon="Vindkast"/>
+	<key Variable="Gust10m"/>
+	<key Unit="Meter per sekund"/>
+	<key Model="$MNAME$"/>
+	<key Output="$MOUTPUT$"/>
+	<key Partner="MetNo"/>
+	<key Type="Bro"/>
+	<key Method="$MITER$"/>
+	<aux name="yrp" exp="wind_speed_of_gust_return_period_$METHOD$" location="max"/>
+	<required name="max" fraction="1.0"/>
+	<output xml="$ROOT$/vindkast/broer/$MITER$/vindkast_$MODEL$_$MITER$_tromsogfinnmark_broer_tromsøbrua_warning.xml.tmp"/>
+	<filter name="tromsøbrua" file="polygon/broer/tromsøbrua.xml" tolerance="1.0" delta="2"/>
+	<mask filter="tromsøbrua"/>
+      </report>
+      <report size="400">
+	<key Issued="@issued@"/>
+	<key Region="Nordland"/>
+	<key Bridge="Tverlandsbrua"/>
+	<key Phenomenon="Vindkast"/>
+	<key Variable="Gust10m"/>
+	<key Unit="Meter per sekund"/>
+	<key Model="$MNAME$"/>
+	<key Output="$MOUTPUT$"/>
+	<key Partner="MetNo"/>
+	<key Type="Bro"/>
+	<key Method="$MITER$"/>
+	<aux name="yrp" exp="wind_speed_of_gust_return_period_$METHOD$" location="max"/>
+	<required name="max" fraction="1.0"/>
+	<output xml="$ROOT$/vindkast/broer/$MITER$/vindkast_$MODEL$_$MITER$_nordland_broer_tverlandsbrua_warning.xml.tmp"/>
+	<filter name="tverlandsbrua" file="polygon/broer/tverlandsbrua.xml" tolerance="1.0" delta="2"/>
+	<mask filter="tverlandsbrua"/>
+      </report>
+      <report size="400">
+	<key Issued="@issued@"/>
+	<key Region="Agder"/>
+	<key Bridge="Varoddbrua"/>
+	<key Phenomenon="Vindkast"/>
+	<key Variable="Gust10m"/>
+	<key Unit="Meter per sekund"/>
+	<key Model="$MNAME$"/>
+	<key Output="$MOUTPUT$"/>
+	<key Partner="MetNo"/>
+	<key Type="Bro"/>
+	<key Method="$MITER$"/>
+	<aux name="yrp" exp="wind_speed_of_gust_return_period_$METHOD$" location="max"/>
+	<required name="max" fraction="1.0"/>
+	<output xml="$ROOT$/vindkast/broer/$MITER$/vindkast_$MODEL$_$MITER$_agder_broer_varoddbrua_warning.xml.tmp"/>
+	<filter name="varoddbrua" file="polygon/broer/varoddbrua.xml" tolerance="1.0" delta="2"/>
+	<mask filter="varoddbrua"/>
+      </report>
+      <report size="400">
+	<key Issued="@issued@"/>
+	<key Region="Nordland"/>
+	<key Bridge="Vassåsbrua"/>
+	<key Phenomenon="Vindkast"/>
+	<key Variable="Gust10m"/>
+	<key Unit="Meter per sekund"/>
+	<key Model="$MNAME$"/>
+	<key Output="$MOUTPUT$"/>
+	<key Partner="MetNo"/>
+	<key Type="Bro"/>
+	<key Method="$MITER$"/>
+	<aux name="yrp" exp="wind_speed_of_gust_return_period_$METHOD$" location="max"/>
+	<required name="max" fraction="1.0"/>
+	<output xml="$ROOT$/vindkast/broer/$MITER$/vindkast_$MODEL$_$MITER$_nordland_broer_vassåsbrua_warning.xml.tmp"/>
+	<filter name="vassåsbrua" file="polygon/broer/vassåsbrua.xml" tolerance="1.0" delta="2"/>
+	<mask filter="vassåsbrua"/>
+      </report>
+      <report size="400">
+	<key Issued="@issued@"/>
+	<key Region="Troms og Finnmark"/>
+	<key Bridge="Veidnesbrua"/>
+	<key Phenomenon="Vindkast"/>
+	<key Variable="Gust10m"/>
+	<key Unit="Meter per sekund"/>
+	<key Model="$MNAME$"/>
+	<key Output="$MOUTPUT$"/>
+	<key Partner="MetNo"/>
+	<key Type="Bro"/>
+	<key Method="$MITER$"/>
+	<aux name="yrp" exp="wind_speed_of_gust_return_period_$METHOD$" location="max"/>
+	<required name="max" fraction="1.0"/>
+	<output xml="$ROOT$/vindkast/broer/$MITER$/vindkast_$MODEL$_$MITER$_tromsogfinnmark_broer_veidnesbrua_warning.xml.tmp"/>
+	<filter name="veidnesbrua" file="polygon/broer/veidnesbrua.xml" tolerance="1.0" delta="2"/>
+	<mask filter="veidnesbrua"/>
+      </report>
+      <report size="400">
+	<key Issued="@issued@"/>
+	<key Region="Agder"/>
+	<key Bridge="Vesterbrua"/>
+	<key Phenomenon="Vindkast"/>
+	<key Variable="Gust10m"/>
+	<key Unit="Meter per sekund"/>
+	<key Model="$MNAME$"/>
+	<key Output="$MOUTPUT$"/>
+	<key Partner="MetNo"/>
+	<key Type="Bro"/>
+	<key Method="$MITER$"/>
+	<aux name="yrp" exp="wind_speed_of_gust_return_period_$METHOD$" location="max"/>
+	<required name="max" fraction="1.0"/>
+	<output xml="$ROOT$/vindkast/broer/$MITER$/vindkast_$MODEL$_$MITER$_agder_broer_vesterbrua_warning.xml.tmp"/>
+	<filter name="vesterbrua" file="polygon/broer/vesterbrua.xml" tolerance="1.0" delta="2"/>
+	<mask filter="vesterbrua"/>
+      </report>
+      <report size="400">
+	<key Issued="@issued@"/>
+	<key Region="Innlandet"/>
+	<key Bridge="Vingnesbrua"/>
+	<key Phenomenon="Vindkast"/>
+	<key Variable="Gust10m"/>
+	<key Unit="Meter per sekund"/>
+	<key Model="$MNAME$"/>
+	<key Output="$MOUTPUT$"/>
+	<key Partner="MetNo"/>
+	<key Type="Bro"/>
+	<key Method="$MITER$"/>
+	<aux name="yrp" exp="wind_speed_of_gust_return_period_$METHOD$" location="max"/>
+	<required name="max" fraction="1.0"/>
+	<output xml="$ROOT$/vindkast/broer/$MITER$/vindkast_$MODEL$_$MITER$_innlandet_broer_vingnesbrua_warning.xml.tmp"/>
+	<filter name="vingnesbrua" file="polygon/broer/vingnesbrua.xml" tolerance="1.0" delta="2"/>
+	<mask filter="vingnesbrua"/>
+      </report>
+      <report size="400">
+	<key Issued="@issued@"/>
+	<key Region="Vestfold og Telemark"/>
+	<key Bridge="Vrengenbrua"/>
+	<key Phenomenon="Vindkast"/>
+	<key Variable="Gust10m"/>
+	<key Unit="Meter per sekund"/>
+	<key Model="$MNAME$"/>
+	<key Output="$MOUTPUT$"/>
+	<key Partner="MetNo"/>
+	<key Type="Bro"/>
+	<key Method="$MITER$"/>
+	<aux name="yrp" exp="wind_speed_of_gust_return_period_$METHOD$" location="max"/>
+	<required name="max" fraction="1.0"/>
+	<output xml="$ROOT$/vindkast/broer/$MITER$/vindkast_$MODEL$_$MITER$_vestfoldogtelemark_broer_vrengenbrua_warning.xml.tmp"/>
+	<filter name="vrengenbrua" file="polygon/broer/vrengenbrua.xml" tolerance="1.0" delta="2"/>
+	<mask filter="vrengenbrua"/>
+      </report>
+    </parameter>
+    <parameter field="wind_speed_of_gust_return_period_$METHOD$" fail="none"/>
+  </file>
+</program>

@@ -1,0 +1,308 @@
+<program name="ncmask">
+  <file input="$FILE$" mask="mask/skogbrann/skogbrann_$FORECAST$_fylker.nc" keep="24" cutoff="$CUTOFF$">
+    <parameter field="DMC" fail="none"/>
+    <parameter field="FWI" fail="none">
+      <report size="23000">
+	<key Issued="@issued@"/>
+	<key Region="Agder"/>
+	<key Phenomenon="Skogbrann"/>
+	<key Variable="FWI"/>
+	<key Unit="index"/>
+	<key Model="$MNAME$"/>
+	<key Output="$MOUTPUT$"/>
+	<key Partner="MetNo"/>
+	<key Type="Fylke"/>
+	<key Method="$METHOD$"/>
+	<aux name="DMC" exp="DMC" location="max"/>
+	<target name="max" fraction="1.0"/>
+	<target name="f98" fraction="0.98"/>
+	<target name="f95" fraction="0.95"/>
+	<target name="f90" fraction="0.9"/>
+	<target name="f70" fraction="0.7"/>
+	<target name="a100" area="100.0" extreme="max"/>
+	<target name="a400" area="400.0"/>
+	<required name="a1000" area="1000.0"/>
+	<output xml="$ROOT$/skogbrann/fylker/$MITER$/skogbrann_FWI_$FORECAST$_$METHOD$_fylker_agder_warning.xml.tmp" />
+	<extreme xml="$ROOT$/skogbrann/fylker/$MITER$/skogbrann_FWI_$FORECAST$_$METHOD$_fylker_agder_@issued@_extreme.xml.tmp" />
+	<filter name="agder" file="polygon/fylker/agder.xml" tolerance="1.0"/>
+	<mask filter="agder"/>
+      </report>
+      <report size="55000">
+	<key Issued="@issued@"/>
+	<key Region="Innlandet"/>
+	<key Phenomenon="Skogbrann"/>
+	<key Variable="FWI"/>
+	<key Unit="index"/>
+	<key Model="$MNAME$"/>
+	<key Output="$MOUTPUT$"/>
+	<key Partner="MetNo"/>
+	<key Type="Fylke"/>
+	<key Method="$METHOD$"/>
+	<aux name="DMC" exp="DMC" location="max"/>
+	<target name="max" fraction="1.0"/>
+	<target name="f98" fraction="0.98"/>
+	<target name="f95" fraction="0.95"/>
+	<target name="f90" fraction="0.9"/>
+	<target name="f70" fraction="0.7"/>
+	<target name="a100" area="100.0" extreme="max"/>
+	<target name="a400" area="400.0"/>
+	<required name="a1000" area="1000.0"/>
+	<output xml="$ROOT$/skogbrann/fylker/$MITER$/skogbrann_FWI_$FORECAST$_$METHOD$_fylker_innlandet_warning.xml.tmp" />
+	<extreme xml="$ROOT$/skogbrann/fylker/$MITER$/skogbrann_FWI_$FORECAST$_$METHOD$_fylker_innlandet_@issued@_extreme.xml.tmp" />
+	<filter name="innlandet" file="polygon/fylker/innlandet.xml" tolerance="1.0"/>
+	<mask filter="innlandet"/>
+      </report>
+      <report size="27000">
+	<key Issued="@issued@"/>
+	<key Region="Møre og Romsdal"/>
+	<key Phenomenon="Skogbrann"/>
+	<key Variable="FWI"/>
+	<key Unit="index"/>
+	<key Model="$MNAME$"/>
+	<key Output="$MOUTPUT$"/>
+	<key Partner="MetNo"/>
+	<key Type="Fylke"/>
+	<key Method="$METHOD$"/>
+	<aux name="DMC" exp="DMC" location="max"/>
+	<target name="max" fraction="1.0"/>
+	<target name="f98" fraction="0.98"/>
+	<target name="f95" fraction="0.95"/>
+	<target name="f90" fraction="0.9"/>
+	<target name="f70" fraction="0.7"/>
+	<target name="a100" area="100.0" extreme="max"/>
+	<target name="a400" area="400.0"/>
+	<required name="a1000" area="1000.0"/>
+	<output xml="$ROOT$/skogbrann/fylker/$MITER$/skogbrann_FWI_$FORECAST$_$METHOD$_fylker_moreogromsdal_warning.xml.tmp" />
+	<extreme xml="$ROOT$/skogbrann/fylker/$MITER$/skogbrann_FWI_$FORECAST$_$METHOD$_fylker_moreogromsdal_@issued@_extreme.xml.tmp" />
+	<filter name="moreogromsdal" file="polygon/fylker/moreogromsdal.xml" tolerance="1.0"/>
+	<mask filter="moreogromsdal"/>
+      </report>
+      <report size="81000">
+	<key Issued="@issued@"/>
+	<key Region="Nordland"/>
+	<key Phenomenon="Skogbrann"/>
+	<key Variable="FWI"/>
+	<key Unit="index"/>
+	<key Model="$MNAME$"/>
+	<key Output="$MOUTPUT$"/>
+	<key Partner="MetNo"/>
+	<key Type="Fylke"/>
+	<key Method="$METHOD$"/>
+	<aux name="DMC" exp="DMC" location="max"/>
+	<target name="max" fraction="1.0"/>
+	<target name="f98" fraction="0.98"/>
+	<target name="f95" fraction="0.95"/>
+	<target name="f90" fraction="0.9"/>
+	<target name="f70" fraction="0.7"/>
+	<target name="a100" area="100.0" extreme="max"/>
+	<target name="a400" area="400.0"/>
+	<required name="a1000" area="1000.0"/>
+	<output xml="$ROOT$/skogbrann/fylker/$MITER$/skogbrann_FWI_$FORECAST$_$METHOD$_fylker_nordland_warning.xml.tmp" />
+	<extreme xml="$ROOT$/skogbrann/fylker/$MITER$/skogbrann_FWI_$FORECAST$_$METHOD$_fylker_nordland_@issued@_extreme.xml.tmp" />
+	<filter name="nordland" file="polygon/fylker/nordland.xml" tolerance="1.0"/>
+	<mask filter="nordland"/>
+      </report>
+      <report size="1000">
+	<key Issued="@issued@"/>
+	<key Region="Oslo"/>
+	<key Phenomenon="Skogbrann"/>
+	<key Variable="FWI"/>
+	<key Unit="index"/>
+	<key Model="$MNAME$"/>
+	<key Output="$MOUTPUT$"/>
+	<key Partner="MetNo"/>
+	<key Type="Fylke"/>
+	<key Method="$METHOD$"/>
+	<aux name="DMC" exp="DMC" location="max"/>
+	<target name="max" fraction="1.0"/>
+	<target name="f98" fraction="0.98"/>
+	<target name="f95" fraction="0.95"/>
+	<target name="f90" fraction="0.9"/>
+	<target name="f70" fraction="0.7"/>
+	<target name="a100" area="100.0" extreme="max"/>
+	<target name="a400" area="400.0"/>
+	<required name="a1000" area="1000.0"/>
+	<output xml="$ROOT$/skogbrann/fylker/$MITER$/skogbrann_FWI_$FORECAST$_$METHOD$_fylker_oslo_warning.xml.tmp" />
+	<extreme xml="$ROOT$/skogbrann/fylker/$MITER$/skogbrann_FWI_$FORECAST$_$METHOD$_fylker_oslo_@issued@_extreme.xml.tmp" />
+	<filter name="oslo" file="polygon/fylker/oslo.xml" tolerance="1.0"/>
+	<mask filter="oslo"/>
+      </report>
+      <report size="17000">
+	<key Issued="@issued@"/>
+	<key Region="Rogaland"/>
+	<key Phenomenon="Skogbrann"/>
+	<key Variable="FWI"/>
+	<key Unit="index"/>
+	<key Model="$MNAME$"/>
+	<key Output="$MOUTPUT$"/>
+	<key Partner="MetNo"/>
+	<key Type="Fylke"/>
+	<key Method="$METHOD$"/>
+	<aux name="DMC" exp="DMC" location="max"/>
+	<target name="max" fraction="1.0"/>
+	<target name="f98" fraction="0.98"/>
+	<target name="f95" fraction="0.95"/>
+	<target name="f90" fraction="0.9"/>
+	<target name="f70" fraction="0.7"/>
+	<target name="a100" area="100.0" extreme="max"/>
+	<target name="a400" area="400.0"/>
+	<required name="a1000" area="1000.0"/>
+	<output xml="$ROOT$/skogbrann/fylker/$MITER$/skogbrann_FWI_$FORECAST$_$METHOD$_fylker_rogaland_warning.xml.tmp" />
+	<extreme xml="$ROOT$/skogbrann/fylker/$MITER$/skogbrann_FWI_$FORECAST$_$METHOD$_fylker_rogaland_@issued@_extreme.xml.tmp" />
+	<filter name="rogaland" file="polygon/fylker/rogaland.xml" tolerance="1.0"/>
+	<mask filter="rogaland"/>
+      </report>
+      <report size="120000">
+	<key Issued="@issued@"/>
+	<key Region="Troms og Finnmark"/>
+	<key Phenomenon="Skogbrann"/>
+	<key Variable="FWI"/>
+	<key Unit="index"/>
+	<key Model="$MNAME$"/>
+	<key Output="$MOUTPUT$"/>
+	<key Partner="MetNo"/>
+	<key Type="Fylke"/>
+	<key Method="$METHOD$"/>
+	<aux name="DMC" exp="DMC" location="max"/>
+	<target name="max" fraction="1.0"/>
+	<target name="f98" fraction="0.98"/>
+	<target name="f95" fraction="0.95"/>
+	<target name="f90" fraction="0.9"/>
+	<target name="f70" fraction="0.7"/>
+	<target name="a100" area="100.0" extreme="max"/>
+	<target name="a400" area="400.0"/>
+	<required name="a1000" area="1000.0"/>
+	<output xml="$ROOT$/skogbrann/fylker/$MITER$/skogbrann_FWI_$FORECAST$_$METHOD$_fylker_tromsogfinnmark_warning.xml.tmp" />
+	<extreme xml="$ROOT$/skogbrann/fylker/$MITER$/skogbrann_FWI_$FORECAST$_$METHOD$_fylker_tromsogfinnmark_@issued@_extreme.xml.tmp" />
+	<filter name="tromsogfinnmark" file="polygon/fylker/tromsogfinnmark.xml" tolerance="1.0"/>
+	<mask filter="tromsogfinnmark"/>
+      </report>
+      <report size="60000">
+	<key Issued="@issued@"/>
+	<key Region="Trøndelag"/>
+	<key Phenomenon="Skogbrann"/>
+	<key Variable="FWI"/>
+	<key Unit="index"/>
+	<key Model="$MNAME$"/>
+	<key Output="$MOUTPUT$"/>
+	<key Partner="MetNo"/>
+	<key Type="Fylke"/>
+	<key Method="$METHOD$"/>
+	<aux name="DMC" exp="DMC" location="max"/>
+	<target name="max" fraction="1.0"/>
+	<target name="f98" fraction="0.98"/>
+	<target name="f95" fraction="0.95"/>
+	<target name="f90" fraction="0.9"/>
+	<target name="f70" fraction="0.7"/>
+	<target name="a100" area="100.0" extreme="max"/>
+	<target name="a400" area="400.0"/>
+	<required name="a1000" area="1000.0"/>
+	<output xml="$ROOT$/skogbrann/fylker/$MITER$/skogbrann_FWI_$FORECAST$_$METHOD$_fylker_trondelag_warning.xml.tmp" />
+	<extreme xml="$ROOT$/skogbrann/fylker/$MITER$/skogbrann_FWI_$FORECAST$_$METHOD$_fylker_trondelag_@issued@_extreme.xml.tmp" />
+	<filter name="trondelag" file="polygon/fylker/trondelag.xml" tolerance="1.0"/>
+	<mask filter="trondelag"/>
+      </report>
+      <report size="21000">
+	<key Issued="@issued@"/>
+	<key Region="Vestfold og Telemark"/>
+	<key Phenomenon="Skogbrann"/>
+	<key Variable="FWI"/>
+	<key Unit="index"/>
+	<key Model="$MNAME$"/>
+	<key Output="$MOUTPUT$"/>
+	<key Partner="MetNo"/>
+	<key Type="Fylke"/>
+	<key Method="$METHOD$"/>
+	<aux name="DMC" exp="DMC" location="max"/>
+	<target name="max" fraction="1.0"/>
+	<target name="f98" fraction="0.98"/>
+	<target name="f95" fraction="0.95"/>
+	<target name="f90" fraction="0.9"/>
+	<target name="f70" fraction="0.7"/>
+	<target name="a100" area="100.0" extreme="max"/>
+	<target name="a400" area="400.0"/>
+	<required name="a1000" area="1000.0"/>
+	<output xml="$ROOT$/skogbrann/fylker/$MITER$/skogbrann_FWI_$FORECAST$_$METHOD$_fylker_vestfoldogtelemark_warning.xml.tmp" />
+	<extreme xml="$ROOT$/skogbrann/fylker/$MITER$/skogbrann_FWI_$FORECAST$_$METHOD$_fylker_vestfoldogtelemark_@issued@_extreme.xml.tmp" />
+	<filter name="vestfoldogtelemark" file="polygon/fylker/vestfoldogtelemark.xml" tolerance="1.0"/>
+	<mask filter="vestfoldogtelemark"/>
+      </report>
+      <report size="50000">
+	<key Issued="@issued@"/>
+	<key Region="Vestland"/>
+	<key Phenomenon="Skogbrann"/>
+	<key Variable="FWI"/>
+	<key Unit="index"/>
+	<key Model="$MNAME$"/>
+	<key Output="$MOUTPUT$"/>
+	<key Partner="MetNo"/>
+	<key Type="Fylke"/>
+	<key Method="$METHOD$"/>
+	<aux name="DMC" exp="DMC" location="max"/>
+	<target name="max" fraction="1.0"/>
+	<target name="f98" fraction="0.98"/>
+	<target name="f95" fraction="0.95"/>
+	<target name="f90" fraction="0.9"/>
+	<target name="f70" fraction="0.7"/>
+	<target name="a100" area="100.0" extreme="max"/>
+	<target name="a400" area="400.0"/>
+	<required name="a1000" area="1000.0"/>
+	<output xml="$ROOT$/skogbrann/fylker/$MITER$/skogbrann_FWI_$FORECAST$_$METHOD$_fylker_vestland_warning.xml.tmp" />
+	<extreme xml="$ROOT$/skogbrann/fylker/$MITER$/skogbrann_FWI_$FORECAST$_$METHOD$_fylker_vestland_@issued@_extreme.xml.tmp" />
+	<filter name="vestland" file="polygon/fylker/vestland.xml" tolerance="1.0"/>
+	<mask filter="vestland"/>
+      </report>
+      <report size="10000">
+	<key Issued="@issued@"/>
+	<key Region="Viken Øst"/>
+	<key Phenomenon="Skogbrann"/>
+	<key Variable="FWI"/>
+	<key Unit="index"/>
+	<key Model="$MNAME$"/>
+	<key Output="$MOUTPUT$"/>
+	<key Partner="MetNo"/>
+	<key Type="Fylke"/>
+	<key Method="$METHOD$"/>
+	<aux name="DMC" exp="DMC" location="max"/>
+	<target name="max" fraction="1.0"/>
+	<target name="f98" fraction="0.98"/>
+	<target name="f95" fraction="0.95"/>
+	<target name="f90" fraction="0.9"/>
+	<target name="f70" fraction="0.7"/>
+	<target name="a100" area="100.0" extreme="max"/>
+	<target name="a400" area="400.0"/>
+	<required name="a1000" area="1000.0"/>
+	<output xml="$ROOT$/skogbrann/fylker/$MITER$/skogbrann_FWI_$FORECAST$_$METHOD$_fylker_vikenost_warning.xml.tmp" />
+	<extreme xml="$ROOT$/skogbrann/fylker/$MITER$/skogbrann_FWI_$FORECAST$_$METHOD$_fylker_vikenost_@issued@_extreme.xml.tmp" />
+	<filter name="vikenost" file="polygon/fylker/vikenost.xml" tolerance="1.0"/>
+	<mask filter="vikenost"/>
+      </report>
+      <report size="16000">
+	<key Issued="@issued@"/>
+	<key Region="Viken Vest"/>
+	<key Phenomenon="Skogbrann"/>
+	<key Variable="FWI"/>
+	<key Unit="index"/>
+	<key Model="$MNAME$"/>
+	<key Output="$MOUTPUT$"/>
+	<key Partner="MetNo"/>
+	<key Type="Fylke"/>
+	<key Method="$METHOD$"/>
+	<aux name="DMC" exp="DMC" location="max"/>
+	<aux name="FWI" exp="FWI" location="max"/>
+	<target name="max" fraction="1.0"/>
+	<target name="f98" fraction="0.98"/>
+	<target name="f95" fraction="0.95"/>
+	<target name="f90" fraction="0.9"/>
+	<target name="f70" fraction="0.7"/>
+	<target name="a100" area="100.0" extreme="max"/>
+	<target name="a400" area="400.0"/>
+	<required name="a1000" area="1000.0"/>
+	<output xml="$ROOT$/skogbrann/fylker/$MITER$/skogbrann_FWI_$FORECAST$_$METHOD$_fylker_vikenvest_warning.xml.tmp" />
+	<extreme xml="$ROOT$/skogbrann/fylker/$MITER$/skogbrann_FWI_$FORECAST$_$METHOD$_fylker_vikenvest_@issued@_extreme.xml.tmp" />
+	<filter name="vikenvest" file="polygon/fylker/vikenvest.xml" tolerance="1.0"/>
+	<mask filter="vikenvest"/>
+      </report>
+    </parameter>
+  </file>
+</program>

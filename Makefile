@@ -4,7 +4,8 @@
 #
 #
 # A list of the files or directories that should NOT be 'made'
- STATIC = ccc  cloud2ascii  clouds  Makefile  MakeInclude  pcloud  ppcloud  vplot LICENSE README.md Makefile~ work
+ ORDER = libsim libsort libpoly libncf libshape libparse
+ STATIC = .git ccc  cloud2ascii  clouds  Makefile  MakeInclude  pcloud  ppcloud  vplot LICENSE README.md Makefile~ work old ice
 #
 include ./MakeInclude
 #

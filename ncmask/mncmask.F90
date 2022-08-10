@@ -20,6 +20,8 @@ SUBROUTINE MNCMASK(UNITI,IRC)
   use xmlparse
   use ncf
   use sim
+  use parse
+  !use shape
   IMPLICIT NONE
   SAVE
   ! INTERFACE VARIABLES
@@ -52,45 +54,39 @@ SUBROUTINE MNCMASK(UNITI,IRC)
   !
   ! xml-macroes
   !
-  integer, parameter :: xml_criterium   = 1 ! obsolete
-  integer, parameter :: xml_type        = 2 ! obsolete
-  integer, parameter :: xml_color       = 3 ! obsolete
-  integer, parameter :: xml_level       = 4 ! obsolete
-  integer, parameter :: xml_issued      = 5
-  integer, parameter :: xml_issued_yy   = 6
-  integer, parameter :: xml_issued_mm   = 7
-  integer, parameter :: xml_issued_dd   = 8
-  integer, parameter :: xml_issued_hh   = 9
-  integer, parameter :: xml_issued_epoch= 11
-  integer, parameter :: xml_start_epoch = 12
-  integer, parameter :: xml_stop_epoch  = 13
-  integer, parameter :: xml_start       = 14
-  integer, parameter :: xml_stop        = 15
-  integer, parameter :: xml_expires     = 16
-  integer, parameter :: xml_minval      = 17
-  integer, parameter :: xml_minval_lat  = 18
-  integer, parameter :: xml_minval_lon  = 19
-  integer, parameter :: xml_minval_time = 20
-  integer, parameter :: xml_minval_dt   = 21
-  integer, parameter :: xml_minval_dc   = 22
-  integer, parameter :: xml_minval_yy   = 23
-  integer, parameter :: xml_minval_mm   = 24
-  integer, parameter :: xml_minval_dd   = 25
-  integer, parameter :: xml_minval_hh   = 26
-  integer, parameter :: xml_maxval      = 27
-  integer, parameter :: xml_maxval_lat  = 28
-  integer, parameter :: xml_maxval_lon  = 29
-  integer, parameter :: xml_maxval_time = 20
-  integer, parameter :: xml_maxval_dt   = 30
-  integer, parameter :: xml_maxval_dc   = 31
-  integer, parameter :: xml_maxval_yy   = 32
-  integer, parameter :: xml_maxval_mm   = 33
-  integer, parameter :: xml_maxval_dd   = 34
-  integer, parameter :: xml_maxval_hh   = 35
-  integer, parameter :: xml_minaux      = 36
-  integer, parameter :: xml_maxaux      = 37
-  integer, parameter :: xml_acc_hh      = 38
-  integer, parameter ::  mxmlvar =38
+  integer, parameter :: xml_issued      = 1
+  integer, parameter :: xml_issued_yy   = 2
+  integer, parameter :: xml_issued_mm   = 3
+  integer, parameter :: xml_issued_dd   = 4
+  integer, parameter :: xml_issued_hh   = 5
+  integer, parameter :: xml_issued_epoch= 6
+  integer, parameter :: xml_start_epoch = 7
+  integer, parameter :: xml_stop_epoch  = 8
+  integer, parameter :: xml_start       = 9
+  integer, parameter :: xml_stop        = 10
+  integer, parameter :: xml_expires     = 11
+  integer, parameter :: xml_minval      = 12
+  integer, parameter :: xml_minval_lat  = 13
+  integer, parameter :: xml_minval_lon  = 14
+  integer, parameter :: xml_minval_time = 15
+  integer, parameter :: xml_minval_dt   = 16
+  integer, parameter :: xml_minval_dc   = 17
+  integer, parameter :: xml_minval_yy   = 18
+  integer, parameter :: xml_minval_mm   = 19
+  integer, parameter :: xml_minval_dd   = 20
+  integer, parameter :: xml_minval_hh   = 21
+  integer, parameter :: xml_maxval      = 22
+  integer, parameter :: xml_maxval_lat  = 23
+  integer, parameter :: xml_maxval_lon  = 24
+  integer, parameter :: xml_maxval_time = 25
+  integer, parameter :: xml_maxval_dt   = 26
+  integer, parameter :: xml_maxval_dc   = 27
+  integer, parameter :: xml_maxval_yy   = 28
+  integer, parameter :: xml_maxval_mm   = 29
+  integer, parameter :: xml_maxval_dd   = 30
+  integer, parameter :: xml_maxval_hh   = 31
+  integer, parameter :: xml_acc_hh      = 32
+  integer, parameter ::  mxmlvar =32
   integer, parameter :: key_issued      = 1
   integer, parameter :: key_issued_yy   = 2
   integer, parameter :: key_issued_mm   = 3
@@ -123,7 +119,7 @@ SUBROUTINE MNCMASK(UNITI,IRC)
   integer, parameter :: trg_fraction=1  ! fraction
   integer, parameter :: trg_area=2      ! area
   integer, parameter :: trg_count=3     ! count
-  integer, parameter :: trg_macro=4     ! macro
+  integer, parameter :: trg_aux=4       ! auxiliary
   integer, parameter :: trg_average=5   ! average
   !
   ! fail modes
@@ -177,6 +173,9 @@ SUBROUTINE MNCMASK(UNITI,IRC)
      type(variable), pointer :: v => null()
      real :: minval = 0.0D0
      real :: maxval = 0.0D0
+     integer :: lene=0
+     character*700 :: exp700="";
+     type(parse_session), pointer :: exp => null();
      ! chain
      type(filter), pointer :: next=>null()
      type(filter), pointer :: prev=>null()
@@ -201,10 +200,7 @@ SUBROUTINE MNCMASK(UNITI,IRC)
      integer :: nxtr
      integer nxml,nkey
      logical :: laux
-     type(variable), pointer :: vaux=>null()
-     type(parameter), pointer :: vpar=>null()
      integer :: extind(mtim) ! extreme index
-     real :: auxmin(mtim),auxmax(mtim)
      !
      character*700 xml700(2,mxml),aux700(2),key700(2,mkey)
      logical :: lxml=.false., ljson=.false.,lext=.false.
@@ -237,11 +233,14 @@ SUBROUTINE MNCMASK(UNITI,IRC)
      ! targets
      integer ntrg
      real trgval(mtrg)
+     integer       :: trgtyp(mtrg)
+     character*10  :: trg10(mtrg)
+     logical       :: trgreq(mtrg)=.false.
+     integer       :: trgext(mtrg)=0
      character*700 :: trgvar700(mtrg)
-     integer trgtyp(mtrg)
-     integer :: iext(mtrg)=0
-     character*10 trg10(mtrg)
-     logical trgreq(mtrg)
+     integer       :: trglenv(mtrg)=0
+     type(parse_pointer) :: trgexp(mtrg);
+     real :: auxmin(mtim,mtrg),auxmax(mtim,mtrg)
      ! average values
      logical :: lavg=.false.
      character*10 :: avg10
@@ -300,12 +299,36 @@ SUBROUTINE MNCMASK(UNITI,IRC)
   type(node2d), pointer :: searchlast => null()
   ! ======================================================
   !
+  type variablePtr
+     type(variable), pointer :: ptr=>null()
+  end type variablePtr
+  !
+  ! logical, allocatable          :: req(:)            ! list of required variables
+  !  use parse
+  !  use shape
+  !  character*80, allocatable :: elem80(:) ! list of variable names
+  !  real, allocatable         :: val(:)   ! list of values
+  !  integer, allocatable      :: lenv(:)  ! list of target name length
+  !  logical, allocatable      :: req(:)   ! list of required variables
+  !  type(parse_session), pointer :: psf => null()
+  !  call parse_open(css%psf,crc250,irc)
+  !  call parse_parsef(css%psf,css%flt250(1:css%lenf),css%elem80,crc250,irc)
+  !  val=parse_evalf(css%psf,css%val,crc250,irc)
+  !  call parse_used(css%psf,css%req)
+  !  call parse_close(css%psf,crc250,irc)
+  !
   type parameter
      logical :: find=.false.
      logical :: fiad=.false.
      logical :: fino=.false.
      real :: scl=1.0D0
+     logical :: hasvar = .false.
      character*350 :: par350
+     ! label and expression (if any)
+     character*80 :: elem80="";
+     character*700 :: exp700="";
+     integer :: lene=0
+     type(parse_session), pointer :: exp => null();
      integer :: nrep=0
      ! variable
      real :: hrs=0.0D0            ! accumulation hours
@@ -319,6 +342,10 @@ SUBROUTINE MNCMASK(UNITI,IRC)
      type(parameter), pointer :: next=>null()
      type(parameter), pointer :: prev=>null()
   end type parameter
+  !
+  type parameterPtr
+     type(parameter), pointer :: ptr=>null()
+  end type parameterPtr
   !
   type filetype
      real i2000,a2000,tt2000
@@ -358,6 +385,14 @@ SUBROUTINE MNCMASK(UNITI,IRC)
      type(dimensionOrder), pointer  :: refLatLonDO=>null()
      type(parameter), pointer :: firstparameter=> null()
      type(parameter), pointer :: lastparameter => null()
+     ! expression stuff
+     character*80, allocatable      :: elem80(:)          ! list of variable names
+     integer, allocatable           :: lenv(:)           ! list of variable name length
+     real, allocatable              :: val(:)            ! list of variable values
+     type(variablePtr),allocatable  :: var(:)      ! pointer to variable
+     type(parameterPtr),allocatable :: par(:)      ! pointer to variable
+     logical    :: hasexp = .false.
+     logical    :: hasfltexp = .false.
   end type filetype
   !
   ! global variables
@@ -372,6 +407,9 @@ SUBROUTINE MNCMASK(UNITI,IRC)
   type(operation), pointer :: noperation => null() ! new operation
   real :: hrs=0.0D0
   character*700 :: var700,b700
+  !
+  character*80,allocatable      :: flt_elem80(:)          ! filter variable name
+  real, allocatable             :: flt_val(:)            ! filter variable value
   !
   real :: maxval,minval
   integer cnt,cntud
@@ -440,6 +478,11 @@ SUBROUTINE MNCMASK(UNITI,IRC)
   !
   file%rok(:)=0
   file%rrm(:)=0
+  allocate(flt_elem80(1),flt_val(1),stat=irc)
+  if (irc.ne.0) then
+     write(*,*)myname,'Unable to allocate flt-variables.',irc
+     return
+  end if
   ! 
   WRITE(*,*) MYNAME,'----------------------------------------'
   !
@@ -485,12 +528,12 @@ SUBROUTINE MNCMASK(UNITI,IRC)
      write(*,*)myname,'Error return from getTimeInfo.',irc
      return
   end if
-  !
-  call matchAuxs(file,irc)
-  if (irc.ne.0) then
-     write(*,*)myname,'Error return from matchAuxs.',irc
-     return
-  end if
+  ! !
+  ! call matchAuxs(file,irc)
+  ! if (irc.ne.0) then
+  !    write(*,*)myname,'Error return from matchAuxs.',irc
+  !    return
+  ! end if
   !
   ! loop over iter-dimension
   !
@@ -499,7 +542,6 @@ SUBROUTINE MNCMASK(UNITI,IRC)
      write(*,*) myname,'Error return from resetPos (file%refIterDO).',irc
      return
   end if
-  write(*,*)myname,'IterDO:'
   call ncf_printDimOrder(file%refIterDO)
   ITER:do while (ncf_increment(file%ref,file%refIterDO,irc))
      !
@@ -512,8 +554,8 @@ SUBROUTINE MNCMASK(UNITI,IRC)
         ii=1
         jj=0
      end if
-     !write(*,'(X,A,A,A,A,I0,A,I0,A)')myname,"Iteration '",&
-     !     & file%iter80(1:file%leni),"'=",ii," (",jj,")"
+     write(*,'(X,A,A,A,A,I0,A,I0,A)')myname,"Iteration '",&
+          & file%iter80(1:file%leni),"'=",ii," (",jj,")"
      call processDataFile(file,fail,bok,irc)
      if (irc.ne.0) then
         write(*,*)myname,'Error return from processDataFile.',irc
@@ -563,6 +605,7 @@ SUBROUTINE MNCMASK(UNITI,IRC)
      end if ! bok
      if (bdeb)call ncf_printDimOrder(file%refIterDO)
   end do ITER
+  write(*,*)myname,'Wrapping up.'
   if (bok) then  
      !
      call ncf_closeFile(file%ref,irc) ! close file for reading
@@ -625,6 +668,9 @@ SUBROUTINE MNCMASK(UNITI,IRC)
      return
   end if
   !
+  if (allocated(flt_elem80)) deallocate(flt_elem80)
+  if (allocated(flt_val)) deallocate(flt_val)
+  !
   ! handle fail conditions
   !
   if (fail(fail_NoData).or.fail(fail_AnyData).or.fail(fail_size)) then
@@ -656,13 +702,18 @@ contains
   end subroutine initFile
   !
   subroutine initParameter(cpar,irc)
+    !use parse
+    !use shape
     implicit none
     type(parameter), pointer :: cpar
     integer :: irc
     type(report), pointer :: crep=>null()
+    character*250 :: crc250
+    integer :: lenc
     CHARACTER*12 MYNAME
     DATA MYNAME /'iniparameter'/
-    cpar%par350="UNDEFINED"
+    cpar%par350=""
+    cpar%hasvar=.false.
     if (associated(cpar%lastreport).and.associated(cpar%firstreport)) then
        crep=>cpar%firstreport%next
        do while (.not.associated(crep,target=cpar%lastreport))
@@ -679,6 +730,13 @@ contains
     cpar%firstreport%next => cpar%lastreport
     cpar%lastreport%prev => cpar%firstreport
     cpar%nrep=0
+    call parse_open(cpar%exp,crc250,irc)
+    if (irc.ne.0) then
+       lenc=length(crc250,250,10)
+       write(*,*) crc250(1:lenc)
+       write(*,*)myname,'Unable to open expression.',irc
+       return
+    end if
     return
   end subroutine initParameter
   !
@@ -695,7 +753,7 @@ contains
     rep%ntrg=0
     rep%valcnt(:)=0.0D0
     rep%lfirst(:)=.true.
-    rep%xmlo350="output.xml" ! report
+    rep%xmlo350="" ! report
     rep%ext350="extreme.xml" ! report
     rep%lpoly=.false.
     rep%lwrite=.false.
@@ -886,7 +944,7 @@ contains
        crep%lcok=.true.
        crep%cdist=crep%sd + &
             & centerDistance(crep,crep%roperation,crep%lcok,irc)
-       ! write(*,*) myname,'Center:',crep%clat,crep%clon,crep%cdist,crep%lcok
+       !write(*,*) myname,'Center:',crep%clat,crep%clon,crep%cdist,crep%lcok,crep%sd
        if (.not.crep%lcok) then
           file%lcok=.false.
        end if
@@ -906,6 +964,7 @@ contains
     real :: ldist
     type(operation), pointer :: cop
     type(filter), pointer :: f
+    real, parameter :: fact=360.0D0/40075.0D0 ! km -> deg
     CHARACTER*18 MYNAME
     DATA MYNAME /'centerDistance'/
     !write(*,*)myname,'Entering...',op%type
@@ -951,16 +1010,20 @@ contains
        case (flt_polygon)  ! polygon
           if (f%inside) then
              do ii=1,f%mpar
-                dist=max(dist,getdist(f%rpar(1)+ii-1,f%rpar(2)+ii-1,crep%clat,crep%clon))
+                dist=max(dist,getdist(f%rpar(ii),f%rpar(f%mpar+ii),crep%clat,crep%clon))
+                !write(*,*) myname,'Dist:',ii,dist,f%rpar(ii),f%rpar(f%mpar+ii),crep%clat,crep%clon
              end do
+             dist = dist + fact*f%delta 
           else
              bok=.false.
           end if
        case (flt_polyline)  ! polyline
           if (f%inside) then
              do ii=1,f%mpar
-                dist=max(dist,getdist(f%rpar(1)+ii-1,f%rpar(2)+ii-1,crep%clat,crep%clon))
+                dist=max(dist,getdist(f%rpar(ii),f%rpar(f%mpar+ii),crep%clat,crep%clon))
+                !write(*,*) myname,'Dist:',ii,dist,f%rpar(ii),f%rpar(f%mpar+ii),crep%clat,crep%clon
              end do
+             dist = dist + fact*f%delta 
           else
              bok=.false.
           end if
@@ -1022,7 +1085,8 @@ contains
     character*16 :: myname
     data myname /'printParameter'/
     lenp=length(cpar%par350,350,10)
-    write(*,'(X,A,A)')myname,'Parameter "'//cpar%par350(1:lenp)//'"'
+    write(*,'(X,A,A)')myname,'Parameter "'//cpar%par350(1:lenp)//'"',&
+         & cpar%hasvar
     crep=>cpar%firstreport%next
     do while (.not.associated(crep,target=cpar%lastreport))
        call printReport(crep)
@@ -1099,20 +1163,20 @@ contains
     type(parameter), pointer :: par
     type(report), pointer :: rep
     integer :: irc
-    if (rep%ntim.ne.0.or.rep%nxml.ne.0.or. rep%laux .or.rep%nkey.ne.0) then
+    !if (rep%ntim.ne.0.or.rep%nxml.ne.0.or. rep%laux .or.rep%nkey.ne.0) then
        rep%prev => par%lastreport%prev
        rep%next => par%lastreport
        par%lastreport%prev%next => rep
        par%lastreport%prev => rep
        par%nrep=par%nrep+1
-    else
-       write(*,*)myname,'Ignoring empty report...'
-       call clearReport(rep,irc)
-       if (irc.ne.0) then
-          write(*,*) myname,'Error return from clearReport.',irc
-          return
-       end if
-    end if
+    !else
+    !   write(*,*)myname,'Ignoring empty report...'
+    !   call clearReport(rep,irc)
+    !   if (irc.ne.0) then
+    !      write(*,*) myname,'Error return from clearReport.',irc
+    !      return
+    !   end if
+    !end if
     return
   end subroutine addReport
   !
@@ -1123,6 +1187,7 @@ contains
     type(parameter), pointer :: cpar=>null(),npar=>null()
     CHARACTER*14 MYNAME
     DATA MYNAME /'clearFile'/
+    if (allocated(file%par)) deallocate(file%par)
     cpar=>file%firstparameter%next
     do while (.not.associated(cpar,target=file%lastparameter))
        npar=>cpar%next
@@ -1132,6 +1197,10 @@ contains
     call clearParameter(file%firstparameter,irc)
     call clearParameter(file%lastparameter,irc)
     file%npar=0
+    if (allocated(file%elem80)) deallocate(file%elem80)
+    if (allocated(file%lenv)) deallocate(file%lenv)
+    if (allocated(file%val)) deallocate(file%val)
+    if (allocated(file%var)) deallocate(file%var)
     return
   end subroutine clearFile
   !
@@ -1142,6 +1211,7 @@ contains
     type(report), pointer :: crep=>null()
     CHARACTER*14 MYNAME
     DATA MYNAME /'clearParameter'/
+    if (.not.associated(cpar)) return
     if (associated(cpar%firstreport).and.associated(cpar%lastreport)) then
        crep=>cpar%firstreport%next
        do while (.not.associated(crep,target=cpar%lastreport))
@@ -1152,17 +1222,40 @@ contains
        call clearReport(cpar%lastreport,irc)
     end if
     cpar%nrep=0
+    call clearExpression(cpar,irc)
     call tree_destroy(cpar%tree)
     deallocate(cpar)
     nullify(cpar)
     return
   end subroutine clearParameter
   !
+  subroutine clearExpression(cpar,irc)
+    !use parse
+    !use shape
+    implicit none
+    type(parameter), pointer :: cpar
+    integer :: irc
+    character*250 :: crc250
+    integer :: lenc
+    CHARACTER*16 :: MYNAME="clearExpression"
+    call parse_close(cpar%exp,crc250,irc)
+    if (irc.ne.0) then
+       lenc=length(crc250,250,10)
+       write(*,*) crc250(1:lenc)
+       write(*,*)myname,'Error return from parse_close:',irc
+       RETURN
+    end if
+    return
+  end subroutine clearExpression
+  !
   subroutine clearReport(crep,irc)
     implicit none
     type(report), pointer :: crep
     integer :: irc
     type(filter), pointer :: cflt=>null(),nflt=>null()
+    integer :: ii
+    character*250 :: crc250
+    integer :: lenc
     CHARACTER*14 MYNAME
     DATA MYNAME /'clearReport'/
     if (allocated(crep%nkey1))  deallocate(crep%nkey1)
@@ -1170,8 +1263,17 @@ contains
     if (allocated(crep%key1))   deallocate(crep%key1)
     if (allocated(crep%keyind)) deallocate(crep%keyind)
     if (allocated(crep%groups)) deallocate(crep%groups)
-    nullify(crep%vaux)
-    nullify(crep%vpar)
+    do ii=1,crep%ntrg
+       if (crep%trgtyp(ii).eq.trg_aux) then
+          call parse_close(crep%trgexp(ii)%ptr,crc250,irc)
+          if (irc.ne.0) then
+             lenc=length(crc250,250,10)
+             write(*,*) crc250(1:lenc)
+             write(*,*)myname,'Error return from parse_close:',irc
+             RETURN
+          end if
+       end if
+    end do
     call clearOperation(crep%roperation,irc)
     if (associated(crep%firstfilter).and.associated(crep%lastfilter)) then
        cflt=>crep%firstfilter%next
@@ -1199,15 +1301,45 @@ contains
     implicit none
     type(filter), pointer :: cflt
     integer :: irc
+    character*250 :: crc250
+    integer :: lenc
     CHARACTER*14 MYNAME
     DATA MYNAME /'clearFilter'/
     if (allocated(cflt%lpar)) deallocate(cflt%lpar)
     if (allocated(cflt%npar)) deallocate(cflt%npar)
     if (allocated(cflt%rpar)) deallocate(cflt%rpar)
+    call parse_close(cflt%exp,crc250,irc)
+    if (irc.ne.0) then
+       lenc=length(crc250,250,10)
+       write(*,*) crc250(1:lenc)
+       write(*,*)myname,'Error return from parse_close:',irc
+    end if
     if (associated(cflt)) deallocate(cflt)
     nullify(cflt)
     return
   end subroutine clearFilter
+  !
+  function newFilter(irc) result(ret)
+    integer :: irc
+    type(filter), pointer :: ret
+    character*250 :: crc250
+    integer :: lenc
+    CHARACTER*12 MYNAME
+    DATA MYNAME /'newfilter'/
+    allocate(ret,stat=irc)
+    if (irc.ne.0) then
+       write(*,*)myname,'Unable to allocate filter.',irc
+       return
+    end if
+    call parse_open(ret%exp,crc250,irc)
+    if (irc.ne.0) then
+       lenc=length(crc250,250,10)
+       write(*,*) crc250(1:lenc)
+       write(*,*)myname,'Unable to open expression.',irc
+       return
+    end if
+    return
+  end function newFilter
   !
   function copyFilter(flt,irc) result(ret)
     implicit none
@@ -1215,6 +1347,8 @@ contains
     type(filter), pointer :: flt
     integer :: irc
     integer :: ii
+    character*250 :: crc250
+    integer :: lenc
     CHARACTER*12 MYNAME
     DATA MYNAME /'copyFilter'/
     ! 
@@ -1270,6 +1404,13 @@ contains
     ret%var250=flt%var250
     ret%minval=flt%minval
     ret%maxval=flt%maxval
+    call parse_open(ret%exp,crc250,irc)
+    if (irc.ne.0) then
+       lenc=length(crc250,250,10)
+       write(*,*) crc250(1:lenc)
+       write(*,*)myname,'Unable to open expression.',irc
+       return
+    end if
     return
   end function copyFilter
   !
@@ -1483,8 +1624,15 @@ contains
           return
        end if
        len2=length(buff700,700,10)    
-       if (trim(xml%attribs(1,ii)).eq."name") then
+       if (trim(xml%attribs(1,ii)).eq."field") then
           cpar%par350=buff700
+          cpar%hasvar=.true.
+       elseif (trim(xml%attribs(1,ii)).eq."name") then
+          cpar%elem80=buff700(1:len2)
+       elseif (trim(xml%attribs(1,ii)).eq."exp") then
+          cpar%exp700=buff700
+          call chop0(cpar%exp700,700)
+          cpar%lene=length(cpar%exp700,700,10)
        elseif (trim(xml%attribs(1,ii)).eq."fail") then
           if (buff700(1:len2).eq."nodata") then
              cpar%find= .true.
@@ -1570,6 +1718,11 @@ contains
           end if
        end if
     end do PARR
+    if (cpar%nrep .ne. 0 .and. .not.cpar%hasVar) then
+       write(*,*)myname,"Parameter without 'field' can not make reports."
+       irc=945
+       return
+    end if
     call addParameter(file,cpar,irc)
     if (irc.ne.0) then
        write(*,*)myname,'Error return from addParameter.',irc
@@ -1703,7 +1856,7 @@ contains
              write(*,*)myname,'Error return from attributeExtreme.',irc
              return
           end if
-       else if (trim(xml%tag).eq."define") then
+       else if (trim(xml%tag).eq."filter") then
           call processDefine(file,crep,xml,irc)
           if (irc.ne.0) then
              write(*,*)myname,'Error return from processDefine.',irc
@@ -1765,9 +1918,24 @@ contains
     integer :: irc
     integer :: ii,len2
     character*700 :: buff700
+    character*250 :: crc250
+    integer :: lenc
     logical :: bok
     CHARACTER*18 MYNAME
-    DATA MYNAME /'processAux'/
+    DATA MYNAME /'attributeAux'/
+    crep%ltrg=.true.
+    crep%ntrg=min(mtrg,crep%ntrg+1)
+    crep%trgreq(crep%ntrg)=.false.
+    crep%trg10(crep%ntrg)=""
+    crep%trgtyp(crep%ntrg)=trg_aux
+    nullify(crep%trgexp(crep%ntrg)%ptr)
+    call parse_open(crep%trgexp(crep%ntrg)%ptr,crc250,irc)
+    if (irc.ne.0) then
+       lenc=length(crc250,250,10)
+       write(*,*) crc250(1:lenc)
+       write(*,*)myname,'Unable to open expression.',irc
+       return
+    end if
     do ii=1,xml%no_attribs
        buff700=xml%attribs(2,ii)
        call replaceENV(buff700,700,bok,irc)
@@ -1777,9 +1945,27 @@ contains
           return
        end if
        len2=length(buff700,700,10)    
-       call addAux(crep,trim(xml%attribs(1,ii)),&
-            & buff700(1:len2));
+       if (trim(xml%attribs(1,ii)).eq."name") then
+          crep%trg10(crep%ntrg)=buff700(1:len2)
+       elseif (trim(xml%attribs(1,ii)).eq."exp") then
+          crep%laux=.true.
+          crep%trgvar700(crep%ntrg)=buff700(1:len2)
+          crep%trglenv(crep%ntrg)=len2
+          ! add xml-parameter
+          ! call addAux(crep,trim(xml%attribs(1,ii)),buff700(1:len2));
+       elseif (trim(xml%attribs(1,ii)).eq."location") then
+          if (buff700(1:len2).eq."max")then
+             crep%trgext(crep%ntrg)=1
+             crep%wmax=.true.
+          elseif (buff700(1:len2).eq."min")then
+             crep%trgext(crep%ntrg)=-1
+             crep%wmin=.true.
+          else
+             crep%trgext(crep%ntrg)=0
+          end if
+       end if
     end do
+    return
   end subroutine attributeAux
   !
   subroutine attributeKey(file,crep,xml,irc)
@@ -1901,10 +2087,6 @@ contains
                   & buff700
              return
           end if
-       else if (trim(xml%attribs(1,ii)).eq."macro") then
-          crep%wmax=.true.
-          crep%trgtyp(crep%ntrg)=trg_macro
-          crep%trgvar700(crep%ntrg)=buff700
        else if (trim(xml%attribs(1,ii)).eq."average") then
           crep%wmax=.true.
           crep%wmin=.true.
@@ -1951,13 +2133,13 @@ contains
                   & buff700(1:len2)
           end if
           if (buff700(1:len2).eq."none") then
-             crep%iext(crep%ntrg)=0
+             crep%trgext(crep%ntrg)=0
           else if (buff700(1:len2).eq."min") then
-             crep%iext(crep%ntrg)=-1
+             crep%trgext(crep%ntrg)=-1
           else if (buff700(1:len2).eq."max") then
-             crep%iext(crep%ntrg)=1
+             crep%trgext(crep%ntrg)=1
           else if (buff700(1:len2).eq."all") then
-             crep%iext(crep%ntrg)=2
+             crep%trgext(crep%ntrg)=2
           else
              write(*,*)myname,'Ignoring extreme (min/max/all):',&
                   & buff700(1:len2)
@@ -2091,9 +2273,9 @@ contains
     DATA MYNAME /'processDefine'/
     if (xml%starttag.and.xml%endtag) then
        ! define new filter
-       allocate(nfilter,stat=irc)
+       nfilter => newFilter(irc)
        if (irc.ne.0) then
-          write(*,*)myname,'Unable to allocate filter.',irc
+          write(*,*)myname,'Error return from newFilter.',irc
           return
        end if
        do ii=1,xml%no_attribs
@@ -2105,7 +2287,7 @@ contains
              return
           end if
           len2=length(buff700,700,10)    
-          if (trim(xml%attribs(1,ii)).eq."filter") then
+          if (trim(xml%attribs(1,ii)).eq."name") then
              if (bdeb) write(*,*)myname,'Filter name:',&
                   & buff700(1:len2)
              nfilter%name250=buff700(1:len2)
@@ -2162,9 +2344,9 @@ contains
     end if
     if (xml%starttag.and..not.xml%endtag) then
        ! define new filter
-       allocate(nfilter,stat=irc)
+       nfilter => newFilter(irc)
        if (irc.ne.0) then
-          write(*,*)myname,'Unable to allocate filter.',irc
+          write(*,*)myname,'Error return from newFilter.',irc
           return
        end if
        do ii=1,xml%no_attribs
@@ -2176,7 +2358,7 @@ contains
              return
           end if
           len2=length(buff700,700,10)    
-          if (trim(xml%attribs(1,ii)).eq."filter") then
+          if (trim(xml%attribs(1,ii)).eq."name") then
              if (bdeb) write(*,*)myname,'Filter name:',&
                   & buff700(1:len2)
              nfilter%name250=buff700(1:len2)
@@ -2551,6 +2733,7 @@ contains
     real :: cauxmin,cauxmax
     integer yy,mm,dd,hh,mi
     real sec,cstart2000,cstop2000
+    integer :: kk
     character*24 a24,x24,y24
     character*4 ayy
     character*2 amm,add,ahh
@@ -2567,7 +2750,7 @@ contains
     write (amm,'(I2.2)') mm
     write (add,'(I2.2)') dd
     write (ahh,'(I2.2)') hh
-
+    if (.not.cpar%hasvar) return
     b700=cpar%var%var250
     call chop0(b700,700)
     lenb=length(b700,700,10)
@@ -2587,8 +2770,12 @@ contains
           cstart2000=max(file%mint2000,crep%tj2000(tt)-file%dt-cpar%hrs/(24.0D0))
           cstop2000=crep%tj2000(tt)+file%dt
           if (crep%laux) then
-             cauxmin=crep%auxmin(tt)
-             cauxmax=crep%auxmax(tt)
+             do kk=1,crep%ntrg
+                if (crep%trglenv(kk).ne.0) then
+                   cauxmin=crep%auxmin(tt,kk)
+                   cauxmax=crep%auxmax(tt,kk)
+                end if
+             end do
           end if
           call dj2000(cstart2000,yy,mm,dd,hh,mi,sec)
           write (x24,'(I4.4,"-",I2.2,"-",I2.2,"_",I2.2,"-",I2.2,"-00.0000")') &
@@ -2690,15 +2877,6 @@ contains
           call choptrim(xml350(xml_maxval_lat,tt),350)
           write(xml350(xml_maxval_lon,tt),'(F12.2)') cllmax(2) ! minimum value lon
           call choptrim(xml350(xml_maxval_lon,tt),350)
-          if (crep%laux) then
-             write(xml350(xml_minaux,tt),'(F12.2)') cauxmin ! minimum auxiliary value
-             write(xml350(xml_maxaux,tt),'(F12.2)') cauxmax ! maximum auxiliary value
-          else
-             xml350(xml_minaux,tt)="NA"
-             xml350(xml_maxaux,tt)="NA"
-          end if
-          call choptrim(xml350(xml_minaux,tt),350)
-          call choptrim(xml350(xml_maxaux,tt),350)
           tmin=-1
           tmax=-1
        end if
@@ -2961,16 +3139,6 @@ contains
              b700=b700(1:lenx)//var350(xml_acc_hh)(1:leny)
              lenx=lenx+max(0,leny)
              opos=cpos+1 ! point to character after "@"
-          else if (i700(opos:cpos-1).eq."maxaux") then
-             leny=lengthtrim(var350(xml_maxaux),350,10)
-             b700=b700(1:lenx)//var350(xml_maxaux)(1:leny)
-             lenx=lenx+max(0,leny)
-             opos=cpos+1 ! point to character after "@"
-          else if (i700(opos:cpos-1).eq."minaux") then
-             leny=lengthtrim(var350(xml_minaux),350,10)
-             b700=b700(1:lenx)//var350(xml_minaux)(1:leny)
-             lenx=lenx+max(0,leny)
-             opos=cpos+1 ! point to character after "@"
           else  
              opos=opos-1 ! reset opos to first "@"
           end if
@@ -3177,6 +3345,8 @@ contains
     real lon
     real ialt
     integer irc
+    character*250 :: crc250
+    integer :: lenc
     !
     real val,minlat,maxlat,minlon,maxlon
     type(operation), pointer :: cop
@@ -3188,6 +3358,10 @@ contains
     CHARACTER*18 MYNAME
     DATA MYNAME /'checkMasked'/
     !
+    if (.not.associated(op)) then ! no mask, all data ok...
+       res=.false.
+       return
+    end if
     alt=ialt
     select case (op%type)
     case (opr_inter) ! intersection
@@ -3452,9 +3626,19 @@ contains
              write(*,*) myname,'No variable associated with filter:',trim(f%name250)
              irc=458
              return
+          else if (f%lene.ne.0) then ! we have an expression
+             flt_val=ncf_valuePosition(f%v,irc)
+             val=parse_evalf(f%exp,flt_val,crc250,irc)
+             if (irc.ne.0) then
+                lenc=length(crc250,250,10)
+                write(*,*) crc250(1:lenc)
+                write(*,*) myname,'Error return from parse_evalf.',irc
+                return
+             end if
+          else 
+             ! set filter-value position...
+             val=ncf_valuePosition(f%v,irc)
           end if
-          ! set filter-value position...XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
-          val=ncf_valuePosition(f%v,irc)
           if (irc.ne.0) then
              write(*,*) myname,'Error return from ncf_valuePosition.',irc
              return
@@ -3487,9 +3671,15 @@ contains
              irc=458
              return
           end if
+          if (.not.associated(f%sdo)) then
+             write(*,*) myname,'No DimOrder associated with filter:',trim(f%name250)
+             irc=459
+             return
+          end if
           res=.false.
-          !write(*,*)myname,'SDO:'
-          !call ncf_printDimOrder(f%sdo)
+          ! write(*,*)myname,'SDO:', associated(f), associated(f%v), associated(f%sdo)
+          ! call ncf_printVariable(f%v)
+          ! call ncf_printDimOrder(f%sdo)
           sval250=ncf_stringPosition250(f%v,f%sdo,irc)
           if (irc.ne.0) then
              write(*,*) myname,'Error return from ncf_stringPosition250.',irc
@@ -4181,7 +4371,7 @@ contains
     CHARACTER*12 MYNAME
     DATA MYNAME /'readFilter'/
     ! read until xml%endtag is reached
-    DEFINE: do while(.not. (trim(xml%tag).eq."define".and.xml%endtag))
+    DEFINE: do while(.not. (trim(xml%tag).eq."filter".and.xml%endtag))
        call xml_get( info, xml%tag, xml%starttag, xml%endtag, xml%attribs, &
             & xml%no_attribs, xml%data, xml%no_data )
        if ( .not. xml_ok(info) ) exit DEFINE
@@ -4235,7 +4425,7 @@ contains
              write(*,*)myname,'Error return from defineDimension.',irc
              return
           end if
-       else if (trim(xml%tag).ne."define") then
+       else if (trim(xml%tag).ne."filter") then
           write(*,*)myname,'Unknown xml%tag H:',trim(xml%tag)
           irc=934
           return
@@ -5340,9 +5530,12 @@ contains
              return
           end if
           len2=length(buff700,700,10)    
-          if (trim(xml%attribs(1,ii)).eq."parameter") then
+          if (trim(xml%attribs(1,ii)).eq."field") then
              nfilter%var250=buff700(1:len2)
              nfilter%ipar=.true.
+          else if (trim(xml%attribs(1,ii)).eq."exp") then
+             nfilter%exp700=buff700
+             nfilter%lene=len2
           else if (trim(xml%attribs(1,ii)).eq."min") then
              read(buff700(1:len2),*,iostat=irc) nfilter%rpar(1)
              if (irc.ne.0) then
@@ -5423,7 +5616,7 @@ contains
              return
           end if
           len2=length(buff700,700,10)    
-          if (trim(xml%attribs(1,ii)).eq."parameter") then
+          if (trim(xml%attribs(1,ii)).eq."field") then
              nfilter%var250=buff700(1:len2)
              nfilter%ipar=.true.
           else if (trim(xml%attribs(1,ii)).eq."target") then
@@ -5483,7 +5676,7 @@ contains
              return
           end if
           len2=length(buff700,700,10)    
-          if (trim(xml%attribs(1,ii)).eq."parameter") then
+          if (trim(xml%attribs(1,ii)).eq."field") then
              nfilter%var250=buff700(1:len2)
              nfilter%ipar=.true.
           else if (trim(xml%attribs(1,ii)).eq."name") then
@@ -5514,6 +5707,8 @@ contains
   end subroutine defineDimension
 
   subroutine readDataFile(file,bok,irc)
+    !use parse
+    !use shape
     implicit none
     type(filetype) :: file
     logical :: bok
@@ -5523,7 +5718,9 @@ contains
     type(variable), pointer :: v=>null()
     type(report), pointer :: crep=>null()
     type(parameter), pointer :: cpar=>null(),bpar=>null()
-    integer :: lenc
+    integer :: lenc,lenl,lenv,ii,jj,kk
+    logical :: first
+    character*250 :: crc250
     CHARACTER*14 MYNAME 
     DATA MYNAME /'readdatafile'/
     !
@@ -5551,7 +5748,7 @@ contains
        write(*,*)myname,'Checking inventory.'
        call ncf_checkCoordinates(file%ref,bok,irc)
        if (irc.ne.0) then
-          write(*,*)myname,'Error return from checkContents.',irc
+          write(*,*)myname,'Error return from checkCoordinates.',irc
           return
        end if
        if (bok) then
@@ -5758,7 +5955,7 @@ contains
        write(*,*)myname,'Reading filter-variables.'
        cpar=>file%firstparameter%next
        do while (.not.associated(cpar,target=file%lastparameter))
-          write(*,*)myname,'Reading parameter...'
+          ! write(*,*)myname,'Reading parameter...'
           crep=>cpar%firstreport%next
           do while (.not.associated(crep,target=cpar%lastreport))
              ! write(*,*)myname,'Reading report...'
@@ -5780,7 +5977,8 @@ contains
                    end if
                    if (bok) then
                       cfilter%v => file%ref%parid
-                      if (ncf_variableClean(cfilter%v,irc)) then
+                      first=ncf_variableClean(cfilter%v,irc)
+                      if (first) then
                          write(*,*)myname,'Reading variable:',trim(cfilter%var250),&
                               & ' ~> ',cfilter%v%var250(1:cfilter%v%lenv)
                          if (cfilter%type==flt_string) then
@@ -5789,6 +5987,17 @@ contains
                                write(*,*)myname,'Error return from readData.',irc
                                return
                             end if
+                         else
+                            !write(*,*)myname,'Reading variable:',trim(cfilter%var250)
+                            call ncf_readRealData(cfilter%v,bok,irc)
+                            if (irc.ne.0) then
+                               write(*,*)myname,'Error return from readData.',irc
+                               return
+                            end if
+                         end if
+                      end if
+                      if (associated(cfilter%v)) then
+                         if (cfilter%type==flt_string) then
                             cfilter%sdo=>ncf_newDimOrder(file%ref,irc)
                             if (irc.ne.0) then
                                write(*,*)myname,'Unable to create new dimension dimorder.',irc
@@ -5806,29 +6015,27 @@ contains
                                return
                             end if
                             call ncf_addDimOrderDim(cfilter%sdo,sd,irc)
-                            sd=>ncf_getInventoryDimension(file%ref,jj,irc)
-                            if (irc.ne.0) then
-                               write(*,*)myname,'Unable to get dimension.',irc,jj
-                               return
-                            end if
-                            call ncf_addDimOrderDim(file%refStrDo,sd,irc)
-                            if (bdeb) then
-                               write(*,*)myname,">>>>> Filter dimension order:"
-                               call ncf_printDimOrder(cfilter%sdo)
+                            if (first) then
+                               sd=>ncf_getInventoryDimension(file%ref,jj,irc)
+                               if (irc.ne.0) then
+                                  write(*,*)myname,'Unable to get dimension.',irc,jj
+                                  return
+                               end if
+                               call ncf_addDimOrderDim(file%refStrDo,sd,irc)
+                               if (bdeb) then
+                                  write(*,*)myname,">>>>> Filter dimension order:"
+                                  call ncf_printDimOrder(cfilter%sdo)
+                               end if
                             end if
                          else
-                            !write(*,*)myname,'Reading variable:',trim(cfilter%var250)
-                            call ncf_readRealData(cfilter%v,bok,irc)
-                            if (irc.ne.0) then
-                               write(*,*)myname,'Error return from readData.',irc
-                               return
-                            end if
                             ! add dimensions to inner dimension...
                             cfilter%sdo=>ncf_makeDimOrder(cfilter%v,irc)
-                            call ncf_addDimOrder(file%refFlt,cfilter%sdo,irc)
-                            if (irc.ne.0) then
-                               write(*,*)myname,'Error return from addDimOrder.',irc
-                               return
+                            if (first) then
+                               call ncf_addDimOrder(file%refFlt,cfilter%sdo,irc)
+                               if (irc.ne.0) then
+                                  write(*,*)myname,'Error return from addDimOrder.',irc
+                                  return
+                               end if
                             end if
                          end if
                       else if (.not.associated(cfilter%v)) then
@@ -5900,15 +6107,32 @@ contains
        bok=.false.
        if (file%npar.eq.0) then
           write(*,*)myname,'No parameters requested.'
+       else 
+          if (allocated(file%elem80))  deallocate(file%elem80)
+          if (allocated(file%lenv))  deallocate(file%lenv)
+          if (allocated(file%val))  deallocate(file%val)
+          if (allocated(file%var))  deallocate(file%var)
+          if (allocated(file%par))  deallocate(file%par)
+          allocate(file%elem80(file%npar),&
+               & file%lenv(file%npar),file%val(file%npar),&
+               & file%var(file%npar),file%par(file%npar),stat=irc)
+          if (irc.ne.0) then
+             write(*,*)myname,'Unable to allocate expr.',irc
+             return
+          end if
+          file%val=0.0D0
        end if
+       ii=0
        cpar=>file%firstparameter%next
        do while (.not.associated(cpar,target=file%lastparameter))
+          ii=ii+1
+          file%par(ii)%ptr=>cpar
           nullify(file%ref%parid)
-          bbok=.true.
+          bbok=(cpar%hasvar)
           if (bbok) then
              call ncf_checkParameter(file%ref,cpar%par350,bbok,irc)
              if (irc.ne.0) then
-                write(*,*)myname,'Error return from checkContents.',irc
+                write(*,*)myname,'Error return from checkParameter.',irc
                 return
              end if
              if (bbok) then
@@ -5917,19 +6141,19 @@ contains
                 file%rrm(3)=file%rrm(3)+1 ! contents error
              end if
           end if
+          lenl=len_trim(cpar%elem80)
+          if (lenl.ne.0) then
+             file%elem80(ii)=cpar%elem80(1:lenl)
+             file%lenv(ii)=lenl
+          end if
           ! read field into memory
           if (bbok) then
              v => file%ref%parid
-             ! read parameter field into memory
-             if (v%lend.le.0) then ! not in memory
-                write(*,*)myname,'Reading variable:',v%var250(1:v%lenv)
-                call ncf_readRealData(v,bbok,irc)
-                if (irc.ne.0) then
-                   write(*,*)myname,'Error return from readData.',irc
-                   return
-                end if
+             file%var(ii)%ptr=>v
+             if (lenl.eq.0) then
+                file%elem80(ii)=v%var250(1:min(80,v%lenv))
+                file%lenv(ii)=min(80,v%lenv)
              end if
-             ! get "accumulation_hours" if any
              a => ncf_getAttribute(v,"accumulation_hours",irc)
              if (associated(a)) then
                 buff250=ncf_getAttributeText(a)
@@ -5945,8 +6169,87 @@ contains
                 hrs=0.0D0
              end if
           end if
+          cpar=>cpar%next
+       end do
+       ! compile expressions and report errors (before reading fields)...
+       ii=0
+       cpar=>file%firstparameter%next
+       do while (.not.associated(cpar,target=file%lastparameter))
+          ii=ii+1
+          if (cpar%lene.gt.0) then
+             file%hasexp=.true.
+             write(*,*)myname,"Compiling "//file%elem80(ii)(1:file%lenv(ii))//":'"//cpar%exp700(1:cpar%lene)//"'"
+             call parse_parsef(cpar%exp,cpar%exp700(1:cpar%lene),file%elem80,crc250,irc)
+             if (irc.ne.0) then
+                lenc=length(crc250,250,10)
+                write(*,*) crc250(1:lenc)
+                write(*,*)myname,'Error return from parse_parsef "',cpar%exp700(1:cpar%lene),'"->',irc
+                if (len(file%elem80).le.0) then
+                      write(*,*)myname,"No elements defined."
+                else
+                   write(*,*)myname,"List of elements:"
+                   do jj=1,file%npar
+                      write(*,*)myname,jj,trim(file%elem80(jj))
+                   end do
+                end if
+                return
+             end if
+          end if
+          ! loop over reports and aux-expressions
+          crep=>cpar%firstreport%next
+          do while (.not.associated(crep,target=cpar%lastreport))
+             do kk=1,crep%ntrg
+                if (crep%trgtyp(kk).eq.trg_aux) then
+                   if (crep%trglenv(kk).ne.0) then
+                      file%hasexp=.true.
+                      if (bdeb) write(*,*)myname,"Compiling "//file%elem80(ii)(1:file%lenv(ii))//":'"//&
+                           & crep%trgvar700(kk)(1:crep%trglenv(kk))//"'"
+                      call parse_parsef(crep%trgexp(kk)%ptr,&
+                           & crep%trgvar700(kk)(1:crep%trglenv(kk)),file%elem80,crc250,irc)
+                      if (irc.ne.0) then
+                         lenc=length(crc250,250,10)
+                         write(*,*) crc250(1:lenc)
+                         write(*,*)myname,'Error return from parse_parsef "',&
+                              & crep%trgvar700(kk)(1:crep%trglenv(kk)),'"->',irc
+                         if (len(file%elem80).le.0) then
+                            write(*,*)myname,"No elements defined."
+                         else
+                            write(*,*)myname,"List of elements:"
+                            do jj=1,file%npar
+                               write(*,*)myname,jj,trim(file%elem80(jj))
+                            end do
+                         end if
+                         return
+                      end if
+                   end if
+                end if
+             end do
+             crep=>crep%next
+          end do
+          cpar=>cpar%next
+       end do
+       ! read fields into memory
+       ii=0
+       cpar=>file%firstparameter%next
+       do while (.not.associated(cpar,target=file%lastparameter))
+          ii=ii+1
+          v=> file%var(ii)%ptr
+          if (associated(v)) then
+             bbok=.true.
+             ! read parameter field into memory
+             if (v%lend.le.0) then ! not in memory
+                write(*,*)myname,'Reading variable:',v%var250(1:v%lenv)
+                call ncf_readRealData(v,bbok,irc)
+                if (irc.ne.0) then
+                   write(*,*)myname,'Error return from readData.',irc
+                   return
+                end if
+             end if
+          else
+             bbok=.false.
+          end if
           if (bbok) then
-             file%refParDO=>ncf_makeDimOrder(file%ref%parid,irc)
+             file%refParDO=>ncf_makeDimOrder(v,irc)
              if (irc.ne.0) then
                 write(*,*) myname,'Error return from makeDimOrder (parid).',irc
                 return
@@ -5964,17 +6267,56 @@ contains
                    return
                 end if
              end if
-             cpar%var=>file%ref%parid
+             cpar%var=>v
              cpar%hrs=hrs
              bok=.true.
           end if
-          if (.not.bbok) then
+          if (.not.bbok.and.cpar%hasvar) then
              lenc=length(cpar%par350,350,10)
-             write(*,*)myname,'Ignoring parameter:',cpar%par350(1:lenc)
+             write(*,*)myname,'Error preparing:',cpar%par350(1:lenc)
           end if
           cpar=>cpar%next
        end do
     end if
+    ! compile filter variables...
+    if (bok) then
+       cpar=>file%firstparameter%next
+       do while (.not.associated(cpar,target=file%lastparameter))
+          ! write(*,*)myname,'Reading parameter...'
+          crep=>cpar%firstreport%next
+          do while (.not.associated(crep,target=cpar%lastreport))
+             ! write(*,*)myname,'Reading report...'
+             cfilter=>crep%firstfilter%next
+             do while (.not. associated(cfilter,target=crep%lastfilter))
+                if (cfilter%ipar.and.cfilter%active.and.cfilter%type==flt_value) then
+                   ! look for expression -> compile
+                   if (cfilter%lene.ne.0) then
+                      file%hasfltexp=.true.
+                      if (bdeb) write(*,*)myname,"Compiling "//trim(cfilter%name250)//":'"//cfilter%exp700(1:cfilter%lene)//"'"
+                      lenv=length(cfilter%var250,250,1)
+                      flt_elem80(1)=cfilter%var250(1:lenv)
+                      call parse_parsef(cfilter%exp,cfilter%exp700(1:cfilter%lene),&
+                           & flt_elem80,crc250,irc)
+                      if (irc.ne.0) then
+                         lenc=length(crc250,250,10)
+                         write(*,*) crc250(1:lenc)
+                         write(*,*)myname,'Error return from parse_parsef "',cfilter%exp700(1:cfilter%lene),'"->',irc
+                         write(*,*)myname,"List of elements:"
+                         do jj=1,1
+                            write(*,*)myname,jj,trim(flt_elem80(jj))
+                         end do
+                         return
+                      end if
+                   end if
+                end if
+                cfilter=>cfilter%next
+             end do
+             crep=>crep%next
+          end do
+          cpar=>cpar%next
+       end do
+    end if
+    !
     return
   end subroutine readDataFile
   !
@@ -6071,65 +6413,6 @@ contains
     return
   end subroutine extractTimes
   !
-  subroutine matchAux(file,crep,irc)
-    implicit none
-    type(filetype) :: file
-    type(report), pointer :: crep
-    integer :: irc
-    type(parameter), pointer :: cpar=>null(),bpar=>null()
-    integer :: lenx
-    character*12 :: myname
-    data myname /'matchAux'/
-    if (crep%laux) then
-       nullify(crep%vaux)
-       nullify(crep%vpar)
-       bpar=>file%firstparameter%next
-       PARLOOP:do while (.not.associated(bpar,target=file%lastparameter))
-          if (bpar%par350.eq.crep%aux700(2)(1:350)) then
-             crep%vaux=>bpar%var
-             crep%vpar=>bpar
-             lenx=length(crep%aux700(2),700,10)
-             !write(*,*)myname,'Auxiliary:"'//crep%aux700(2)(1:lenx)//'"'
-             exit PARLOOP
-          end if
-          bpar=>bpar%next
-       end do PARLOOP
-       if (.not.associated(crep%vaux)) then
-          lenx=length(crep%aux700(2),700,10)
-          write(*,*)myname,'*** No auxiliary defined for "'//&
-               & crep%aux700(2)(1:lenx)//'"'
-          irc=348
-          return
-       end if
-    end if
-  end subroutine matchAux
-  !
-  subroutine matchAuxs(file,irc)
-    implicit none
-    type(filetype) :: file
-    integer :: irc
-    character*12 myname
-    data myname/'matchAuxs'/
-    type(report), pointer :: crep=>null()
-    type(parameter), pointer :: cpar=>null()
-    !
-    cpar=>file%firstparameter%next
-    do while(.not.associated(cpar,target=file%lastparameter))
-       crep=>cpar%firstreport%next
-       do while (.not.associated(crep,target=cpar%lastreport))
-          call matchAux(file,crep,irc)
-          if (irc.ne.0) then
-             write(*,*)myname,'Error return from mathAux.',irc
-             return
-          end if
-          crep=>crep%next
-       end do
-       cpar=>cpar%next
-    end do
-    !
-    return
-  end subroutine matchAuxs
-  !
   subroutine writeTimes(file,irc)
     implicit none
     type(filetype) :: file
@@ -6213,6 +6496,7 @@ contains
     type(node2d), pointer :: cnode=>null()
     type(variable), pointer :: v=>null()
     integer :: cnt
+    real :: dist
     CHARACTER*16 MYNAME 
     DATA MYNAME /'processDataFile'/
     file%dt=0.0D0
@@ -6296,7 +6580,7 @@ contains
           return
        end if
        do while (ncf_increment(file%ref,file%refLatLonAltDO,irc))
-          !if (bdeb) write(*,*)myname,'inside regLatLonAlt'
+          ! write(*,*)myname,'inside regLatLonAlt'
           lat=ncf_valuePosition(file%ref%latid,irc)
           if (irc.ne.0) then
              write(*,*) myname,'Error return from valuePosition (latid).',irc
@@ -6320,9 +6604,14 @@ contains
           ! loop over parameters...
           cpar=>file%firstparameter%next
           PARR:do while (.not.associated(cpar,target=file%lastparameter))
+             ! write(*,*)myname,'inside cpar-loop',cpar%hasvar
+             if (.not.cpar%hasVar) then
+                cpar=>cpar%next
+                cycle PARR
+             end if
              v => cpar%var ! variable
              if (.not.associated(v)) then
-                v=>v%next
+                cpar=>cpar%next
                 cycle PARR
              end if
              used=.false.
@@ -6335,7 +6624,9 @@ contains
                    do while (associated(cnode))
                       crep=>cnode%rep
                       if (.not.crep%skip) then
-                         if (processReport(file,v,crep,lat,lon,alt,timentry,irc)) then
+                         dist=max(dist,crep%cdist)
+                         cnt=cnt+1
+                         if (processReport(file,cpar,v,crep,lat,lon,alt,timentry,irc)) then
                             used=.true.
                          end if
                          if (irc.ne.0) then
@@ -6346,13 +6637,14 @@ contains
                       cnode=>cnode%next
                    end do
                    !write(*,*)myname,'Found reports...',cnt, &
-                   !     & lat,lon,associated(searchfirst),associated(searchlast)
+                   !     & lat,lon,associated(searchfirst),associated(searchlast),&
+                   !     & dist,cpar%tree%root%dist
                 end if
              else                    ! check all, all the time
                 crep=>cpar%firstreport%next
                 REPP:do while (.not.associated(crep,target=cpar%lastreport))
                    if (.not.crep%skip) then
-                      if (processReport(file,v,crep,lat,lon,alt,timentry,irc)) then
+                      if (processReport(file,cpar,v,crep,lat,lon,alt,timentry,irc)) then
                          used=.true.
                       end if
                       if (irc.ne.0) then
@@ -6363,7 +6655,7 @@ contains
                    crep=>crep%next
                 end do REPP
              end if
-             if (.not.used) then ! mark value not unused in mask-file
+             if (.not.used.and.cpar%nrep.ne.0) then ! mark value not unused in mask-file
                 ! loop over dimension that the filter depends on...
                 call ncf_resetPos(file%refOut,irc)
                 if (irc.ne.0) then
@@ -6410,8 +6702,9 @@ contains
     return
   end subroutine processDataFile
 
-  logical function processReport(file,v,crep,lat,lon,alt,timEntry,irc)
+  logical function processReport(file,cpar,v,crep,lat,lon,alt,timEntry,irc)
     type(filetype) :: file
+    type(parameter), pointer :: cpar
     type(variable), pointer :: v
     type(report), pointer :: crep
     real :: lat,lon,alt
@@ -6420,7 +6713,7 @@ contains
     real val,aux
     logical :: used
     logical masked
-    integer loc
+    integer loc,ii
     logical :: first
     CHARACTER*16 MYNAME 
     DATA MYNAME /'processDataFile'/
@@ -6429,171 +6722,257 @@ contains
     write(crep%keyvar350(key_iter),"(I0)") jj
     call choptrim(crep%keyvar350(key_iter),350)
     ! loop over dimension that the filter depends on...
-    if (associated(crep%roperation)) then
-       call ncf_resetPos(file%refOut,irc)
+    call ncf_resetPos(file%refOut,irc)
+    if (irc.ne.0) then
+       write(*,*) myname,'Error return from resetPos (file%refOut).',irc
+       return
+    end if
+    do while (ncf_increment(file%ref,file%refOut,irc))
+       ! write(*,*)myname,'Position:',lat,lon,alt
+       ! call printMask(crep%roperation,0)
+       ! calculate the ignore-data-flag based on the report mask...
+       masked=checkMasked(crep%roperation,lat,lon,alt,irc)
+       !if (bdeb) write(*,*)myname,'inside refOut',masked
        if (irc.ne.0) then
-          write(*,*) myname,'Error return from resetPos (file%refOut).',irc
+          write(*,*) myname,'Error return from checkMasked.',irc
           return
        end if
-       do while (ncf_increment(file%ref,file%refOut,irc))
-          ! write(*,*)myname,'Position:',lat,lon,alt
-          ! call printMask(crep%roperation,0)
-          ! calculate the ignore-data-flag based on the report mask...
-          masked=checkMasked(crep%roperation,lat,lon,alt,irc)
-          !if (bdeb) write(*,*)myname,'inside refOut',masked
-          if (irc.ne.0) then
-             write(*,*) myname,'Error return from checkMasked.',irc
-             return
-          end if
-          if (.not.masked) then ! use this value
-             used=.true.
-             if (file%firsttrg) then
-                file%firsttrg=.false.
-                file%refLatlonDo => ncf_copyDimOrder(file%refLatDo,irc)
-                if (irc.ne.0) then
-                   write(*,*) myname,'Error return from copyDimOrder.',irc
-                   return
-                end if
-                call ncf_addDimOrder(file%refLatlonDo,file%refLonDo,irc)
-                if (irc.ne.0) then
-                   write(*,*) myname,'Error return from addDimOrder.',irc
-                   return
-                end if
-                file%ix=>ncf_getdimensionOrderDimension(file%refLatlonDo,1)
-                file%iy=>ncf_getdimensionOrderDimension(file%refLatlonDo,2)
-                file%darea=ncf_getArea(file%ref,file%ix,file%iy,irc)
-                if (irc.ne.0.and..not.crep%larea) irc=0 ! not needed anyways...
-                if (irc.ne.0) then
-                   write(*,*) myname,'Error return from ncf_getArea.',irc
-                   return
-                end if
-                call ncf_clearDimOrder(file%refLatLonDO)
-                write(*,'(X,A,A,F0.2,A)')myname,&
-                     & 'Grid point area = ',file%darea,' km**2'
-             end if
-             call ncf_resetPos(file%refInn,irc)
+       if (.not.masked) then ! use this value
+          used=.true.
+          if (file%firsttrg) then
+             file%firsttrg=.false.
+             file%refLatlonDo => ncf_copyDimOrder(file%refLatDo,irc)
              if (irc.ne.0) then
-                write(*,*) myname,'Error return from resetPos (refOut).',irc
+                write(*,*) myname,'Error return from copyDimOrder.',irc
                 return
              end if
-             !call ncf_printDimOrder(file%refInn)
-             do while (ncf_increment(file%ref,file%refInn,irc))
-                val=ncf_valuePosition(v,irc)
-                ! call ncf_printpos(v%f%pos)
-                !write(*,*) "                    Value=",val
-                tt=max(1,min(mtim,file%ref%pos%pos(timEntry)))
-                if (val.ne.nf_fill_double) then
-                   !write(*,*) "                    Ok value=",val
+             call ncf_addDimOrder(file%refLatlonDo,file%refLonDo,irc)
+             if (irc.ne.0) then
+                write(*,*) myname,'Error return from addDimOrder.',irc
+                return
+             end if
+             file%ix=>ncf_getdimensionOrderDimension(file%refLatlonDo,1)
+             file%iy=>ncf_getdimensionOrderDimension(file%refLatlonDo,2)
+             file%darea=ncf_getArea(file%ref,file%ix,file%iy,irc)
+             if (irc.ne.0.and..not.crep%larea) irc=0 ! not needed anyways...
+             if (irc.ne.0) then
+                write(*,*) myname,'Error return from ncf_getArea.',irc
+                return
+             end if
+             call ncf_clearDimOrder(file%refLatLonDO)
+             write(*,'(X,A,A,F0.2,A)')myname,&
+                  & 'Grid point area = ',file%darea,' km**2'
+          end if
+          call ncf_resetPos(file%refInn,irc)
+          if (irc.ne.0) then
+             write(*,*) myname,'Error return from resetPos (refOut).',irc
+             return
+          end if
+          !call ncf_printDimOrder(file%refInn)
+          do while (ncf_increment(file%ref,file%refInn,irc))
+             if (file%hasexp) call setExpVar(file,irc)
+             ! val=ncf_valuePosition(v,irc)
+             val=getExpVal(file,cpar,v,irc)
+             call ncf_setValue(v,val,irc) ! use function value....
+             ! call ncf_printpos(v%f%pos)
+             ! write(*,*) "                    Value=",val
+             tt=max(1,min(mtim,file%ref%pos%pos(timEntry)))
+             if (val.ne.nf_fill_double) then
+                !write(*,*) "                    Ok value=",val
 #ifdef JNK                             
-                   loc=ncf_getLocation(v)
-                   write(50,'(I10,3(X,F10.5),X,I5,X,A)')loc,val, &
-                        & lat,lon,tt,v%var250(1:v%lenv)
+                loc=ncf_getLocation(v)
+                write(50,'(I10,3(X,F10.5),X,I5,X,A)')loc,val, &
+                     & lat,lon,tt,v%var250(1:v%lenv)
 #endif
-                   if (crep%ltrg) then
-                      crep%nkey1(tt)=crep%nkey1(tt)+1
-                      crep%nrest=max(crep%nrest,crep%nkey1(tt))
-                      crep%arest=max(crep%arest,crep%nkey1(tt)+crep%nkey0(tt))
-                      if (crep%nkey1(tt).gt.crep%mrest) then
-                         if (ecnt.lt.10) then
-                            ecnt=ecnt+1
-                            write(*,'(X,A,A,I0,A,I0,A)')myname,&
-                                 & '*** Too small report size: ',&
-                                 & crep%mrest," (time step=",tt,")"
-                         else if (ecnt.eq.10) then
-                            ecnt=ecnt+1
-                            write(*,'(X,A,A)')myname,'*** ...'
-                         end if
-                         fail(fail_size)=.true.
-                         bok=.false.
-                      else
-                         crep%key1(crep%nkey1(tt),tt)=val
-                         crep%keyind(crep%nkey1(tt),tt)=crep%nkey1(tt)
+                if (crep%ltrg) then
+                   crep%nkey1(tt)=crep%nkey1(tt)+1
+                   crep%nrest=max(crep%nrest,crep%nkey1(tt))
+                   crep%arest=max(crep%arest,crep%nkey1(tt)+crep%nkey0(tt))
+                   if (crep%nkey1(tt).gt.crep%mrest) then
+                      if (ecnt.lt.10) then
+                         ecnt=ecnt+1
+                         write(*,'(X,A,A,I0,A,I0,A)')myname,&
+                              & '*** Too small report size: ',&
+                              & crep%mrest," (time step=",tt,")"
+                      else if (ecnt.eq.10) then
+                         ecnt=ecnt+1
+                         write(*,'(X,A,A)')myname,'*** ...'
                       end if
+                      fail(fail_size)=.true.
+                      bok=.false.
                    else
-                      crep%nkey0(tt)=crep%nkey0(tt)+1
-                   end if
-                   !
-                   !write(*,*)myname,'Value:',val,v%var250(1:v%lenv),&
-                   !     & tt,crep%ltrg
-                   !call ncf_printVarPos(v)
-                   crep%ntim=max(crep%ntim,tt)
-                   if (crep%ntim .gt. mtim) then
-                      write(*,*)myname,'Too many times.',mtim
-                      irc=457
-                      return
-                   end if
-                   if (crep%lfirst(tt)) then
-                      crep%lfirst(tt)=.false.
-                      crep%valavg(tt)=val
-                      crep%valcnt(tt)=1.0
-                      crep%valmin(tt)=val
-                      crep%valmax(tt)=val
-                      crep%llmin(1,tt)=lat
-                      crep%llmax(1,tt)=lat
-                      crep%llmin(2,tt)=lon
-                      crep%llmax(2,tt)=lon
-                      crep%ttmin(tt)=tt
-                      crep%ttmax(tt)=tt
-                      ! process auxiliaries
-                      if (crep%laux) then
-                         aux=ncf_valuePosition(crep%vaux,irc)
-                         aux=aux*crep%vpar%scl
-                         crep%auxmax(tt)=aux
-                         crep%auxmin(tt)=aux
-                      end if
-                   else
-                      crep%valavg(tt)=crep%valavg(tt)+val
-                      crep%valcnt(tt)=crep%valcnt(tt)+1.0
-                      if (val.gt.crep%valmax(tt)) then
-                         ! write(*,'(X,A,X,I4,X,F10.3,X,I8)')myname//&
-                         !      & 'Found new max:',tt,val,loc
-                         crep%valmax(tt)=val
-                         crep%llmax(1,tt)=lat
-                         crep%llmax(2,tt)=lon
-                         crep%ttmax(tt)=tt
-                      end if
-                      if (val.lt.crep%valmin(tt)) then
-                         crep%valmin(tt)=val
-                         crep%llmin(1,tt)=lat
-                         crep%llmin(2,tt)=lon
-                         crep%ttmin(tt)=tt
-                      end if
-                      ! process auxiliaries
-                      if (crep%laux) then
-                         aux=ncf_valuePosition(crep%vaux,irc)
-                         aux=aux*crep%vpar%scl
-                         if (val.gt.crep%auxmax(tt)) then
-                            crep%auxmax(tt)=aux
-                         end if
-                         if (val.lt.crep%auxmin(tt)) then
-                            crep%auxmin(tt)=aux
-                         end if
-                      end if
+                      crep%key1(crep%nkey1(tt),tt)=val
+                      crep%keyind(crep%nkey1(tt),tt)=crep%nkey1(tt)
                    end if
                 else
                    crep%nkey0(tt)=crep%nkey0(tt)+1
                 end if
-             end do ! inner
-             if (irc.ne.0) then
-                write(*,*) myname,'Error return from increment (refInn).',irc
-                return
+                !
+                !write(*,*)myname,'Value:',val,v%var250(1:v%lenv),&
+                !     & tt,crep%ltrg
+                !call ncf_printVarPos(v)
+                crep%ntim=max(crep%ntim,tt)
+                if (crep%ntim .gt. mtim) then
+                   write(*,*)myname,'Too many times.',mtim
+                   irc=457
+                   return
+                end if
+                if (crep%lfirst(tt)) then
+                   crep%lfirst(tt)=.false.
+                   crep%valavg(tt)=val
+                   crep%valcnt(tt)=1.0
+                   crep%valmin(tt)=val
+                   crep%valmax(tt)=val
+                   crep%llmin(1,tt)=lat
+                   crep%llmax(1,tt)=lat
+                   crep%llmin(2,tt)=lon
+                   crep%llmax(2,tt)=lon
+                   crep%ttmin(tt)=tt
+                   crep%ttmax(tt)=tt
+                   ! process auxiliaries
+                   if (crep%laux) then
+                      do ii=1,crep%ntrg
+                         if (crep%trglenv(ii).ne.0) then
+                            aux=getAuxVal(file,crep,ii,irc)
+                            crep%auxmax(tt,ii)=aux
+                            crep%auxmin(tt,ii)=aux
+                         end if
+                      end do
+                   end if
+                else
+                   crep%valavg(tt)=crep%valavg(tt)+val
+                   crep%valcnt(tt)=crep%valcnt(tt)+1.0
+                   if (val.gt.crep%valmax(tt)) then
+                      ! write(*,'(X,A,X,I4,X,F10.3,X,I8)')myname//&
+                      !      & 'Found new max:',tt,val,loc
+                      crep%valmax(tt)=val
+                      crep%llmax(1,tt)=lat
+                      crep%llmax(2,tt)=lon
+                      crep%ttmax(tt)=tt
+                      if (crep%laux) then
+                         do ii=1,crep%ntrg
+                            if (crep%trglenv(ii).ne.0) then
+                               aux=getAuxVal(file,crep,ii,irc)
+                               crep%auxmax(tt,ii)=aux
+                            end if
+                         end do
+                      end if
+                   end if
+                   if (val.lt.crep%valmin(tt)) then
+                      crep%valmin(tt)=val
+                      crep%llmin(1,tt)=lat
+                      crep%llmin(2,tt)=lon
+                      crep%ttmin(tt)=tt
+                      if (crep%laux) then
+                         do ii=1,crep%ntrg
+                            if (crep%trglenv(ii).ne.0) then
+                               aux=getAuxVal(file,crep,ii,irc)
+                               crep%auxmin(tt,ii)=aux
+                            end if
+                         end do
+                      end if
+                   end if
+                end if
+             else
+                crep%nkey0(tt)=crep%nkey0(tt)+1
              end if
-          end if ! masked-block
-       end do ! outer
-       if (irc.ne.0) then
-          write(*,*) myname,'Error return from increment (refOut).',irc
-          return
-       end if
+          end do ! inner
+          if (irc.ne.0) then
+             write(*,*) myname,'Error return from increment (refInn).',irc
+             return
+          end if
+       end if ! masked-block
+    end do ! outer
+    if (irc.ne.0) then
+       write(*,*) myname,'Error return from increment (refOut).',irc
+       return
     end if
     processReport=used
     return
   end function processReport
   !
+  real function getAuxVal(file,crep,ii,irc)
+    implicit none
+    type(filetype) :: file
+    type(report),pointer :: crep
+    integer :: ii
+    integer :: irc
+    character*250 :: crc250
+    integer :: lenc
+    getAuxVal=parse_evalf(crep%trgexp(ii)%ptr,file%val,crc250,irc)
+    if (irc.ne.0) then
+       lenc=length(crc250,250,10)
+       write(*,*) crc250(1:lenc)
+       write(*,*) myname,'Error return from parse_evalf.',irc
+       return
+    end if
+    return
+  end function getAuxVal
+  !
+  real function getExpVal(file,cpar,v,irc)
+    !use parse
+    !use shape
+    implicit none
+    type(filetype) :: file
+    type(parameter),pointer :: cpar
+    type(variable),pointer :: v
+    integer :: irc
+    character*250 :: crc250
+    integer :: lenc
+    CHARACTER*14 :: MYNAME ="getExpVal"
+    if (cpar%lene.ne.0) then
+       getExpVal=parse_evalf(cpar%exp,file%val,crc250,irc)
+       if (irc.ne.0) then
+          lenc=length(crc250,250,10)
+          write(*,*) crc250(1:lenc)
+          write(*,*) myname,'Error return from parse_evalf.',irc
+          return
+       end if
+       !write(*,*)myname,"val:",getExpVal,file%val,file%elem80
+       !stop("Debug")
+    else if (associated(v)) then
+       getExpVal=ncf_valuePosition(v,irc)
+       if (irc.ne.0) then
+          write(*,*) myname,'Error return from valuePosition.',irc
+          return
+       end if
+    else
+       getExpVal=0.0D0
+    end if
+    return
+  end function getExpVal
+  !
+  subroutine setExpVar(file,irc)
+    implicit none
+    type(filetype) :: file
+    type(variable),pointer :: v => null()
+    integer :: irc
+    character*250 :: crc250
+    integer :: lenc
+    CHARACTER*14 :: MYNAME ="setExpVar"
+    integer:: ii
+    ! loop over variables
+    do ii=1,file%npar
+       if (associated(file%var(ii)%ptr)) then
+          file%val(ii)=ncf_valuePosition(file%var(ii)%ptr,irc)
+          !write(*,*)myname,ii,"var:",file%val(ii)
+       else
+          file%val(ii)=parse_evalf(file%par(ii)%ptr%exp,file%val,crc250,irc)
+          if (irc.ne.0) then
+             lenc=length(crc250,250,10)
+             write(*,*) crc250(1:lenc)
+             write(*,*) myname,'Error return from parse_evalf.',irc
+             return
+          end if
+       end if
+    end do
+    return
+  end subroutine setExpVar
+  !
   subroutine sortTargetData(file,irc)
     implicit none
     type(filetype) :: file
     integer :: irc
-    type(variable), pointer  :: v=>null()
     type(report), pointer    :: crep=>null()
     type(parameter), pointer :: cpar=>null()
     integer :: newnn,minn,tt
@@ -6604,7 +6983,6 @@ contains
     minn=-1
     cpar=>file%firstparameter%next
     do while (.not.associated(cpar,target=file%lastparameter))
-       v => cpar%var ! variable
        crep=>cpar%firstreport%next
        do while (.not.associated(crep,target=cpar%lastreport))
           if (crep%ltrg .and. .not.crep%skip) then
@@ -6723,6 +7101,9 @@ contains
     end if
     call chop0(crep%xmlo350,350)
     lenx=length(crep%xmlo350,350,10)
+    if (lenx.eq.0) then
+       return
+    end if
     i700=crep%xmlo350(1:lenx)
     call chop0(i700,700)
     call replaceKEY(i700,mkeyvar,crep%keyvar350)
@@ -6844,6 +7225,9 @@ contains
     end if
     call chop0(name350,350)
     lenx=length(name350,350,10)
+    if (lenx.eq.0) then
+       return
+    end if
     if (file%nodata) then
        write(*,*)myname,'File contains no data:'//name350(1:lenx)
     end if
@@ -6977,7 +7361,7 @@ contains
              write(unitx,'(A)',iostat=irc) '      time_stop="'//file%e24//'"'
              write(unitx,'(A)',iostat=irc) '   />'
              write(unitx,'(A)',iostat=irc) ' </parameter>'
-          else 
+          else if (crep%nkey.ne.0.or.cpar%hasVar) then
              ! write data to xml-file here...
              write(unitx,'(A)',iostat=irc) ' <data>'
              lenp=length(cpar%par350,250,10)
@@ -7092,7 +7476,7 @@ contains
           if (crep%ltrg) then
              TRG1: do kk=1,crep%ntrg
                 if (bdeb) write(*,*)myname,'Target:',kk,crep%trgtyp(kk)
-                if (crep%trgtyp(kk).eq.trg_macro) then
+                if (crep%trgtyp(kk).eq.trg_aux) then
                    trgpos(kk)=0.0D0
                    bok(tt)=.true.
                 else
@@ -7157,7 +7541,7 @@ contains
              ! check if record is in a valid group
              kk=crep%grouptrg
              if (bdeb) write(*,*)myname,'Checking group:',kk
-             if (crep%trgtyp(kk).eq.trg_macro) then
+             if (crep%trgtyp(kk).eq.trg_aux) then
                 bok(tt)=(group.eq.1)
                 ! do nothing
              else
@@ -7187,7 +7571,7 @@ contains
                    end if
                 end if
              end if
-             if (bdeb) write(*,*)myname,'Group target... ',group,grp,crep%ngroups,crep%trgtyp(kk).eq.trg_macro,bok(tt)
+             if (bdeb) write(*,*)myname,'Group target... ',group,grp,crep%ngroups,crep%trgtyp(kk).eq.trg_aux,bok(tt)
              if (bdeb.and..not.bok(tt)) then
                 write(*,*)myname,'*** Value:',val,' in G',grp,' but considering G',group
                 do ii=1,crep%ngroups
@@ -7200,12 +7584,16 @@ contains
              first=.true.
              TRG2:do kk=1,crep%ntrg
                 if (bdeb) write(*,*)myname,'Processing target:',kk,crep%ntrg
-                if (crep%trgtyp(kk).eq.trg_macro) then
-                   if (bdeb) write(*,*)myname,'Is macro:',kk
-                   var700=crep%trgvar700(kk)
-                   call replaceXML(var700,mxmlvar,crep%xmlvar350(1,tt))
-                   lenx=length(var700,700,10)
-                   val30(tt,kk)=var700(1:min(30,lenx))
+                if (crep%trgtyp(kk).eq.trg_aux) then
+                   ! if (bdeb) write(*,*)myname,'Is macro:',kk
+                   if (crep%trgext(kk).eq.1) then
+                      val=crep%auxmax(tt,kk)
+                   elseif (crep%trgext(ii).eq.-1) then
+                      val=crep%auxmin(tt,kk)
+                   else
+                      val=0
+                   end if
+                   val30(tt,kk)=pretty30(val,lenx)
                 else
                    if (bdeb) write(*,*)myname,'Normal target:',kk
                    rpos=trgpos(kk)
@@ -7269,15 +7657,15 @@ contains
        lok(:)=.false.
        cnt=0
        do kk=1,crep%ntrg
-          if (crep%iext(kk).ne.0)cnt=cnt+1
+          if (crep%trgext(kk).ne.0)cnt=cnt+1
        end do
        if (cnt.eq.0) then
           do kk=1,crep%ntrg
-             crep%iext(kk)=2 ! report all extremes
+             crep%trgext(kk)=2 ! report all extremes
           end do
        end if
        TRG3:do kk=1,crep%ntrg
-          if (crep%iext(kk).eq.0) cycle TRG3
+          if (crep%trgext(kk).eq.0) cycle TRG3
           cnt=0
           imax=0
           imin=0
@@ -7303,8 +7691,8 @@ contains
                       vmax=val
                       ij2000=int(crep%tj2000(tt))
                    else if (ij2000.ne.int(crep%tj2000(tt))) then
-                      if (crep%iext(kk).eq.-1.or.crep%iext(kk).eq.+2) lok(imin)=.true.
-                      if (crep%iext(kk).eq.+1.or.crep%iext(kk).eq.+2) lok(imax)=.true.
+                      if (crep%trgext(kk).eq.-1.or.crep%trgext(kk).eq.+2) lok(imin)=.true.
+                      if (crep%trgext(kk).eq.+1.or.crep%trgext(kk).eq.+2) lok(imax)=.true.
                       imax=tt
                       imin=tt
                       vmin=val
@@ -7323,8 +7711,8 @@ contains
              end if
           end do TIM3
           if (cnt.ne.0) then
-             if (crep%iext(kk).eq.-1.or.crep%iext(kk).eq.+2) lok(imin)=.true.
-             if (crep%iext(kk).eq.+1.or.crep%iext(kk).eq.+2) lok(imax)=.true.
+             if (crep%trgext(kk).eq.-1.or.crep%trgext(kk).eq.+2) lok(imin)=.true.
+             if (crep%trgext(kk).eq.+1.or.crep%trgext(kk).eq.+2) lok(imax)=.true.
           end if
        end do TRG3
     end if
@@ -7472,22 +7860,22 @@ contains
     return
   end subroutine addXML
   !
-  subroutine addAux(crep,par,val)
-    implicit none
-    type(report), pointer :: crep
-    character*(*) par
-    character*(*) val
-    integer :: II,lenp,lenv
-    logical :: found
-    CHARACTER*14 MYNAME 
-    DATA MYNAME /'addXML'/
-    integer maux,naux
-    maux=1
-    naux=0
-    call addPar(maux,naux,crep%aux700,par,val)
-    crep%laux=.true.
-    return
-  end subroutine addAux
+  ! subroutine addAux(crep,par,val)
+  !   implicit none
+  !   type(report), pointer :: crep
+  !   character*(*) par
+  !   character*(*) val
+  !   integer :: II,lenp,lenv
+  !   logical :: found
+  !   CHARACTER*14 MYNAME 
+  !   DATA MYNAME /'addXML'/
+  !   integer maux,naux
+  !   maux=1
+  !   naux=0
+  !   call addPar(maux,naux,crep%aux700,par,val)
+  !   crep%laux=.true.
+  !   return
+  ! end subroutine addAux
   !
   subroutine addKEY(crep,par,val)
     implicit none
@@ -7513,14 +7901,14 @@ contains
     !     dd=01
     !     mi=00
     !     sec=0.0D0
-    !     call date2jd2000(days,yy,mm,dd,hh,mi,sec)
+    !     call m_date2jd2000(days,yy,mm,dd,hh,mi,sec)
     !     write(*,*) 'S1970 1970-reference in J2000:',days!  2440587.5
-    call date2jd(days,yy,mm,dd,hh,mi,sec) ! get days since 2000/1/1 0:0
+    call m_date2jd(days,yy,mm,dd,hh,mi,sec) ! get days since 2000/1/1 0:0
     days = days - 2440587.5  ! convert to days since reference
     f1970=days*86400.0D0      ! convert to seconds
     return
   end function f1970
-  subroutine date2jd (jd, year,month,day,hour,minutes,seconds)
+  subroutine m_date2jd (jd, year,month,day,hour,minutes,seconds)
     !     (corresponds to jd2000)
     !     computes julian day from gregorian (civil) calendar
     !     o  (real*8) jd = julian. day
@@ -7541,7 +7929,7 @@ contains
          /12-3*((i+4900+(j-14)/12)/100)/4
     jd=jd+((hour-12.0d0)/24.0d0)+(minutes/1440.0d0)+(seconds/86400.0d0)
     return
-  end subroutine date2jd
+  end subroutine m_date2jd
   function short25(type,yy,mm,dd,hh,mi,len)
     implicit none
     character*25 :: short25
@@ -7614,7 +8002,7 @@ contains
 
   logical function isClose(lat,lon,minlat,maxlat,minlon,maxlon,delta)
     real :: lat,lon,minlat,maxlat,minlon,maxlon,delta
-    real, parameter :: fact=360.0D0/40075.0D0
+    real, parameter :: fact=360.0D0/40075.0D0 ! km -> deg
     real dlon,dlat
     dlat=delta*fact
     dlon=dlat/max(0.1,cosdeg(lat))

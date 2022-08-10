@@ -7,6 +7,7 @@ jnk
 log*
 *debug
 xml/
+old/
 
 # Prerequisites
 *.d

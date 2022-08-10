@@ -1,0 +1,96 @@
+#
+# user set variables :
+# MAINS    = list of all files containing main programs
+# LIB_NAM  = name of library for current object files
+# LIBS     = list of libraries
+# INCL     = list of directories to search for include files
+# COMPILER = compiler program (e.g. cc)
+# OPTIONS  = compiling options
+# 
+#
+ ifeq "$(COMPILER)" ""
+   COMPILER = cc
+ endif
+#
+ LS_F := $(shell echo *.c)
+ LIST_SRC  = $(LS_F)
+ LIST_OBJ  = $(LIST_SRC:%.c=%.o)
+#
+ ifeq "$(BIN)" ""
+  BIN      =   $(shell pwd)
+  MOVE_BIN = echo "Binary ($(@:$(BIN)/%=%)) put in current directory ($(BIN))."
+ else
+  MOVE_BIN = mv -f $(@:$(BIN)/%=%) $(BIN)
+ endif
+#
+ ifeq "$(MAINS)" ""
+  LIST_SUBS  := $(LIST_OBJ)
+  LIST_EXE   :=
+ else
+  XLS_SH     = for file in $(LIST_OBJ);do X="0";for key in $(MAINS:%.c=%.o);\
+              do if test $$file = $$key;then X="1";fi;done;\
+              if test $$X = "0";then echo $$file;fi;done
+  LIST_SUBS  := $(shell $(XLS_SH))
+  LIST_EXE   := $(MAINS:%.c=$(BIN)/%$(BIN_SUFFIX))
+ endif
+#
+ ifeq "$(LIST_SUBS)" ""
+  LIB_NAM = 
+ endif
+#
+ ifeq "$(LIB_NAM)" ""
+  LIST_AUX = $(LIST_SUBS)
+ endif
+#
+ CFLAGS    += $(INCL:%=-I%) $(OPTIONS)
+ AR         =   ar
+ ARFLAGS    =   ur
+#
+# Keep make status
+#
+.KEEP_STATE:
+#
+all:  $(LIST_EXE) $(LIB_NAM) $(LIST_AUX) Makefile
+#
+# intermediate target:
+#
+lib:    $(LIB_NAM)
+#
+# link binary (from library) and place in $(BIN)
+#
+$(LIST_EXE):  $(BIN)/%$(BIN_SUFFIX) : %.o $(LIB_NAM) $(LIST_AUX) $(LIBS) Makefile
+	@echo building $@ 
+	@echo "   " since $? has changed 
+	@$(COMPILER) $(@:$(BIN)/%$(BIN_SUFFIX)=%.o) -o $(@:$(BIN)/%=%) $(CFLAGS) $(LIB_NAM) $(LIST_AUX) $(LIBS) $(BINOP)
+	@chmod a+x $(@:$(BIN)/%=%)
+	@$(MOVE_BIN)
+	@touch .libs_status
+#
+# Library dependency
+#
+$(LIB_NAM):     $(LIST_SUBS)
+	@echo updating $@ 
+	@echo "   " since $? has changed 
+	@$(AR) $(ARFLAGS) $@ $?
+	@chmod a+rw $@
+	@touch .src_status
+#
+#
+# Build objects from source files
+#
+$(LIST_OBJ):   %.o:%.c Makefile
+	@echo $(COMPILER) $(CFLAGS) -c $*.c -o $*.o
+	@$(COMPILER) $(CFLAGS) -c $*.c -o $*.o
+#
+debug :
+	@echo " Src:" $(LIST_SRC)
+	@echo " Obj:" $(LIST_OBJ)
+	@echo " Lib:" $(LIBS)
+	@echo " Arc:" $(LIB_NAM)
+	@echo " Exe:" $(LIST_EXE)
+	@echo " Aux:" $(LIST_AUX)
+#
+clean:
+	@echo "Cleaning:" `pwd`
+	@$(shell rm -f *.o *~ *.bak* *.a) 
+#

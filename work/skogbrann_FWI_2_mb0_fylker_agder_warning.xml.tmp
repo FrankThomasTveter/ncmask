@@ -1,0 +1,9 @@
+<xweather>
+ <time run="2022-08-04_12-42-00.000Z" issued="2022-08-04_03-00-00.000Z" expires="2022-08-07_00-00-00.000Z"/>
+ <data>
+  <parameter name="FWI">
+   <key Issued='2022-08-04_03-00-00.000Z' Region='Agder' Phenomenon='Skogbrann' Variable='FWI' Unit='index' Model='FWI' Output='24t' Partner='MetNo' Type='Fylke' Method='mb0' />
+   <dtg dtg='2022-08-06_12' date='2022-08-06' lead='+57' maxlat='58.98841095' maxlon='8.99301338' DMC='-999.99' max='25.91351128' f98='18.640839' f95='14.12279892' f90='11.57157612' f70='3.47870541' a100='23.4111846' a400='19.18178997' a1000='14.55951518'/>
+  </parameter>
+ </data>
+</xweather>

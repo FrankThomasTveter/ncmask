@@ -1,0 +1,486 @@
+<program name="ncmask">
+  <file input="$FILE$" mask=netcdf="mask/vannstand/roms_$METHOD$_vannstand.nc" iter="percentile" keep="1">
+    <parameter field="totalwater_pst" fail="none">
+      <report size="1">
+	<key Issued="@issued@"/>
+	<key Station="Ålesund"/>
+	<key Region="Møre og Romsdal"/>
+	<key Phenomenon="Vannstand"/>
+	<key Variable="WaterL"/>
+	<key Unit="Meter over middelvann"/>
+	<key Model="$MNAME$"/>
+	<key Output="$MOUTPUT$"/>
+	<key Partner="MetNo"/>
+	<key Type="Vannstandstasjon"/>
+	<key Method="$MITER$"/>
+	<target name="max" fraction="1.0" extreme="max"/>
+	<output xml="$ROOT$/vannstand/$MITER$/roms_$MITER$_vannstand_fylker_aes_warning.xml.tmp"/>
+	<extreme xml="$ROOT$/vannstand/$MITER$/roms_$MITER$_vannstand_fylker_aes_@issued@_extreme.xml.tmp"/>
+	<filter name="alesund">
+	  <string field="station_name" dimension="station_strlen" target="aes"/>
+	</filter>
+	<mask filter="alesund"/>
+      </report>
+      <report size="1">
+	<key Issued="@issued@"/>
+	<key Station="Andenes"/>
+	<key Region="Nordland"/>
+	<key Phenomenon="Vannstand"/>
+	<key Variable="WaterL"/>
+	<key Unit="Meter over middelvann"/>
+	<key Model="$MNAME$"/>
+	<key Output="$MOUTPUT$"/>
+	<key Partner="MetNo"/>
+	<key Type="Vannstandstasjon"/>
+	<key Method="$MITER$"/>
+	<target name="max" fraction="1.0" extreme="max"/>
+	<output xml="$ROOT$/vannstand/$MITER$/roms_$MITER$_vannstand_fylker_anx_warning.xml.tmp"/>
+	<extreme xml="$ROOT$/vannstand/$MITER$/roms_$MITER$_vannstand_fylker_anx_@issued@_extreme.xml.tmp"/>
+	<filter name="andenes">
+	  <string field="station_name" dimension="station_strlen" target="anx"/>
+	</filter>
+	<mask filter="andenes"/>
+      </report>
+      <report size="1">
+	<key Issued="@issued@"/>
+	<key Station="Bergen"/>
+	<key Region="Vestland"/>
+	<key Phenomenon="Vannstand"/>
+	<key Variable="WaterL"/>
+	<key Unit="Meter over middelvann"/>
+	<key Model="$MNAME$"/>
+	<key Output="$MOUTPUT$"/>
+	<key Partner="MetNo"/>
+	<key Type="Vannstandstasjon"/>
+	<key Method="$MITER$"/>
+	<target name="max" fraction="1.0" extreme="max"/>
+	<output xml="$ROOT$/vannstand/$MITER$/roms_$MITER$_vannstand_fylker_bgo_warning.xml.tmp"/>
+	<extreme xml="$ROOT$/vannstand/$MITER$/roms_$MITER$_vannstand_fylker_bgo_@issued@_extreme.xml.tmp"/>
+	<filter name="bergen">
+	  <string field="station_name" dimension="station_strlen" target="bgo"/>
+	</filter>
+	<mask filter="bergen"/>
+      </report>
+      <report size="1">
+	<key Issued="@issued@"/>
+	<key Station="Bodø"/>
+	<key Region="Nordland"/>
+	<key Phenomenon="Vannstand"/>
+	<key Variable="WaterL"/>
+	<key Unit="Meter over middelvann"/>
+	<key Model="$MNAME$"/>
+	<key Output="$MOUTPUT$"/>
+	<key Partner="MetNo"/>
+	<key Type="Vannstandstasjon"/>
+	<key Method="$MITER$"/>
+	<target name="max" fraction="1.0" extreme="max"/>
+	<output xml="$ROOT$/vannstand/$MITER$/roms_$MITER$_vannstand_fylker_boo_warning.xml.tmp"/>
+	<extreme xml="$ROOT$/vannstand/$MITER$/roms_$MITER$_vannstand_fylker_boo_@issued@_extreme.xml.tmp"/>
+	<filter name="bodo">
+	  <string field="station_name" dimension="station_strlen" target="boo"/>
+	</filter>
+	<mask filter="bodo"/>
+      </report>
+      <report size="1">
+	<key Issued="@issued@"/>
+	<key Station="Harstad"/>
+	<key Region="Troms og Finnmark"/>
+	<key Phenomenon="Vannstand"/>
+	<key Variable="WaterL"/>
+	<key Unit="Meter over middelvann"/>
+	<key Model="$MNAME$"/>
+	<key Output="$MOUTPUT$"/>
+	<key Partner="MetNo"/>
+	<key Type="Vannstandstasjon"/>
+	<key Method="$MITER$"/>
+	<target name="max" fraction="1.0" extreme="max"/>
+	<output xml="$ROOT$/vannstand/$MITER$/roms_$MITER$_vannstand_fylker_har_warning.xml.tmp"/>
+	<extreme xml="$ROOT$/vannstand/$MITER$/roms_$MITER$_vannstand_fylker_har_@issued@_extreme.xml.tmp"/>
+	<filter name="harstad">
+	  <string field="station_name" dimension="station_strlen" target="har"/>
+	</filter>
+	<mask filter="harstad"/>
+      </report>
+      <report size="1">
+	<key Issued="@issued@"/>
+	<key Station="Heimsjø"/>
+	<key Region="Trøndelag"/>
+	<key Phenomenon="Vannstand"/>
+	<key Variable="WaterL"/>
+	<key Unit="Meter over middelvann"/>
+	<key Model="$MNAME$"/>
+	<key Output="$MOUTPUT$"/>
+	<key Partner="MetNo"/>
+	<key Type="Vannstandstasjon"/>
+	<key Method="$MITER$"/>
+	<target name="max" fraction="1.0" extreme="max"/>
+	<output xml="$ROOT$/vannstand/$MITER$/roms_$MITER$_vannstand_fylker_hei_warning.xml.tmp"/>
+	<extreme xml="$ROOT$/vannstand/$MITER$/roms_$MITER$_vannstand_fylker_hei_@issued@_extreme.xml.tmp"/>
+	<filter name="heimsjo">
+	  <string field="station_name" dimension="station_strlen" target="hei"/>
+	</filter>
+	<mask filter="heimsjo"/>
+      </report>
+      <report size="1">
+	<key Issued="@issued@"/>
+	<key Station="Hammerfest"/>
+	<key Region="Troms og Finnmark"/>
+	<key Phenomenon="Vannstand"/>
+	<key Variable="WaterL"/>
+	<key Unit="Meter over middelvann"/>
+	<key Model="$MNAME$"/>
+	<key Output="$MOUTPUT$"/>
+	<key Partner="MetNo"/>
+	<key Type="Vannstandstasjon"/>
+	<key Method="$MITER$"/>
+	<target name="max" fraction="1.0" extreme="max"/>
+	<output xml="$ROOT$/vannstand/$MITER$/roms_$MITER$_vannstand_fylker_hft_warning.xml.tmp"/>
+	<extreme xml="$ROOT$/vannstand/$MITER$/roms_$MITER$_vannstand_fylker_hft_@issued@_extreme.xml.tmp"/>
+	<filter name="hammerfest">
+	  <string field="station_name" dimension="station_strlen" target="hft"/>
+	</filter>
+	<mask filter="hammerfest"/>
+      </report>
+      <report size="1">
+	<key Issued="@issued@"/>
+	<key Station="Helgeroa"/>
+	<key Region="Vestfold og Telemark"/>
+	<key Phenomenon="Vannstand"/>
+	<key Variable="WaterL"/>
+	<key Unit="Meter over middelvann"/>
+	<key Model="$MNAME$"/>
+	<key Output="$MOUTPUT$"/>
+	<key Partner="MetNo"/>
+	<key Type="Vannstandstasjon"/>
+	<key Method="$MITER$"/>
+	<target name="max" fraction="1.0" extreme="max"/>
+	<output xml="$ROOT$/vannstand/$MITER$/roms_$MITER$_vannstand_fylker_hro_warning.xml.tmp"/>
+	<extreme xml="$ROOT$/vannstand/$MITER$/roms_$MITER$_vannstand_fylker_hro_@issued@_extreme.xml.tmp"/>
+	<filter name="helgeroa">
+	  <string field="station_name" dimension="station_strlen" target="hro"/>
+	</filter>
+	<mask filter="helgeroa"/>
+      </report>
+      <report size="1">
+	<key Issued="@issued@"/>
+	<key Station="Honningsvåg"/>
+	<key Region="Troms og Finnmark"/>
+	<key Phenomenon="Vannstand"/>
+	<key Variable="WaterL"/>
+	<key Unit="Meter over middelvann"/>
+	<key Model="$MNAME$"/>
+	<key Output="$MOUTPUT$"/>
+	<key Partner="MetNo"/>
+	<key Type="Vannstandstasjon"/>
+	<key Method="$MITER$"/>
+	<target name="max" fraction="1.0" extreme="max"/>
+	<output xml="$ROOT$/vannstand/$MITER$/roms_$MITER$_vannstand_fylker_hvg_warning.xml.tmp"/>
+	<extreme xml="$ROOT$/vannstand/$MITER$/roms_$MITER$_vannstand_fylker_hvg_@issued@_extreme.xml.tmp"/>
+	<filter name="honningsvag">
+	  <string field="station_name" dimension="station_strlen" target="hvg"/>
+	</filter>
+	<mask filter="honningsvag"/>
+      </report>
+      <report size="1">
+	<key Issued="@issued@"/>
+	<key Station="Kabelvåg"/>
+	<key Region="Nordland"/>
+	<key Phenomenon="Vannstand"/>
+	<key Variable="WaterL"/>
+	<key Unit="Meter over middelvann"/>
+	<key Model="$MNAME$"/>
+	<key Output="$MOUTPUT$"/>
+	<key Partner="MetNo"/>
+	<key Type="Vannstandstasjon"/>
+	<key Method="$MITER$"/>
+	<target name="max" fraction="1.0" extreme="max"/>
+	<output xml="$ROOT$/vannstand/$MITER$/roms_$MITER$_vannstand_fylker_kab_warning.xml.tmp"/>
+	<extreme xml="$ROOT$/vannstand/$MITER$/roms_$MITER$_vannstand_fylker_kab_@issued@_extreme.xml.tmp"/>
+	<filter name="kabelvag">
+	  <string field="station_name" dimension="station_strlen" target="kab"/>
+	</filter>
+	<mask filter="kabelvag"/>
+      </report>
+      <report size="1">
+	<key Issued="@issued@"/>
+	<key Station="Kristiansund"/>
+	<key Region="Møre og Romsdal"/>
+	<key Phenomenon="Vannstand"/>
+	<key Variable="WaterL"/>
+	<key Unit="Meter over middelvann"/>
+	<key Model="$MNAME$"/>
+	<key Output="$MOUTPUT$"/>
+	<key Partner="MetNo"/>
+	<key Type="Vannstandstasjon"/>
+	<key Method="$MITER$"/>
+	<target name="max" fraction="1.0" extreme="max"/>
+	<output xml="$ROOT$/vannstand/$MITER$/roms_$MITER$_vannstand_fylker_ksu_warning.xml.tmp"/>
+	<extreme xml="$ROOT$/vannstand/$MITER$/roms_$MITER$_vannstand_fylker_ksu_@issued@_extreme.xml.tmp"/>
+	<filter name="kristiansund">
+	  <string field="station_name" dimension="station_strlen" target="ksu"/>
+	</filter>
+	<mask filter="kristiansund"/>
+      </report>
+      <report size="1">
+	<key Issued="@issued@"/>
+	<key Station="Måløy"/>
+	<key Region="Vestland"/>
+	<key Phenomenon="Vannstand"/>
+	<key Variable="WaterL"/>
+	<key Unit="Meter over middelvann"/>
+	<key Model="$MNAME$"/>
+	<key Output="$MOUTPUT$"/>
+	<key Partner="MetNo"/>
+	<key Type="Vannstandstasjon"/>
+	<key Method="$MITER$"/>
+	<target name="max" fraction="1.0" extreme="max"/>
+	<output xml="$ROOT$/vannstand/$MITER$/roms_$MITER$_vannstand_fylker_may_warning.xml.tmp"/>
+	<extreme xml="$ROOT$/vannstand/$MITER$/roms_$MITER$_vannstand_fylker_may_@issued@_extreme.xml.tmp"/>
+	<filter name="maloy">
+	  <string field="station_name" dimension="station_strlen" target="may"/>
+	</filter>
+	<mask filter="maloy"/>
+      </report>
+      <report size="1">
+	<key Issued="@issued@"/>
+	<key Station="Mausund"/>
+	<key Region="Trøndelag"/>
+	<key Phenomenon="Vannstand"/>
+	<key Variable="WaterL"/>
+	<key Unit="Meter over middelvann"/>
+	<key Model="$MNAME$"/>
+	<key Output="$MOUTPUT$"/>
+	<key Partner="MetNo"/>
+	<key Type="Vannstandstasjon"/>
+	<key Method="$MITER$"/>
+	<target name="max" fraction="1.0" extreme="max"/>
+	<output xml="$ROOT$/vannstand/$MITER$/roms_$MITER$_vannstand_fylker_msu_warning.xml.tmp"/>
+	<extreme xml="$ROOT$/vannstand/$MITER$/roms_$MITER$_vannstand_fylker_msu_@issued@_extreme.xml.tmp"/>
+	<filter name="masund">
+	  <string field="station_name" dimension="station_strlen" target="msu"/>
+	</filter>
+	<mask filter="masund"/>
+      </report>
+      <report size="1">
+	<key Issued="@issued@"/>
+	<key Station="Narvik"/>
+	<key Region="Nordland"/>
+	<key Phenomenon="Vannstand"/>
+	<key Variable="WaterL"/>
+	<key Unit="Meter over middelvann"/>
+	<key Model="$MNAME$"/>
+	<key Output="$MOUTPUT$"/>
+	<key Partner="MetNo"/>
+	<key Type="Vannstandstasjon"/>
+	<key Method="$MITER$"/>
+	<target name="max" fraction="1.0" extreme="max"/>
+	<output xml="$ROOT$/vannstand/$MITER$/roms_$MITER$_vannstand_fylker_nvk_warning.xml.tmp"/>
+	<extreme xml="$ROOT$/vannstand/$MITER$/roms_$MITER$_vannstand_fylker_nvk_@issued@_extreme.xml.tmp"/>
+	<filter name="narvik">
+	  <string field="station_name" dimension="station_strlen" target="nvk"/>
+	</filter>
+	<mask filter="narvik"/>
+      </report>
+      <report size="1">
+	<key Issued="@issued@"/>
+	<key Station="Ny Ålesund"/>
+	<key Region="Svalbard"/>
+	<key Phenomenon="Vannstand"/>
+	<key Variable="WaterL"/>
+	<key Unit="Meter over middelvann"/>
+	<key Model="$MNAME$"/>
+	<key Output="$MOUTPUT$"/>
+	<key Partner="MetNo"/>
+	<key Type="Vannstandstasjon"/>
+	<key Method="$MITER$"/>
+	<target name="max" fraction="1.0" extreme="max"/>
+	<output xml="$ROOT$/vannstand/$MITER$/roms_$MITER$_vannstand_fylker_nya_warning.xml.tmp"/>
+	<extreme xml="$ROOT$/vannstand/$MITER$/roms_$MITER$_vannstand_fylker_nya_@issued@_extreme.xml.tmp"/>
+	<filter name="nyalesund">
+	  <string field="station_name" dimension="station_strlen" target="nya"/>
+	</filter>
+	<mask filter="nyalesund"/>
+      </report>
+      <report size="1">
+	<key Issued="@issued@"/>
+	<key Station="Oscarsborg"/>
+	<key Region="Viken Vest"/>
+	<key Phenomenon="Vannstand"/>
+	<key Variable="WaterL"/>
+	<key Unit="Meter over middelvann"/>
+	<key Model="$MNAME$"/>
+	<key Output="$MOUTPUT$"/>
+	<key Partner="MetNo"/>
+	<key Type="Vannstandstasjon"/>
+	<key Method="$MITER$"/>
+	<target name="max" fraction="1.0" extreme="max"/>
+	<output xml="$ROOT$/vannstand/$MITER$/roms_$MITER$_vannstand_fylker_osc_warning.xml.tmp"/>
+	<extreme xml="$ROOT$/vannstand/$MITER$/roms_$MITER$_vannstand_fylker_osc_@issued@_extreme.xml.tmp"/>
+	<filter name="oscarsborg">
+	  <string field="station_name" dimension="station_strlen" target="osc"/>
+	</filter>
+	<mask filter="oscarsborg"/>
+      </report>
+      <report size="1">
+	<key Issued="@issued@"/>
+	<key Station="Oslo"/>
+	<key Region="Oslo"/>
+	<key Phenomenon="Vannstand"/>
+	<key Variable="WaterL"/>
+	<key Unit="Meter over middelvann"/>
+	<key Model="$MNAME$"/>
+	<key Output="$MOUTPUT$"/>
+	<key Partner="MetNo"/>
+	<key Type="Vannstandstasjon"/>
+	<key Method="$MITER$"/>
+	<target name="max" fraction="1.0" extreme="max"/>
+	<output xml="$ROOT$/vannstand/$MITER$/roms_$MITER$_vannstand_fylker_osl_warning.xml.tmp"/>
+	<extreme xml="$ROOT$/vannstand/$MITER$/roms_$MITER$_vannstand_fylker_osl_@issued@_extreme.xml.tmp"/>
+	<filter name="oslo">
+	  <string field="station_name" dimension="station_strlen" target="osl"/>
+	</filter>
+	<mask filter="oslo"/>
+      </report>
+      <report size="1">
+	<key Issued="@issued@"/>
+	<key Station="Rørvik"/>
+	<key Region="Trøndelag"/>
+	<key Phenomenon="Vannstand"/>
+	<key Variable="WaterL"/>
+	<key Unit="Meter over middelvann"/>
+	<key Model="$MNAME$"/>
+	<key Output="$MOUTPUT$"/>
+	<key Partner="MetNo"/>
+	<key Type="Vannstandstasjon"/>
+	<key Method="$MITER$"/>
+	<target name="max" fraction="1.0" extreme="max"/>
+	<output xml="$ROOT$/vannstand/$MITER$/roms_$MITER$_vannstand_fylker_rvk_warning.xml.tmp"/>
+	<extreme xml="$ROOT$/vannstand/$MITER$/roms_$MITER$_vannstand_fylker_rvk_@issued@_extreme.xml.tmp"/>
+	<filter name="rorvik">
+	  <string field="station_name" dimension="station_strlen" target="rvk"/>
+	</filter>
+	<mask filter="rorvik"/>
+      </report>
+      <report size="1">
+	<key Issued="@issued@"/>
+	<key Station="Stavanger"/>
+	<key Region="Rogaland"/>
+	<key Phenomenon="Vannstand"/>
+	<key Variable="WaterL"/>
+	<key Unit="Meter over middelvann"/>
+	<key Model="$MNAME$"/>
+	<key Output="$MOUTPUT$"/>
+	<key Partner="MetNo"/>
+	<key Type="Vannstandstasjon"/>
+	<key Method="$MITER$"/>
+	<target name="max" fraction="1.0" extreme="max"/>
+	<output xml="$ROOT$/vannstand/$MITER$/roms_$MITER$_vannstand_fylker_svg_warning.xml.tmp"/>
+	<extreme xml="$ROOT$/vannstand/$MITER$/roms_$MITER$_vannstand_fylker_svg_@issued@_extreme.xml.tmp"/>
+	<filter name="stavanger">
+	  <string field="station_name" dimension="station_strlen" target="svg"/>
+	</filter>
+	<mask filter="stavanger"/>
+      </report>
+      <report size="1">
+	<key Issued="@issued@"/>
+	<key Station="Tromsø"/>
+	<key Region="Troms og Finnmark"/>
+	<key Phenomenon="Vannstand"/>
+	<key Variable="WaterL"/>
+	<key Unit="Meter over middelvann"/>
+	<key Model="$MNAME$"/>
+	<key Output="$MOUTPUT$"/>
+	<key Partner="MetNo"/>
+	<key Type="Vannstandstasjon"/>
+	<key Method="$MITER$"/>
+	<target name="max" fraction="1.0" extreme="max"/>
+	<output xml="$ROOT$/vannstand/$MITER$/roms_$MITER$_vannstand_fylker_tos_warning.xml.tmp"/>
+	<extreme xml="$ROOT$/vannstand/$MITER$/roms_$MITER$_vannstand_fylker_tos_@issued@_extreme.xml.tmp"/>
+	<filter name="tromso">
+	  <string field="station_name" dimension="station_strlen" target="tos"/>
+	</filter>
+	<mask filter="tromso"/>
+      </report>
+      <report size="1">
+	<key Issued="@issued@"/>
+	<key Station="Trondheim"/>
+	<key Region="Trøndelag"/>
+	<key Phenomenon="Vannstand"/>
+	<key Variable="WaterL"/>
+	<key Unit="Meter over middelvann"/>
+	<key Model="$MNAME$"/>
+	<key Output="$MOUTPUT$"/>
+	<key Partner="MetNo"/>
+	<key Type="Vannstandstasjon"/>
+	<key Method="$MITER$"/>
+	<target name="max" fraction="1.0" extreme="max"/>
+	<output xml="$ROOT$/vannstand/$MITER$/roms_$MITER$_vannstand_fylker_trd_warning.xml.tmp"/>
+	<extreme xml="$ROOT$/vannstand/$MITER$/roms_$MITER$_vannstand_fylker_trd_@issued@_extreme.xml.tmp"/>
+	<filter name="trondheim">
+	  <string field="station_name" dimension="station_strlen" target="trd"/>
+	</filter>
+	<mask filter="trondheim"/>
+      </report>
+      <report size="1">
+	<key Issued="@issued@"/>
+	<key Station="Tregde"/>
+	<key Region="Agder"/>
+	<key Phenomenon="Vannstand"/>
+	<key Variable="WaterL"/>
+	<key Unit="Meter over middelvann"/>
+	<key Model="$MNAME$"/>
+	<key Output="$MOUTPUT$"/>
+	<key Partner="MetNo"/>
+	<key Type="Vannstandstasjon"/>
+	<key Method="$MITER$"/>
+	<target name="max" fraction="1.0" extreme="max"/>
+	<output xml="$ROOT$/vannstand/$MITER$/roms_$MITER$_vannstand_fylker_trg_warning.xml.tmp"/>
+	<extreme xml="$ROOT$/vannstand/$MITER$/roms_$MITER$_vannstand_fylker_trg_@issued@_extreme.xml.tmp"/>
+	<filter name="tregde">
+	  <string field="station_name" dimension="station_strlen" target="trg"/>
+	</filter>
+	<mask filter="tregde"/>
+      </report>
+      <report size="1">
+	<key Issued="@issued@"/>
+	<key Station="Vardø"/>
+	<key Region="Troms og Finnmark"/>
+	<key Phenomenon="Vannstand"/>
+	<key Variable="WaterL"/>
+	<key Unit="Meter over middelvann"/>
+	<key Model="$MNAME$"/>
+	<key Output="$MOUTPUT$"/>
+	<key Partner="MetNo"/>
+	<key Type="Vannstandstasjon"/>
+	<key Method="$MITER$"/>
+	<target name="max" fraction="1.0" extreme="max"/>
+	<output xml="$ROOT$/vannstand/$MITER$/roms_$MITER$_vannstand_fylker_vaw_warning.xml.tmp"/>
+	<extreme xml="$ROOT$/vannstand/$MITER$/roms_$MITER$_vannstand_fylker_vaw_@issued@_extreme.xml.tmp"/>
+	<filter name="vardo">
+	  <string field="station_name" dimension="station_strlen" target="vaw"/>
+	</filter>
+	<mask filter="vardo"/>
+      </report>
+      <report size="1">
+	<key Issued="@issued@"/>
+	<key Station="Viker"/>
+	<key Region="Viken Øst"/>
+	<key Phenomenon="Vannstand"/>
+	<key Variable="WaterL"/>
+	<key Unit="Meter over middelvann"/>
+	<key Model="$MNAME$"/>
+	<key Output="$MOUTPUT$"/>
+	<key Partner="MetNo"/>
+	<key Type="Vannstandstasjon"/>
+	<key Method="$MITER$"/>
+	<target name="max" fraction="1.0" extreme="max"/>
+	<output xml="$ROOT$/vannstand/$MITER$/roms_$MITER$_vannstand_fylker_vik_warning.xml.tmp"/>
+	<extreme xml="$ROOT$/vannstand/$MITER$/roms_$MITER$_vannstand_fylker_vik_@issued@_extreme.xml.tmp"/>
+	<filter name="viker">
+	  <string field="station_name" dimension="station_strlen" target="vik"/>
+	</filter>
+	<mask filter="viker"/>
+      </report>
+    </parameter>
+  </file>
+</program>

@@ -1,0 +1,413 @@
+<program name="ncmask">
+  <file input="$FILE$" mask="mask/vindkast/vindkast_meps_$METHOD$_fylker.nc" iter="percentile" keep="1" skip="true">
+    <parameter name="wind_speed_of_gust_return_period_$METHOD$" label="spd" exp="spd*0.01" fail="none">
+      <report size="15000">
+	<key Issued="@issued@"/>
+	<key Region="Agder"/>
+	<key Phenomenon="Vindkast"/>
+	<key Variable="Gust10m"/>
+	<key Unit="År"/>
+	<key Model="$MNAME$"/>
+	<key Output="$MOUTPUT$"/>
+	<key Partner="MetNo"/>
+	<key Type="Fylke"/>
+	<key Method="$MITER$"/>
+	<aux name="wind_speed_of_gust_$METHOD$"/>
+	<target name="gust" macro="@maxaux@"/>
+	<target name="max" fraction="1.0"/>
+	<target name="a100" area="100.0" extreme="max"/>
+	<target name="a400" area="400.0"/>
+	<required name="a1000" area="1000.0"/>
+	<output xml="$ROOT$/vindkast/fylker/$MITER$/vindkast_max800m_meps_$MITER$_fylker_agder_warning.xml.tmp"/>
+	<extreme xml="$ROOT$/vindkast/fylker/$MITER$/vindkast_max800m_meps_$MITER$_fylker_agder_@issued@_extreme.xml.tmp"/>
+	<define filter="agder" file="polygon/fylker/agder.xml" tolerance="1.0"/>
+	<define filter="geopotential">
+	  <value parameter="surface_geopotential" max="7848"/>
+	</define>
+	<define filter="land">
+	  <value parameter="land_area_fraction" min="0.5"/>
+	</define>
+	<mask>
+	  <intersection>
+	    <mask filter="agder"/>
+	    <mask filter="land"/>
+	    <mask filter="geopotential"/>
+	  </intersection>
+	</mask>
+      </report>
+      <report size="15000" skip="false">
+	<key Issued="@issued@"/>
+	<key Region="Innlandet"/>
+	<key Phenomenon="Vindkast"/>
+	<key Variable="Gust10m"/>
+	<key Unit="År"/>
+	<key Model="$MNAME$"/>
+	<key Output="$MOUTPUT$"/>
+	<key Partner="MetNo"/>
+	<key Type="Fylke"/>
+	<key Method="$MITER$"/>
+	<aux name="wind_speed_of_gust_$METHOD$"/>
+	<target name="gust" macro="@maxaux@"/>
+	<target name="max" fraction="1.0"/>
+	<target name="a100" area="100.0" extreme="max"/>
+	<target name="a400" area="400.0"/>
+	<required name="a1000" area="1000.0"/>
+	<output xml="$ROOT$/vindkast/fylker/$MITER$/vindkast_max800m_meps_$MITER$_fylker_innlandet_warning.xml.tmp"/>
+	<extreme xml="$ROOT$/vindkast/fylker/$MITER$/vindkast_max800m_meps_$MITER$_fylker_innlandet_@issued@_extreme.xml.tmp"/>
+	<define filter="innlandet" file="polygon/fylker/innlandet.xml" tolerance="1.0"/>
+	<define filter="geopotential">
+	  <value parameter="surface_geopotential" max="7848"/>
+	</define>
+	<define filter="land">
+	  <value parameter="land_area_fraction" min="0.5"/>
+	</define>
+	<mask>
+	  <intersection>
+	    <mask filter="innlandet"/>
+	    <mask filter="land"/>
+	    <mask filter="geopotential"/>
+	  </intersection>
+	</mask>
+      </report>
+      <report size="15000">
+	<key Issued="@issued@"/>
+	<key Region="Møre og Romsdal"/>
+	<key Phenomenon="Vindkast"/>
+	<key Variable="Gust10m"/>
+	<key Unit="År"/>
+	<key Model="$MNAME$"/>
+	<key Output="$MOUTPUT$"/>
+	<key Partner="MetNo"/>
+	<key Type="Fylke"/>
+	<key Method="$MITER$"/>
+	<aux name="wind_speed_of_gust_$METHOD$"/>
+	<target name="gust" macro="@maxaux@"/>
+	<target name="max" fraction="1.0"/>
+	<target name="a100" area="100.0" extreme="max"/>
+	<target name="a400" area="400.0"/>
+	<required name="a1000" area="1000.0"/>
+	<output xml="$ROOT$/vindkast/fylker/$MITER$/vindkast_max500m_meps_$MITER$_fylker_moreogromsdal_warning.xml.tmp"/>
+	<extreme xml="$ROOT$/vindkast/fylker/$MITER$/vindkast_max500m_meps_$MITER$_fylker_moreogromsdal_@issued@_extreme.xml.tmp"/>
+	<define filter="moreogromsdal" file="polygon/fylker/moreogromsdal.xml" tolerance="1.0"/>
+	<define filter="geopotential">
+	  <value parameter="surface_geopotential" max="4905"/>
+	</define>
+	<define filter="land">
+	  <value parameter="land_area_fraction" min="0.5"/>
+	</define>
+	<mask>
+	  <intersection>
+	    <mask filter="moreogromsdal"/>
+	    <mask filter="land"/>
+	    <mask filter="geopotential"/>
+	  </intersection>
+	</mask>
+      </report>
+      <report size="15000">
+	<key Issued="@issued@"/>
+	<key Region="Nordland"/>
+	<key Phenomenon="Vindkast"/>
+	<key Variable="Gust10m"/>
+	<key Unit="År"/>
+	<key Model="$MNAME$"/>
+	<key Output="$MOUTPUT$"/>
+	<key Partner="MetNo"/>
+	<key Type="Fylke"/>
+	<key Method="$MITER$"/>
+	<aux name="wind_speed_of_gust_$METHOD$"/>
+	<target name="gust" macro="@maxaux@"/>
+	<target name="max" fraction="1.0"/>
+	<target name="a100" area="100.0" extreme="max"/>
+	<target name="a400" area="400.0"/>
+	<required name="a1000" area="1000.0"/>
+	<output xml="$ROOT$/vindkast/fylker/$MITER$/vindkast_max300m_meps_$MITER$_fylker_nordland_warning.xml.tmp"/>
+	<extreme xml="$ROOT$/vindkast/fylker/$MITER$/vindkast_max300m_meps_$MITER$_fylker_nordland_@issued@_extreme.xml.tmp"/>
+	<define filter="nordland" file="polygon/fylker/nordland.xml" tolerance="1.0"/>
+	<define filter="geopotential">
+	  <value parameter="surface_geopotential" max="2943"/>
+	</define>
+	<define filter="land">
+	  <value parameter="land_area_fraction" min="0.5"/>
+	</define>
+	<mask>
+	  <intersection>
+	    <mask filter="nordland"/>
+	    <mask filter="land"/>
+	    <mask filter="geopotential"/>
+	  </intersection>
+	</mask>
+      </report>
+      <report size="15000">
+	<key Issued="@issued@"/>
+	<key Region="Oslo"/>
+	<key Phenomenon="Vindkast"/>
+	<key Variable="Gust10m"/>
+	<key Unit="År"/>
+	<key Model="$MNAME$"/>
+	<key Output="$MOUTPUT$"/>
+	<key Partner="MetNo"/>
+	<key Type="Fylke"/>
+	<key Method="$MITER$"/>
+	<aux name="wind_speed_of_gust_$METHOD$"/>
+	<target name="gust" macro="@maxaux@"/>
+	<target name="max" fraction="1.0"/>
+	<required name="a100" area="100.0"/>
+	<output xml="$ROOT$/vindkast/fylker/$MITER$/vindkast_max800m_meps_$MITER$_fylker_oslo_warning.xml.tmp"/>
+	<extreme xml="$ROOT$/vindkast/fylker/$MITER$/vindkast_max800m_meps_$MITER$_fylker_oslo_@issued@_extreme.xml.tmp"/>
+	<define filter="oslo" file="polygon/fylker/oslo.xml" tolerance="1.0"/>
+	<define filter="geopotential">
+	  <value parameter="surface_geopotential" max="7848"/>
+	</define>
+	<define filter="land">
+	  <value parameter="land_area_fraction" min="0.5"/>
+	</define>
+	<mask>
+	  <intersection>
+	    <mask filter="oslo"/>
+	    <mask filter="land"/>
+	    <mask filter="geopotential"/>
+	  </intersection>
+	</mask>
+      </report>
+      <report size="15000">
+	<key Issued="@issued@"/>
+	<key Region="Rogaland"/>
+	<key Phenomenon="Vindkast"/>
+	<key Variable="Gust10m"/>
+	<key Unit="År"/>
+	<key Model="$MNAME$"/>
+	<key Output="$MOUTPUT$"/>
+	<key Partner="MetNo"/>
+	<key Type="Fylke"/>
+	<key Method="$MITER$"/>
+	<aux name="wind_speed_of_gust_$METHOD$"/>
+	<target name="gust" macro="@maxaux@"/>
+	<target name="max" fraction="1.0"/>
+	<target name="a100" area="100.0" extreme="max"/>
+	<target name="a400" area="400.0"/>
+	<required name="a1000" area="1000.0"/>
+	<output xml="$ROOT$/vindkast/fylker/$MITER$/vindkast_max500m_meps_$MITER$_fylker_rogaland_warning.xml.tmp"/>
+	<extreme xml="$ROOT$/vindkast/fylker/$MITER$/vindkast_max500m_meps_$MITER$_fylker_rogaland_@issued@_extreme.xml.tmp"/>
+	<define filter="rogaland" file="polygon/fylker/rogaland.xml" tolerance="1.0"/>
+	<define filter="geopotential">
+	  <value parameter="surface_geopotential" max="4905"/>
+	</define>
+	<define filter="land">
+	  <value parameter="land_area_fraction" min="0.5"/>
+	</define>
+	<mask>
+	  <intersection>
+	    <mask filter="rogaland"/>
+	    <mask filter="land"/>
+	    <mask filter="geopotential"/>
+	  </intersection>
+	</mask>
+      </report>
+      <report size="15000">
+	<key Issued="@issued@"/>
+	<key Region="Troms og Finnmark"/>
+	<key Phenomenon="Vindkast"/>
+	<key Variable="Gust10m"/>
+	<key Unit="År"/>
+	<key Model="$MNAME$"/>
+	<key Output="$MOUTPUT$"/>
+	<key Partner="MetNo"/>
+	<key Type="Fylke"/>
+	<key Method="$MITER$"/>
+	<aux name="wind_speed_of_gust_$METHOD$"/>
+	<target name="gust" macro="@maxaux@"/>
+	<target name="max" fraction="1.0"/>
+	<target name="a100" area="100.0" extreme="max"/>
+	<target name="a400" area="400.0"/>
+	<required name="a1000" area="1000.0"/>
+	<output xml="$ROOT$/vindkast/fylker/$MITER$/vindkast_max300m_meps_$MITER$_fylker_tromsogfinnmark_warning.xml.tmp"/>
+	<extreme xml="$ROOT$/vindkast/fylker/$MITER$/vindkast_max300m_meps_$MITER$_fylker_tromsogfinnmark_@issued@_extreme.xml.tmp"/>
+	<define filter="tromsogfinnmark" file="polygon/fylker/tromsogfinnmark.xml" tolerance="1.0"/>
+	<define filter="geopotential">
+	  <value parameter="surface_geopotential" max="2943"/>
+	</define>
+	<define filter="land">
+	  <value parameter="land_area_fraction" min="0.5"/>
+	</define>
+	<mask>
+	  <intersection>
+	    <mask filter="tromsogfinnmark"/>
+	    <mask filter="land"/>
+	    <mask filter="geopotential"/>
+	  </intersection>
+	</mask>
+      </report>
+      <report size="15000">
+	<key Issued="@issued@"/>
+	<key Region="Trøndelag"/>
+	<key Phenomenon="Vindkast"/>
+	<key Variable="Gust10m"/>
+	<key Unit="År"/>
+	<key Model="$MNAME$"/>
+	<key Output="$MOUTPUT$"/>
+	<key Partner="MetNo"/>
+	<key Type="Fylke"/>
+	<key Method="$MITER$"/>
+	<aux name="wind_speed_of_gust_$METHOD$"/>
+	<target name="gust" macro="@maxaux@"/>
+	<target name="max" fraction="1.0"/>
+	<target name="a100" area="100.0" extreme="max"/>
+	<target name="a400" area="400.0"/>
+	<required name="a1000" area="1000.0"/>
+	<output xml="$ROOT$/vindkast/fylker/$MITER$/vindkast_max500m_meps_$MITER$_fylker_trondelag_warning.xml.tmp"/>
+	<extreme xml="$ROOT$/vindkast/fylker/$MITER$/vindkast_max500m_meps_$MITER$_fylker_trondelag_@issued@_extreme.xml.tmp"/>
+	<define filter="trondelag" file="polygon/fylker/trondelag.xml" tolerance="1.0"/>
+	<define filter="geopotential">
+	  <value parameter="surface_geopotential" max="4905"/>
+	</define>
+	<define filter="land">
+	  <value parameter="land_area_fraction" min="0.5"/>
+	</define>
+	<mask>
+	  <intersection>
+	    <mask filter="trondelag"/>
+	    <mask filter="land"/>
+	    <mask filter="geopotential"/>
+	  </intersection>
+	</mask>
+      </report>
+      <report size="15000">
+	<key Issued="@issued@"/>
+	<key Region="Vestfold og Telemark"/>
+	<key Phenomenon="Vindkast"/>
+	<key Variable="Gust10m"/>
+	<key Unit="År"/>
+	<key Model="$MNAME$"/>
+	<key Output="$MOUTPUT$"/>
+	<key Partner="MetNo"/>
+	<key Type="Fylke"/>
+	<key Method="$MITER$"/>
+	<aux name="wind_speed_of_gust_$METHOD$"/>
+	<target name="gust" macro="@maxaux@"/>
+	<target name="max" fraction="1.0"/>
+	<target name="a100" area="100.0" extreme="max"/>
+	<target name="a400" area="400.0"/>
+	<required name="a1000" area="1000.0"/>
+	<output xml="$ROOT$/vindkast/fylker/$MITER$/vindkast_max800m_meps_$MITER$_fylker_vestfoldogtelemark_warning.xml.tmp"/>
+	<extreme xml="$ROOT$/vindkast/fylker/$MITER$/vindkast_max800m_meps_$MITER$_fylker_vestfoldogtelemark_@issued@_extreme.xml.tmp"/>
+	<define filter="vestfoldogtelemark" file="polygon/fylker/vestfoldogtelemark.xml" tolerance="1.0"/>
+	<define filter="geopotential">
+	  <value parameter="surface_geopotential" max="7848"/>
+	</define>
+	<define filter="land">
+	  <value parameter="land_area_fraction" min="0.5"/>
+	</define>
+	<mask>
+	  <intersection>
+	    <mask filter="vestfoldogtelemark"/>
+	    <mask filter="land"/>
+	    <mask filter="geopotential"/>
+	  </intersection>
+	</mask>
+      </report>
+      <report size="15000">
+	<key Issued="@issued@"/>
+	<key Region="Vestland"/>
+	<key Phenomenon="Vindkast"/>
+	<key Variable="Gust10m"/>
+	<key Unit="År"/>
+	<key Model="$MNAME$"/>
+	<key Output="$MOUTPUT$"/>
+	<key Partner="MetNo"/>
+	<key Type="Fylke"/>
+	<key Method="$MITER$"/>
+	<aux name="wind_speed_of_gust_$METHOD$"/>
+	<target name="gust" macro="@maxaux@"/>
+	<target name="max" fraction="1.0"/>
+	<target name="a100" area="100.0" extreme="max"/>
+	<target name="a400" area="400.0"/>
+	<required name="a1000" area="1000.0"/>
+	<output xml="$ROOT$/vindkast/fylker/$MITER$/vindkast_max500m_meps_$MITER$_fylker_vestland_warning.xml.tmp"/>
+	<extreme xml="$ROOT$/vindkast/fylker/$MITER$/vindkast_max500m_meps_$MITER$_fylker_vestland_@issued@_extreme.xml.tmp"/>
+	<define filter="vestland" file="polygon/fylker/vestland.xml" tolerance="1.0"/>
+	<define filter="geopotential">
+	  <value parameter="surface_geopotential" max="4905"/>
+	</define>
+	<define filter="land">
+	  <value parameter="land_area_fraction" min="0.5"/>
+	</define>
+	<mask>
+	  <intersection>
+	    <mask filter="vestland"/>
+	    <mask filter="land"/>
+	    <mask filter="geopotential"/>
+	  </intersection>
+	</mask>
+      </report>
+      <report size="15000">
+	<key Issued="@issued@"/>
+	<key Region="Viken Øst"/>
+	<key Phenomenon="Vindkast"/>
+	<key Variable="Gust10m"/>
+	<key Unit="År"/>
+	<key Model="$MNAME$"/>
+	<key Output="$MOUTPUT$"/>
+	<key Partner="MetNo"/>
+	<key Type="Fylke"/>
+	<key Method="$MITER$"/>
+	<aux name="wind_speed_of_gust_$METHOD$"/>
+	<target name="gust" macro="@maxaux@"/>
+	<target name="max" fraction="1.0"/>
+	<target name="a100" area="100.0" extreme="max"/>
+	<target name="a400" area="400.0"/>
+	<required name="a1000" area="1000.0"/>
+	<output xml="$ROOT$/vindkast/fylker/$MITER$/vindkast_max800m_meps_$MITER$_fylker_vikenost_warning.xml.tmp"/>
+	<extreme xml="$ROOT$/vindkast/fylker/$MITER$/vindkast_max800m_meps_$MITER$_fylker_vikenost_@issued@_extreme.xml.tmp"/>
+	<define filter="vikenost" file="polygon/fylker/vikenost.xml" tolerance="1.0"/>
+	<define filter="geopotential">
+	  <value parameter="surface_geopotential" max="7848"/>
+	</define>
+	<define filter="land">
+	  <value parameter="land_area_fraction" min="0.5"/>
+	</define>
+	<mask>
+	  <intersection>
+	    <mask filter="vikenost"/>
+	    <mask filter="land"/>
+	    <mask filter="geopotential"/>
+	  </intersection>
+	</mask>
+      </report>
+      <report size="15000">
+	<key Issued="@issued@"/>
+	<key Region="Viken Vest"/>
+	<key Phenomenon="Vindkast"/>
+	<key Variable="Gust10m"/>
+	<key Unit="År"/>
+	<key Model="$MNAME$"/>
+	<key Output="$MOUTPUT$"/>
+	<key Partner="MetNo"/>
+	<key Type="Fylke"/>
+	<key Method="$MITER$"/>
+	<aux name="wind_speed_of_gust_$METHOD$"/>
+	<target name="gust" macro="@maxaux@"/>
+	<target name="max" fraction="1.0"/>
+	<target name="a100" area="100.0" extreme="max"/>
+	<target name="a400" area="400.0"/>
+	<required name="a1000" area="1000.0"/>
+	<output xml="$ROOT$/vindkast/fylker/$MITER$/vindkast_max800m_meps_$MITER$_fylker_vikenvest_warning.xml.tmp"/>
+	<extreme xml="$ROOT$/vindkast/fylker/$MITER$/vindkast_max800m_meps_$MITER$_fylker_vikenvest_@issued@_extreme.xml.tmp"/>
+	<define filter="vikenvest" file="polygon/fylker/vikenvest.xml" tolerance="1.0"/>
+	<define filter="geopotential">
+	  <value parameter="surface_geopotential" max="7848"/>
+	</define>
+	<define filter="land">
+	  <value parameter="land_area_fraction" min="0.5"/>
+	</define>
+	<mask>
+	  <intersection>
+	    <mask filter="vikenvest"/>
+	    <mask filter="land"/>
+	    <mask filter="geopotential"/>
+	  </intersection>
+	</mask>
+      </report>
+    </parameter>
+    <parameter name="wind_speed_of_gust_$METHOD$" fail="none"/>
+  </file>
+</program>

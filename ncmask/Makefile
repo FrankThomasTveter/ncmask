@@ -64,6 +64,9 @@
 #
 LIBS =../libncf/libncf.a \
       ../libsim/libsim.a \
+      ../libparse/libparse.a \
+      ../libshape/libshape.a \
+      ../libshapec/libshapec.a \
       ../libpoly/libpoly.a \
       ../libfmxml/xmlparse.a \
       ../libfmgenc/libfmgenc.a
@@ -71,7 +74,7 @@ LIBS =../libncf/libncf.a \
 # Include Directory
 #	(Specify directories to pick up include files (MIND the ORDER!)
 #
- INCL = ./ ../libfmxml/ ../libncf ../libsim /usr/include/
+ INCL = ./ ../libfmxml/ ../libncf ../libsim ../libparse ../libshape ../libshapec /usr/include/
 #
 # Compilation flags 
 #	(Put the compilation flags here (-g is recommented))

@@ -1390,6 +1390,12 @@ contains
        irc=945
        return
     else
+       if (associated(d%prev).and.associated(d%next)) then
+          if (associated(d%prev%next).and.associated(d%next%prev)) then
+             d%prev%next => d%next
+             d%next%prev => d%prev
+          end if
+       end if
        d%prev=>o%lastDimension%prev
        d%next=>o%lastDimension
        o%lastDimension%prev%next=>d
