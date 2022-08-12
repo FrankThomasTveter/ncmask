@@ -76,7 +76,7 @@ encosed by `$`, for instance `$FILE$` will be replaced by the contents of the en
 
 The program may scan one NetCDF file, whose name is specified in the `<file input="input.nc">` XML tag. If you specify the attribute `mask` the program will produce a NetCDF file that only contains the data which passed through the mask.
 
-The parameter tag specifies that a field should be loaded from the file into the program memory and processed to yield some output. The parameter value can be an expression of other parameters, for instance `exp="1000*wind_speed_of_gust_return_period_mb0"`. If the other parameter is assigned a name, you may use this name in your expression. Note that the parameter field values are changed when any reports are processed. Later use of that parameter will return the masked expression value and not the original field. You may use an empty report `<report />` in a parameter, in which case there is no mask and all data is passed through the mask. For instance:
+The parameter tag specifies that a field should be loaded from the file into the program memory and processed to yield some output. The parameter value can be an expression of other parameters, for instance `exp="1000*wind_speed_of_gust_return_period_mb0"`. If the other parameter is assigned a name, you may use this name in your expression. You can also use an expression `exp="spd/1000"` in the `report` tag. Note that the parameter field values are changed when any reports are processed. Later use of that parameter will return the masked expression value and not the original field. You may use an empty report `<report />` in a parameter, in which case there is no mask and all data is passed through the mask. For instance:
 
 
       <program name="ncmask" scan="fast">
