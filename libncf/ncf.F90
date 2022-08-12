@@ -4184,7 +4184,7 @@ contains
     type(variable),pointer :: v
     real :: val
     integer :: irc
-    integer :: ii
+    integer :: ii,len
     character*20 :: myname = "ncf_initField"
     if (ncf_bdeb) write(*,*)myname,' Entering.'
     ! get field length
@@ -4196,6 +4196,7 @@ contains
     do ii=1,v%lend
        v%fd(ii)=val
     end do
+    v%uncompressed=.true.
     if (ncf_bdeb) write(*,*)myname,' Done.',irc
     return
   end subroutine ncf_initField
@@ -4869,31 +4870,39 @@ contains
     character*10 :: ctype10
     logical :: loaded
     character*20 :: loaded20, uncomp20
-    integer :: ii
+    integer :: ii,cnt
     character*20 :: myname = "ncf_printVariable"
     if (ncf_bdeb) write(*,*)myname,' Entering.'
     if (.not.associated(v)) then
        write(*,*)myname,"Variable is undefined..."
     else
+       cnt=0
        loaded=.false.
        ctype10="undef    "
        if (v%type.eq.nf_int1) then
           ctype10="int1     "
           loaded=looksOk1(v)
+          cnt=v%len1
        elseif (v%type.eq.nf_int2) then
           ctype10="int2     "
           loaded=looksOk2(v)
+          cnt=v%len2
        elseif (v%type.eq.nf_int) then
           ctype10="int      "
           loaded=looksOk4(v)
+          cnt=v%len4
        elseif (v%type.eq.nf_real) then
           ctype10="real     "
           loaded=looksOkr(v)
+          cnt=v%lenr
        elseif (v%type.eq.nf_double) then
           ctype10="double   "
           loaded=looksOkd(v)
+          cnt=v%lend
        elseif (v%type.eq.nf_char) then
           ctype10="char     "
+       else
+          ctype10="unknown  "
        end if
        if (loaded) then
           loaded20="--- loaded"
@@ -4906,7 +4915,7 @@ contains
           uncomp20=""
        end if
        write(*,*)myname,v%var250(1:v%lenv)," ",&
-            & ctype10," - ",trim(loaded20)," ",trim(uncomp20)
+            & ctype10," - ",trim(loaded20)," ",trim(uncomp20),cnt,v%len,v%lenr,v%lend
        do ii=1,v%nrdim
           write(*,'(X,A,X,I3,X,A20,I8,X,I8)') myname,v%ind(ii), &
                & v%f%dim250(v%ind(ii))(1:v%f%lend(v%ind(ii))),v%sta(ii),v%lim(ii)
