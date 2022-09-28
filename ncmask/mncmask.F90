@@ -22,10 +22,13 @@ SUBROUTINE MNCMASK(UNITI,IRC)
   use sim
   use parse
   !use shape
+!  use, intrinsic :: ieee_arithmetic, only: IEEE_Value, IEEE_QUIET_NAN
+!  use, intrinsic :: iso_fortran_env, only: real32
   IMPLICIT NONE
   SAVE
   ! INTERFACE VARIABLES
   ! 
+!  real(real32) :: nan
   INTEGER  UNITI
   INTEGER IRC
   ! 
@@ -211,6 +214,7 @@ SUBROUTINE MNCMASK(UNITI,IRC)
      integer :: lene=0
      character*700 :: exp700="";
      type(parse_session), pointer :: exp => null();
+     integer :: ook(10),orm(10)
      ! targets
      logical :: ltrg=.false.
      logical :: larea=.false.
@@ -749,6 +753,7 @@ contains
     implicit none
     type(report), pointer :: rep
     integer :: irc
+    integer :: ii
     CHARACTER*12 MYNAME
     DATA MYNAME /'initreport'/
     !
@@ -767,6 +772,10 @@ contains
     rep%mrest=0
     rep%nrest=0
     rep%arest=0
+    do ii=1,10
+       rep%ook(ii)=0
+       rep%orm(ii)=0
+    end do
     allocate(rep%firstfilter, rep%lastfilter,stat = irc)
     if (irc.ne.0) then
        write(*,*)myname,'Unable to allocate first/last-filter.',irc
@@ -3375,7 +3384,7 @@ contains
     return
   end function getPolygonFilter
   !
-  recursive function checkMasked(op,lat,lon,ialt,irc) result(res)
+  recursive function checkMask(op,lat,lon,ialt,irc) result(res)
     implicit none
     logical :: res
     type(operation), pointer :: op
@@ -3394,7 +3403,7 @@ contains
     real dx,dy,dz,ds,ws,hs,dd
     real alt, dist,maxalt,minalt
     CHARACTER*18 MYNAME
-    DATA MYNAME /'checkMasked'/
+    DATA MYNAME /'checkMask'/
     !
     if (.not.associated(op)) then ! no mask, all data ok...
        res=.false.
@@ -3406,9 +3415,9 @@ contains
        res=.false.
        cop => op%first%next
        do while (.not.associated(cop,target=op%last))
-          iflag=checkMasked(cop,lat,lon,alt,irc)
+          iflag=checkMask(cop,lat,lon,alt,irc)
           if (irc.ne.0) then
-             write(*,*) myname,'Error return from checkMasked.',irc
+             write(*,*) myname,'Error return from checkMask.',irc
              return
           end if
           if (iflag) then
@@ -3422,9 +3431,9 @@ contains
        res=.true.
        cop => op%first%next
        do while (.not.associated(cop,target=op%last))
-          iflag=checkMasked(cop,lat,lon,alt,irc)
+          iflag=checkMask(cop,lat,lon,alt,irc)
           if (irc.ne.0) then
-             write(*,*) myname,'Error return from checkMasked.',irc
+             write(*,*) myname,'Error return from checkMask.',irc
              return
           end if
           if (.not.iflag) then
@@ -3730,6 +3739,7 @@ contains
              if (sval250(1:lens).ne.f%spar250(1:f%lens)) res=.true.
           end if
           !write(*,*)myname,'Value:',dist,f%rpar(4)*0.5D0,alt,maxalt,minalt,res
+          !if (.not.res) write(*,*)myname,"Passed String:'"//sval250(1:lens)//"' '"//f%spar250(1:f%lens)//"'",res
        case (flt_dimension) ! dimension
           res=.false.
           if (f%lpar(0)) then ! initialise
@@ -3752,6 +3762,7 @@ contains
              !write(*,*)myname,'Checking:',idim,res,f%npar(1),f%npar(2),f%npar(0)
           end if
           !write(*,*) 'Test:',idim,res,f%npar(1),f%npar(2),f%npar(0),f%lpar(1),f%lpar(2)
+          !if (.not.res) write(*,*)myname,"Passed Dimension:",idim,f%npar(1),f%npar(2),f%npar(0),f%lpar(1),f%lpar(2)
        case DEFAULT
           write(*,*) 'Invalid filter type:',f%type,trim(op%name250)
           irc=941
@@ -3764,7 +3775,7 @@ contains
        return
     end select
     return
-  end function checkMasked
+  end function checkMask
 
   recursive subroutine setActive(op,irc)
     implicit none
@@ -6839,13 +6850,16 @@ contains
        ! write(*,*)myname,'Position:',lat,lon,alt
        ! call printMask(crep%roperation,0)
        ! calculate the ignore-data-flag based on the report mask...
-       masked=checkMasked(crep%roperation,lat,lon,alt,irc)
-       !if (bdeb) write(*,*)myname,'inside refOut',masked
+       masked=checkMask(crep%roperation,lat,lon,alt,irc)
+       !if (bdeb) 
+       !write(*,*)myname,'inside refOut',masked
        if (irc.ne.0) then
-          write(*,*) myname,'Error return from checkMasked.',irc
+          write(*,*) myname,'Error return from checkMask.',irc
           return
        end if
        if (.not.masked) then ! use this value
+          crep%ook(1)=crep%ook(1)+1
+          !if (bdeb) write(*,*)myname,'Mask ok ',masked
           used=.true.
           if (file%firsttrg) then
              file%firsttrg=.false.
@@ -6882,6 +6896,7 @@ contains
              ! val=ncf_valuePosition(v,irc)
              val=getExpVal(file,cpar,v,irc)
              call ncf_setValue(v,val,irc) ! use function value....
+             !write(*,*)myname,'Val A=',val, nf_fill_double,val.eq.nf_fill_double
              !
              if (crep%lene.ne.0) then
                 if (file%hasexp) call setExpVar(file,irc) ! current variable may have changed....
@@ -6892,11 +6907,13 @@ contains
                    write(*,*) myname,'Error return from parse_evalf.',irc
                    return
                 end if
+                !write(*,*)myname,'Val B=',val
              end if
-             ! call ncf_printpos(v%f%pos)
+             !call ncf_printpos(v%f%pos)
              !write(*,*) "                    Value=",val
              tt=max(1,min(mtim,file%ref%pos%pos(timEntry)))
              if (val.ne.nf_fill_double) then
+                crep%ook(2)=crep%ook(2)+1
                 if(crep%nodata) crep%nodata=.false.
                 !write(*,*) "                    Ok value=",val
 #ifdef JNK                             
@@ -6995,12 +7012,15 @@ contains
                 end if
              else
                 crep%nkey0(tt)=crep%nkey0(tt)+1
+                crep%orm(2)=crep%orm(2)+1
              end if
           end do ! inner
           if (irc.ne.0) then
              write(*,*) myname,'Error return from increment (refInn).',irc
              return
           end if
+       else
+          crep%orm(1)=crep%orm(1)+1
        end if ! masked-block
     end do ! outer
     if (irc.ne.0) then
@@ -7038,7 +7058,7 @@ contains
     type(variable),pointer :: v
     integer :: irc
     character*250 :: crc250
-    integer :: lenc
+    integer :: lenc,loc
     CHARACTER*14 :: MYNAME ="getExpVal"
     if (cpar%lene.ne.0) then
        getExpVal=parse_evalf(cpar%exp,file%val,crc250,irc)
@@ -7051,13 +7071,19 @@ contains
        !write(*,*)myname,"val:",getExpVal,file%val,file%elem80
        !stop("Debug")
     else if (associated(v)) then
+#ifdef JNK
+       loc=ncf_getLocation(v)
+       write(*,*)myname,'Val C=',associated(v),associated(v%fd),loc,size(v%fd),v%fd(loc),nf_fill_double,v%filld
+#endif
        getExpVal=ncf_valuePosition(v,irc)
        if (irc.ne.0) then
           write(*,*) myname,'Error return from valuePosition.',irc
           return
        end if
+       if (getExpVal.eq.v%filld.or.isnan(getExpVal)) getExpVal=nf_fill_double
+       !write(*,*)myname,'Val C=',getExpVal
     else
-       getExpVal=0.0D0
+       getExpVal=nf_fill_double
     end if
     return
   end function getExpVal
@@ -7211,7 +7237,9 @@ contains
     integer :: irc
     integer :: lenx,leni
     character*700 :: i700
-    character*60 :: b60
+    character*80 :: b80
+    character*20 :: msg20
+    integer :: lenm
     CHARACTER*14 MYNAME 
     DATA MYNAME /'hintReport'/
     if (.not.associated(crep)) then
@@ -7227,21 +7255,33 @@ contains
     call chop0(i700,700)
     call replaceKEY(i700,mkeyvar,crep%keyvar350)
     leni=length(i700,700,20)
+    if (crep%ook(1).eq.0.and.crep%orm(1).gt.0) then
+       msg20="Masked"
+    else if (crep%ook(2).eq.0.and.crep%orm(2).gt.0) then
+       msg20="Undefined"
+    else if (crep%ook(2).ne.0) then
+       msg20="Ok"
+    else
+       msg20="Missing"
+    end if
+    lenm=len_trim(msg20)
     ! write(*,*) myname,'Buffer:',i700(1:leni)
-    write(b60,'(2(A,I0))',iostat=irc) "Suggested size=",crep%mrest," Actual=",crep%arest
+    write(b80,'(2(A,I0),X,A)',iostat=irc) "Suggested size=",crep%mrest,&
+         & " Actual=",crep%arest,&
+         & msg20(1:lenm)
     if (irc.ne.0) then
-       write(*,*)myname,'Unable to write size,',crep%nrest
+       write(*,*)myname,'Unable to suggest size,',crep%nrest, msg20(1:lenm)
        irc=993
        return
     end if
     if (crep%nrest.eq.0) then
        write(*,*) myname,'    '//i700(1:leni)
     else if (crep%nrest.gt.crep%mrest) then
-       write(*,*) myname,'***'//" ("//trim(b60)//") "//i700(1:leni)
+       write(*,*) myname,'***'//" ("//trim(b80)//") "//i700(1:leni)
     else if (crep%arest.gt.crep%mrest) then
-       write(*,*) myname,'+++'//" ("//trim(b60)//") "//i700(1:leni)
+       write(*,*) myname,'+++'//" ("//trim(b80)//") "//i700(1:leni)
     else
-       write(*,*) myname,'   '//" ("//trim(b60)//") "//i700(1:leni)
+       write(*,*) myname,'   '//" ("//trim(b80)//") "//i700(1:leni)
     end if
     return
   end subroutine hintReport
@@ -7318,7 +7358,7 @@ contains
     character*4 ayy
     character*2 amm,add,ahh
     character*700 :: keb700,i700
-    character*60 :: b60
+    character*80 :: b80
     integer :: cpos,opos,lenx,leni,lenk,lenb,lenk1,lenk2
     integer :: iepos,ifpos,idd,lenv,ilenv,ii
     logical :: first
@@ -7327,8 +7367,9 @@ contains
     integer, external :: length
     real :: epos,fpos,trg
     real :: rpos,dpos
-    integer :: gg, leng
+    integer :: gg, leng,lenm
     character*10 :: gg10
+    character*20 :: msg20
     logical :: bgg
     integer,dimension(8) :: values
     CHARACTER*14 MYNAME 
@@ -7361,9 +7402,21 @@ contains
        lenb=0
        opos=1
        cpos=1
-       write(b60,'(2(A,I0))',iostat=irc) "Suggested size=",crep%mrest," Actual=",crep%arest
+       if (crep%ook(1).eq.0.and.crep%orm(1).gt.0) then
+          msg20="Masked"
+       else if (crep%ook(2).eq.0.and.crep%orm(2).gt.0) then
+          msg20="Undefined"
+       else if (crep%ook(2).ne.0) then
+          msg20="Ok"
+       else
+          msg20="Missing"
+       end if
+       lenm=len_trim(msg20)
+       write(b80,'(2(A,I0),X,A)',iostat=irc) "Suggested size=",crep%mrest,&
+            & " Actual=",crep%arest,&
+            & msg20(1:lenm)
        if (irc.ne.0) then
-          write(*,*)myname,'Unable to write size,',crep%nrest
+          write(*,*)myname,'Unable to suggest size,',crep%nrest,msg20(1:lenm)
           irc=993
           return
        end if
@@ -7411,7 +7464,7 @@ contains
        if (.not.crep%used .and. .not.crep%lwrite) then
           write(*,*) myname," Omitting:"//i700(1:leni)
        else
-          write(*,*) myname,"("//trim(b60)//") "//i700(1:leni)
+          write(*,*) myname,"("//trim(b80)//") "//i700(1:leni)
           !
           ! write to xml-file
           !
@@ -7561,7 +7614,7 @@ contains
     character*4 ayy
     character*2 amm,add,ahh
     character*700 :: keb700,i700
-    character*60 :: b60
+    !character*60 :: b80
     integer :: cpos,opos,lenx,leni,lenk,lenb,lenk1,lenk2
     integer :: iepos,ifpos,idd,ilenv,ii,kk,ll,tt
     character*30 :: val30(crep%ntim,crep%ntrg)
@@ -7880,7 +7933,7 @@ contains
     character*4 ayy
     character*2 amm,add,ahh
     character*700 :: keb700,i700
-    character*60 :: b60
+    !character*80 :: b80
     integer :: cpos,opos,lenx,leni,lenk,lenb,lenk1,lenk2
     integer :: iepos,ifpos,idd,lenv,ilenv,ii
     character*30 :: val30

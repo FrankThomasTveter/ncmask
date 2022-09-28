@@ -2746,15 +2746,21 @@ contains
 
   real function ncf_valuePosition(v,irc)
     implicit none
-    type(variable) :: v
+    type(variable),target :: v
     type(dimensionOrder) :: i
     integer irc
     integer loc
+    type(variable), pointer :: vp
     character*20 :: myname = "ncf_valuePosition"
     !if (ncf_bdeb) write(*,*)myname,' Entering.'
     loc=ncf_getLocation(v)
-    !write(*,*) 'ValuePosition loc:',loc,v%fd(loc)
+    vp => v
+    !call ncf_printVariable(vp)
+    !call ncf_printpos(v%f%pos)
+    !write(*,*) 'ValuePosition loc:',loc,v%fd(loc),v%var250(1:v%lenv),&
+    !     & v%uncompressed,v%type.eq.nf_double,looksokd(vp)
     ncf_valuePosition=v%fd(loc)
+    if (isnan(ncf_valuePosition)) ncf_valuePosition=nf_fill_double
     !if (ncf_bdeb) write(*,*)myname,' Done.',irc
   end function ncf_valuePosition
 
@@ -4853,7 +4859,7 @@ contains
     if (associated(v%fd).and.v%lend.gt.0) then
        do ii=1,min(v%lend,nlook)
           pos=min(1+floor(rand()*v%lend),v%lend)
-          ! write(*,*)'Looking at:',pos,v%fd(pos)
+          write(*,*)'Looking at:',pos,v%fd(pos)
           if (v%fd(pos).ne.nf_fill_double) then
              looksOkd=.true.
              return

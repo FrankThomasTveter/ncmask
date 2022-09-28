@@ -1,11 +1,50 @@
 <program name="ncmask">
-  <file input="$FILE$" mask="mask/vindkast/vindkast_meps_$METHOD$_fylker.nc" iter="percentile" keep="1">
-    <parameter field="wind_speed_of_gust_$METHOD$" fail="none"/>
-    <parameter field="wind_speed_of_gust_return_period_$METHOD$" fail="none">
-      <report size="15000">
-	<aux name="gust" exp="wind_speed_of_gust_$METHOD$" location="max"/>
+  <file input="$FILE$" mask="mask/vindkast.nc" keep="1">
+    <parameter field="wind_speed_of_gust_$METHOD$" name="gust"/>
+    <parameter field="wind_speed_of_gust_return_period_$METHOD$" name="yrp"/>
+    <parameter template="wind_speed_of_gust_return_period_$METHOD$" name="root" exp="yrp" fail="none">
+      <report size="15000" exp="root">
+	<aux name="gust" exp="gust" location="max"/>
 	<required name="max" fraction="1.0"/>
-	<output xml="$ROOT$/vindkast/fylker/$MITER$/vindkast_max800m_meps_$MITER$_fylker_agder_warning.xml"/>
+	<output xml="xml/vindkast_fylker.xml"/>
+	<filter name="agder" file="polygon/fylker/agder.xml" tolerance="1.0"/>
+	<filter name="geopotential">
+	  <value field="surface_geopotential" max="7848"/>
+	</filter>
+	<filter name="land">
+	  <value field="land_area_fraction" min="0.5"/>
+	</filter>
+	<mask>
+	  <intersection>
+	    <mask filter="agder"/>
+	    <mask filter="land"/>
+	    <mask filter="geopotential"/>
+	  </intersection>
+	</mask>
+      </report>
+      <report size="15000" exp="root*2">
+	<aux name="gust" exp="gust" location="max"/>
+	<required name="max" fraction="1.0"/>
+	<output xml="xml/vindkast_fylker2.xml"/>
+	<filter name="agder" file="polygon/fylker/agder.xml" tolerance="1.0"/>
+	<filter name="geopotential">
+	  <value field="surface_geopotential" max="7848"/>
+	</filter>
+	<filter name="land">
+	  <value field="land_area_fraction" min="0.5"/>
+	</filter>
+	<mask>
+	  <intersection>
+	    <mask filter="agder"/>
+	    <mask filter="land"/>
+	    <mask filter="geopotential"/>
+	  </intersection>
+	</mask>
+      </report>
+      <report size="15000" exp="root*3">
+	<aux name="gust" exp="gust" location="max"/>
+	<required name="max" fraction="1.0"/>
+	<output xml="xml/vindkast_fylker3.xml"/>
 	<filter name="agder" file="polygon/fylker/agder.xml" tolerance="1.0"/>
 	<filter name="geopotential">
 	  <value field="surface_geopotential" max="7848"/>
