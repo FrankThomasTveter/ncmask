@@ -313,6 +313,8 @@ end subroutine xml_open
 subroutine xml_close( info )
    type(XML_PARSE),  intent(inout)    :: info
 
+   if ( info%lun <0 ) return ! already closed...
+
    close( info%lun )
 
    !
